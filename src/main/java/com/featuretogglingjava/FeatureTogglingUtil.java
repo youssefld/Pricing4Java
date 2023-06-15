@@ -21,7 +21,7 @@ class PlanContextManager {
     public Map<String, Object> planContext;
 }
 
-public class FeatureTogglingUtil {
+public class FeatureTogglingUtil implements FeatureToggling {
 
     Logger logger = Logger.getLogger(FeatureTogglingUtil.class.getName());
 

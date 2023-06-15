@@ -51,7 +51,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>FEATURE TOGGLING JAVA</finalName>
+		<finalName>FEATURE_TOGGLING_JAVA</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -84,7 +84,7 @@
 					<archive>
 						<manifest>
 							<mainClass>
-								com.featuretogglingjava.FeatureTogglingUtil
+								com.featuretogglingjava.FeatureToggling
 							</mainClass>
 						</manifest>
 					</archive>

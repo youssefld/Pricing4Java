@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-expression</artifactId>
-			<version>6.0.9</version>
+			<version>5.3.24</version>
 		</dependency>
 
 		<!-- JSON WEB TOKEN -->
@@ -42,8 +42,13 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
-	</dependencies>
 
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.1</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<finalName>FEATURE TOGGLING JAVA</finalName>
@@ -62,8 +67,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>11</source>
-					<target>11</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -79,7 +84,7 @@
 					<archive>
 						<manifest>
 							<mainClass>
-								com.feature-toggling-java.main
+								com.featuretogglingjava.FeatureTogglingUtil
 							</mainClass>
 						</manifest>
 					</archive>

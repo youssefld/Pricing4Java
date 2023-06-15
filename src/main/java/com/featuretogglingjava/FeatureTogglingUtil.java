@@ -1,6 +1,7 @@
 package com.featuretogglingjava;
 
 import java.util.Map;
+import java.util.logging.Logger;
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,21 +11,19 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.SimpleEvaluationContext;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
-import io.jsonwebtoken.UnsupportedJwtException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 class PlanContextManager {
-    public Map<String, Object> userContext = new HashMap();
-    public Map<String, Object> planContext = new HashMap();
+    public Map<String, Object> userContext;
+    public Map<String, Object> planContext;
 }
 
 public class FeatureTogglingUtil {
+
+    Logger logger = Logger.getLogger(FeatureTogglingUtil.class.getName());
 
     private String pricingJsonPath;
     private String evaluatorJsonPath;
@@ -91,8 +90,12 @@ public class FeatureTogglingUtil {
                 Boolean result = parser.parseExpression(expression).getValue(context, planContextManager,
                         Boolean.class);
                 featureMap.put(key, result);
+            }else{
+                featureMap.put(key, true);
             }
         }
+
+        claims.put("features", featureMap);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -104,13 +107,13 @@ public class FeatureTogglingUtil {
 
     private Map<String, Object> parsePlanFromJson(String pricingJsonPath) {
 
-        Map<String, Object> plan = null;
+        Map<String, Object> plan = new HashMap<>();
 
         File plansJson = new File(pricingJsonPath);
         try {
             plan = this.mapper.readValue(plansJson, Map.class);
         } catch (Exception e) {
-            System.out.println(e);
+            logger.warning("It was not possible to map the pricing json file. Please, check the syntax.");
         }
 
         return plan;
@@ -118,13 +121,13 @@ public class FeatureTogglingUtil {
 
     private Map<String, String> parseEvaluatorFromJson(String evaluatorJsonPath) {
 
-        Map<String, String> evaluator = null;
+        Map<String, String> evaluator = new HashMap<>();
 
         File evaluatorJson = new File(evaluatorJsonPath);
         try {
             evaluator = this.mapper.readValue(evaluatorJson, Map.class);
         } catch (Exception e) {
-            System.out.println(e);
+            logger.warning("It was not possible to map the parsers json file. Please, check the syntax.");
         }
 
         return evaluator;

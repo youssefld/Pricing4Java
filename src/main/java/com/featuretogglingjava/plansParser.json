@@ -1,9 +1,9 @@
 {
-    "maxPets": "userContext[''pets''] < planContext[''maxPets'']",
+    "maxPets": "userContext['pets'] < planContext['maxPets']",
     "maxVisitsPerMonthAndPet": "",
     "supportPriority": "",
-    "haveVetSelection": "planContext[''haveVetSelection'']",
-    "haveCalendar": "planContext[''haveCalendar'']",
-    "havePetsDashboard": "planContext[''havePetsDashboard'']",
-    "haveOnlineConsultations": "planContext[''haveOnlineConsultations'']"
+    "haveVetSelection": "planContext['haveVetSelection']",
+    "haveCalendar": "planContext['haveCalendar']",
+    "havePetsDashboard": "planContext['havePetsDashboard']",
+    "haveOnlineConsultations": "planContext['haveOnlineConsultations']"
 }

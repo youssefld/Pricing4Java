@@ -2,6 +2,9 @@ package es.us.isagroup;
 
 import java.util.Map;
 import java.util.logging.Logger;
+
+import javax.security.auth.Subject;
+
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
@@ -116,8 +119,19 @@ public class FeatureTogglingUtil {
 
         claims.put("features", featureMap);
 
+        String subject = "Default";
+
+        if (this.userContext.containsKey("username")) {
+            subject = (String) this.userContext.get("username");
+        }else if (this.userContext.containsKey("user")) {
+            subject = (String) this.userContext.get("user");
+        }
+
+        System.out.println("subject: " + subject);
+
         return Jwts.builder()
                 .setClaims(claims)
+                .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + this.jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, this.jwtSecret)

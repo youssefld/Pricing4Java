@@ -13,6 +13,7 @@ public class main {
         userAuthorities.put("password", "4dm1n");
 
         Map<String, Object> userContext = new HashMap<>();
+        userContext.put("username", "admin1");
         userContext.put("pets", 2);
         userContext.put("haveVetSelection", true);
         userContext.put("haveCalendar", true);

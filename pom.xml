@@ -5,12 +5,12 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.featuretogglingjava</groupId>
-	<artifactId>feature-toggling-java</artifactId>
+	<groupId>es.us.isagroup</groupId>
+	<artifactId>pricing-plan4j</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 
 	<name>${project.groupId}:${project.artifactId}</name>
-	<description>Feature Toggling Java Library</description>
+	<description>A pricing driven feature toggling library for java</description>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -51,7 +51,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>FEATURE_TOGGLING_JAVA</finalName>
+		<finalName>PRICING_PLAN_4J</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -84,7 +84,7 @@
 					<archive>
 						<manifest>
 							<mainClass>
-								com.featuretogglingjava.FeatureToggling
+								es.us.isagroup.FeatureToggling
 							</mainClass>
 						</manifest>
 					</archive>

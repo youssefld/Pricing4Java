@@ -1,4 +1,4 @@
-package com.featuretogglingjava;
+package es.us.isagroup;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -21,7 +21,7 @@ class PlanContextManager {
     public Map<String, Object> planContext;
 }
 
-public class FeatureTogglingUtil implements FeatureToggling {
+public class FeatureTogglingUtil {
 
     Logger logger = Logger.getLogger(FeatureTogglingUtil.class.getName());
 
@@ -82,17 +82,36 @@ public class FeatureTogglingUtil implements FeatureToggling {
         EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
         Map<String, Object> featureMap = new HashMap<>();
 
+        Map<String, Object> featureStatus;
+
         for (String key : pricingExpressions.keySet()) {
+
+            featureStatus = new HashMap<>();
 
             String expression = pricingExpressions.get(key);
 
             if (!expression.trim().equals("")) {
-                Boolean result = parser.parseExpression(expression).getValue(context, planContextManager,
+                Boolean eval = parser.parseExpression(expression).getValue(context, planContextManager,
                         Boolean.class);
-                featureMap.put(key, result);
+
+                featureStatus.put("eval", eval);
             }else{
-                featureMap.put(key, true);
+                featureStatus.put("eval", true);
             }
+
+            if (expression.contains("<") || expression.contains(">")) {
+
+                String userContextStatusKey = expression.split("\\[[\\\"|']")[1].split("[\\\"|']\\]")[0].trim();
+
+                featureStatus.put("used", planContextManager.userContext.get(userContextStatusKey));
+                featureStatus.put("limit", planContextManager.planContext.get(key));
+                
+            }else{
+                featureStatus.put("used", null);
+                featureStatus.put("limit", null);
+            }
+            
+            featureMap.put(key, featureStatus);
         }
 
         claims.put("features", featureMap);

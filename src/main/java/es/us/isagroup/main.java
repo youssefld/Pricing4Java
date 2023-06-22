@@ -1,4 +1,4 @@
-package com.featuretogglingjava;
+package es.us.isagroup;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ public class main {
         userContext.put("havePetsDashboard", true);
         userContext.put("haveOnlineConsultations", true);
 
-        FeatureTogglingUtil togglingUtil = new FeatureTogglingUtil("src/main/java/com/featuretogglingjava/plans.json", "src/main/java/com/featuretogglingjava/plansParser.json", userContext, "secret", userAuthorities);
+        FeatureTogglingUtil togglingUtil = new FeatureTogglingUtil("src/main/java/es/us/isagroup/plans.json", "src/main/java/es/us/isagroup/plansParser.json", userContext, "secret", userAuthorities);
 
         String token = togglingUtil.generateUserToken();
 

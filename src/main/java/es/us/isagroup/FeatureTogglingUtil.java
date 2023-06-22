@@ -3,9 +3,6 @@ package es.us.isagroup;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.security.auth.Subject;
-
-import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -17,8 +14,6 @@ import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 class PlanContextManager {
     public Map<String, Object> userContext;
     public Map<String, Object> planContext;
@@ -28,45 +23,41 @@ public class FeatureTogglingUtil {
 
     Logger logger = Logger.getLogger(FeatureTogglingUtil.class.getName());
 
-    private String pricingJsonPath;
-    private String evaluatorJsonPath;
+    private Map<String, Object> planContext;
+    private Map<String, String> evaluationConext;
     private Map<String, Object> userContext;
     private String jwtSecret;
     private int jwtExpirationMs;
     private Object userAuthorities;
-    private ObjectMapper mapper;
 
-    public FeatureTogglingUtil(String pricingJsonPath, String evaluatorJsonPath, Map<String, Object> userContext,
+    public FeatureTogglingUtil(Map<String, Object> planContext, Map<String, String> evaluationConext, Map<String, Object> userContext,
             Object userAuthorities) {
-        this.pricingJsonPath = pricingJsonPath;
-        this.evaluatorJsonPath = evaluatorJsonPath;
+        this.planContext = planContext;
+        this.evaluationConext = evaluationConext;
         this.userContext = userContext;
         this.jwtSecret = "jwtSecret";
         this.jwtExpirationMs = 86400000;
         this.userAuthorities = userAuthorities;
-        this.mapper = new ObjectMapper();
     }
 
-    public FeatureTogglingUtil(String pricingJsonPath, String evaluatorJsonPath, Map<String, Object> userContext,
+    public FeatureTogglingUtil(Map<String, Object> planContext, Map<String, String> evaluationConext, Map<String, Object> userContext,
             String jwtSecret, Object userAuthorities) {
-        this.pricingJsonPath = pricingJsonPath;
-        this.evaluatorJsonPath = evaluatorJsonPath;
+        this.planContext = planContext;
+        this.evaluationConext = evaluationConext;
         this.userContext = userContext;
         this.jwtSecret = jwtSecret;
         this.jwtExpirationMs = 86400000;
         this.userAuthorities = userAuthorities;
-        this.mapper = new ObjectMapper();
     }
 
-    public FeatureTogglingUtil(String pricingJsonPath, String evaluatorJsonPath, Map<String, Object> userContext,
+    public FeatureTogglingUtil(Map<String, Object> planContext, Map<String, String> evaluationConext, Map<String, Object> userContext,
             String jwtSecret, int jwtExpirationMs, Object userAuthorities) {
-        this.pricingJsonPath = pricingJsonPath;
-        this.evaluatorJsonPath = evaluatorJsonPath;
+        this.planContext = planContext;
+        this.evaluationConext = evaluationConext;
         this.userContext = userContext;
         this.jwtSecret = jwtSecret;
         this.jwtExpirationMs = jwtExpirationMs;
         this.userAuthorities = userAuthorities;
-        this.mapper = new ObjectMapper();
     }
 
     public String generateUserToken() {
@@ -74,12 +65,9 @@ public class FeatureTogglingUtil {
         Map<String, Object> claims = new HashMap<>();
         claims.put("authorities", this.userAuthorities);
 
-        Map<String, Object> plan = parsePlanFromJson(this.pricingJsonPath);
-        Map<String, String> pricingExpressions = parseEvaluatorFromJson(this.evaluatorJsonPath);
-
         PlanContextManager planContextManager = new PlanContextManager();
         planContextManager.userContext = userContext;
-        planContextManager.planContext = plan;
+        planContextManager.planContext = planContext;
 
         ExpressionParser parser = new SpelExpressionParser();
         EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
@@ -87,11 +75,11 @@ public class FeatureTogglingUtil {
 
         Map<String, Object> featureStatus;
 
-        for (String key : pricingExpressions.keySet()) {
+        for (String key : evaluationConext.keySet()) {
 
             featureStatus = new HashMap<>();
 
-            String expression = pricingExpressions.get(key);
+            String expression = evaluationConext.get(key);
 
             if (!expression.trim().equals("")) {
                 Boolean eval = parser.parseExpression(expression).getValue(context, planContextManager,
@@ -127,8 +115,6 @@ public class FeatureTogglingUtil {
             subject = (String) this.userContext.get("user");
         }
 
-        System.out.println("subject: " + subject);
-
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
@@ -136,34 +122,6 @@ public class FeatureTogglingUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + this.jwtExpirationMs))
                 .signWith(SignatureAlgorithm.HS512, this.jwtSecret)
                 .compact();
-    }
-
-    private Map<String, Object> parsePlanFromJson(String pricingJsonPath) {
-
-        Map<String, Object> plan = new HashMap<>();
-
-        File plansJson = new File(pricingJsonPath);
-        try {
-            plan = this.mapper.readValue(plansJson, Map.class);
-        } catch (Exception e) {
-            logger.warning("It was not possible to map the pricing json file. Please, check the syntax.");
-        }
-
-        return plan;
-    }
-
-    private Map<String, String> parseEvaluatorFromJson(String evaluatorJsonPath) {
-
-        Map<String, String> evaluator = new HashMap<>();
-
-        File evaluatorJson = new File(evaluatorJsonPath);
-        try {
-            evaluator = this.mapper.readValue(evaluatorJson, Map.class);
-        } catch (Exception e) {
-            logger.warning("It was not possible to map the parsers json file. Please, check the syntax.");
-        }
-
-        return evaluator;
     }
 
 }

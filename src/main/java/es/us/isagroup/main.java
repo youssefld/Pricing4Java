@@ -20,7 +20,25 @@ public class main {
         userContext.put("havePetsDashboard", true);
         userContext.put("haveOnlineConsultations", true);
 
-        FeatureTogglingUtil togglingUtil = new FeatureTogglingUtil("src/main/java/es/us/isagroup/plans.json", "src/main/java/es/us/isagroup/plansParser.json", userContext, "secret", userAuthorities);
+        Map<String, Object> planContext = new HashMap<>();
+        planContext.put("maxPets", 6);
+        planContext.put("maxVisitsPerMonthAndPet", 2);
+        planContext.put("supportPriority", "HIGH");
+        planContext.put("haveCalendar", true);
+        planContext.put("havePetsDashboard", true);
+        planContext.put("haveVetSelection", true);
+        planContext.put("haveOnlineConsultation", true);
+        
+        Map<String, String> evaluationContext = new HashMap<>();
+        evaluationContext.put("maxPets", "userContext['pets'] < planContext['maxPets']");
+        evaluationContext.put("maxVisitsPerMonthAndPet", "");
+        evaluationContext.put("supportPriority", "");
+        evaluationContext.put("haveCalendar", "planContext['haveVetSelection']");
+        evaluationContext.put("havePetsDashboard", "planContext['haveCalendar']");
+        evaluationContext.put("haveVetSelection", "planContext['havePetsDashboard']");
+        evaluationContext.put("haveOnlineConsultation", "planContext['haveOnlineConsultations']");
+
+        FeatureTogglingUtil togglingUtil = new FeatureTogglingUtil(planContext, evaluationContext, userContext, "secret", 86400, userAuthorities);
 
         String token = togglingUtil.generateUserToken();
 

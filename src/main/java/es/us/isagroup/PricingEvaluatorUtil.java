@@ -19,9 +19,9 @@ class PlanContextManager {
     public Map<String, Object> planContext;
 }
 
-public class FeatureTogglingUtil {
+public class PricingEvaluatorUtil {
 
-    Logger logger = Logger.getLogger(FeatureTogglingUtil.class.getName());
+    Logger logger = Logger.getLogger(PricingEvaluatorUtil.class.getName());
 
     private Map<String, Object> planContext;
     private Map<String, String> evaluationConext;
@@ -30,7 +30,7 @@ public class FeatureTogglingUtil {
     private int jwtExpirationMs;
     private Object userAuthorities;
 
-    public FeatureTogglingUtil(Map<String, Object> planContext, Map<String, String> evaluationConext, Map<String, Object> userContext,
+    public PricingEvaluatorUtil(Map<String, Object> planContext, Map<String, String> evaluationConext, Map<String, Object> userContext,
             Object userAuthorities) {
         this.planContext = planContext;
         this.evaluationConext = evaluationConext;
@@ -40,8 +40,8 @@ public class FeatureTogglingUtil {
         this.userAuthorities = userAuthorities;
     }
 
-    public FeatureTogglingUtil(Map<String, Object> planContext, Map<String, String> evaluationConext, Map<String, Object> userContext,
-            String jwtSecret, Object userAuthorities) {
+    public PricingEvaluatorUtil(Map<String, Object> planContext, Map<String, String> evaluationConext, Map<String, Object> userContext,
+            Object userAuthorities, String jwtSecret) {
         this.planContext = planContext;
         this.evaluationConext = evaluationConext;
         this.userContext = userContext;
@@ -50,8 +50,8 @@ public class FeatureTogglingUtil {
         this.userAuthorities = userAuthorities;
     }
 
-    public FeatureTogglingUtil(Map<String, Object> planContext, Map<String, String> evaluationConext, Map<String, Object> userContext,
-            String jwtSecret, int jwtExpirationMs, Object userAuthorities) {
+    public PricingEvaluatorUtil(Map<String, Object> planContext, Map<String, String> evaluationConext, Map<String, Object> userContext,
+            Object userAuthorities, String jwtSecret, int jwtExpirationMs) {
         this.planContext = planContext;
         this.evaluationConext = evaluationConext;
         this.userContext = userContext;

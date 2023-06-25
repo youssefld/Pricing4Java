@@ -38,7 +38,7 @@ public class main {
         evaluationContext.put("haveVetSelection", "planContext['havePetsDashboard']");
         evaluationContext.put("haveOnlineConsultation", "planContext['haveOnlineConsultations']");
 
-        FeatureTogglingUtil togglingUtil = new FeatureTogglingUtil(planContext, evaluationContext, userContext, "secret", 86400, userAuthorities);
+        PricingEvaluatorUtil togglingUtil = new PricingEvaluatorUtil(planContext, evaluationContext, userContext, userAuthorities, "secret", 86400);
 
         String token = togglingUtil.generateUserToken();
 

@@ -106,6 +106,8 @@ public class PricingEvaluatorUtil {
         }
 
         claims.put("features", featureMap);
+        claims.put("userContext", planContextManager.userContext);
+        claims.put("planContext", planContextManager.planContext);
 
         String subject = "Default";
 

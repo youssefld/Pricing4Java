@@ -1,4 +1,4 @@
-package es.us.isagroup;
+package io.github.isagroup;
 
 import java.util.Map;
 import java.util.logging.Logger;

@@ -157,11 +157,17 @@ This function generates a JWT token that has the follogin payload:
   },
   "sub": "admin1",
   "exp": 1687705951,
+  "userContext": {
+    ...
+  },
   "iat": 1687705864,
   "authorities": {
     "password": "4dm1n",
     "role": "admin",
     "username": "admin1"
+  },
+  "planContext": {
+    ...
   }
 }
 ```

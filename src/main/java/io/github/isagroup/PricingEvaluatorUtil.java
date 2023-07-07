@@ -82,12 +82,19 @@ public class PricingEvaluatorUtil {
             String expression = evaluationConext.get(key);
 
             if (!expression.trim().equals("")) {
-                Boolean eval = parser.parseExpression(expression).getValue(context, planContextManager,
-                        Boolean.class);
+                String eval = parser.parseExpression(expression).getValue(context, planContextManager,
+                        String.class);
 
-                featureStatus.put("eval", eval);
+                if (eval == null) {
+                    featureStatus.put("eval", false);
+                }else if(eval.equals("true") || eval.equals("false")){
+                    featureStatus.put("eval", Boolean.parseBoolean(eval));
+                }else{
+                    featureStatus.put("eval", eval);
+                }
+
             }else{
-                featureStatus.put("eval", true);
+                featureStatus.put("eval", false);
             }
 
             if (expression.contains("<") || expression.contains(">")) {

@@ -29,6 +29,8 @@ public class PricingEvaluatorUtil {
     private String jwtSecret;
     private int jwtExpirationMs;
     private Object userAuthorities;
+    private Map<String, Object> claims = new HashMap<>();
+    private String subject = "Default";
 
     public PricingEvaluatorUtil(Map<String, Object> planContext, Map<String, String> evaluationConext, Map<String, Object> userContext,
             Object userAuthorities) {
@@ -38,6 +40,8 @@ public class PricingEvaluatorUtil {
         this.jwtSecret = "jwtSecret";
         this.jwtExpirationMs = 86400000;
         this.userAuthorities = userAuthorities;
+
+        configureTokenParameters();
     }
 
     public PricingEvaluatorUtil(Map<String, Object> planContext, Map<String, String> evaluationConext, Map<String, Object> userContext,
@@ -48,6 +52,8 @@ public class PricingEvaluatorUtil {
         this.jwtSecret = jwtSecret;
         this.jwtExpirationMs = 86400000;
         this.userAuthorities = userAuthorities;
+
+        configureTokenParameters();
     }
 
     public PricingEvaluatorUtil(Map<String, Object> planContext, Map<String, String> evaluationConext, Map<String, Object> userContext,
@@ -58,10 +64,32 @@ public class PricingEvaluatorUtil {
         this.jwtSecret = jwtSecret;
         this.jwtExpirationMs = jwtExpirationMs;
         this.userAuthorities = userAuthorities;
+
+        configureTokenParameters();
     }
 
     public String generateUserToken() {
 
+        return Jwts.builder()
+                .setClaims(this.claims)
+                .setSubject(this.subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + this.jwtExpirationMs))
+                .signWith(SignatureAlgorithm.HS512, this.jwtSecret)
+                .compact();
+    }
+
+    public void addExpressionToToken(String featureId, String expression) {
+        Map<String, Object> features = (Map<String, Object>) this.claims.get("features");
+        try{
+            Map<String, Object> feature = (Map<String, Object>) features.get(featureId);
+            feature.put("eval", expression);
+        }catch(Exception e){
+            logger.warning("Feature not found");
+        }
+    }
+
+    private void configureTokenParameters(){
         Map<String, Object> claims = new HashMap<>();
         claims.put("authorities", this.userAuthorities);
 
@@ -82,16 +110,10 @@ public class PricingEvaluatorUtil {
             String expression = evaluationConext.get(key);
 
             if (!expression.trim().equals("")) {
-                String eval = parser.parseExpression(expression).getValue(context, planContextManager,
-                        String.class);
+                Boolean eval = parser.parseExpression(expression).getValue(context, planContextManager,
+                        Boolean.class);
 
-                if (eval == null) {
-                    featureStatus.put("eval", false);
-                }else if(eval.equals("true") || eval.equals("false")){
-                    featureStatus.put("eval", Boolean.parseBoolean(eval));
-                }else{
-                    featureStatus.put("eval", eval);
-                }
+                featureStatus.put("eval", eval);
 
             }else{
                 featureStatus.put("eval", false);
@@ -116,21 +138,13 @@ public class PricingEvaluatorUtil {
         claims.put("userContext", planContextManager.userContext);
         claims.put("planContext", planContextManager.planContext);
 
-        String subject = "Default";
+        this.claims = claims;
 
         if (this.userContext.containsKey("username")) {
-            subject = (String) this.userContext.get("username");
+            this.subject = (String) this.userContext.get("username");
         }else if (this.userContext.containsKey("user")) {
-            subject = (String) this.userContext.get("user");
+            this.subject = (String) this.userContext.get("user");
         }
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + this.jwtExpirationMs))
-                .signWith(SignatureAlgorithm.HS512, this.jwtSecret)
-                .compact();
     }
 
 }

@@ -40,6 +40,8 @@ public class main {
 
         PricingEvaluatorUtil togglingUtil = new PricingEvaluatorUtil(planContext, evaluationContext, userContext, userAuthorities, "secret", 86400);
 
+        togglingUtil.addExpressionToToken("maxVisitsPerMonthAndPets", "userContext['pets'] < planContext['maxPets']");
+
         String token = togglingUtil.generateUserToken();
 
         System.out.println(token);

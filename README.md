@@ -14,9 +14,9 @@ The package have been build to be used with maven. To install it, just add the f
     <!-- PRICINGPLANS-4J -->
 
     <dependency>
-        <groupId>es.us.isagroup</groupId>
+        <groupId>io.github.isa-group</groupId>
         <artifactId>pricingplans-4j</artifactId>
-        <version>1.0.0</version>
+        <version>{version}</version>
     </dependency>
 
     ...
@@ -39,18 +39,18 @@ For example, if we have the following maps that represent the user and plan cont
 ```java
 Map<String, Object> userContext = new HashMap<>();
 userContext.put("feature1use", 2);
-userContext.put("feature2", true);
 
 Map<String, Object> planContext = new HashMap<>();
 planContext.put("feature1", 5);
 planContext.put("feature2", false);
 ```
 
-Then, if we want to check that the `feature1` user context does not exceeds the limit of the plan, the `SPEL` expression to evaluate the context could be:
+Then, if we want to check that the `feature1` user context does not exceeds the limit of the plan and if the `feature2` is enabled, the `SPEL` expression to evaluate the context could be:
 
 ```java
 Map<String, Object> evaluationContext = new HashMap<>();
 evaluationContext.put("feature1", "userContext['feature1use'] <= planContext['feature1']");
+evaluationContext.put("feature2", "planContext['feature2']");
 ```
 
 It is important to note that the keys of the `evaluationContext` map must be the same as the keys of the `planContext`. This is because the class will use them as the matching criteria between the evaluation to apply and the plan feature.
@@ -60,6 +60,17 @@ It is important to note that the keys of the `evaluationContext` map must be the
 - **jwtSecret**: A `String` that represents the secret with which the token will be signed. If this parameter is not provided, the class will set it to a default value: `secret`. **Not providing a secret for the JWT token introduces a major vulnerability to the system. The use of default secret is strongly discouraged**.
 
 - **jwtExpirationMs**: An `int` that represents the expiration time of the token in miliseconds. If this parameter is not provided, the class will set it to a default value: `86400000` (1 day).
+
+Once the class have been created. The token can be generated using the `generateUserToken` method, that requires no parameters and returns a `String` with the JWT token.
+
+## Advance Usage
+
+It is also possible to pass a whole expression through JWT to be evaluated in frontend. This is useful when the evaluation of a feature depends on the evaluation of another feature. To inject the expression string in the JWT token, the class provides the `addExpressionToToken` method. It requires the following parameters:
+
+- **(REQUIRED) featureId**: A `String` that represents the id of the feature to be evaluated (must exist inside the token).
+- **(REQUIRED) expression**: A `String` that represents the expression to be evaluated. The expression must be written in `javascript` as it is going to be evaluated in frontend. You can use the `userContext` and `planContext` variables inside the expression.
+
+This method must be used before the call of `generateUserToken`.
 
 ## Example
 
@@ -81,10 +92,6 @@ public class main {
         Map<String, Object> userContext = new HashMap<>();
         userContext.put("username", "admin1");
         userContext.put("pets", 2);
-        userContext.put("haveVetSelection", true);
-        userContext.put("haveCalendar", true);
-        userContext.put("havePetsDashboard", true);
-        userContext.put("haveOnlineConsultations", true);
 
         Map<String, Object> planContext = new HashMap<>();
         planContext.put("maxPets", 6);
@@ -105,6 +112,8 @@ public class main {
         evaluationContext.put("haveOnlineConsultation", "planContext['haveOnlineConsultations']");
 
         PricingEvaluatorUtil togglingUtil = new PricingEvaluatorUtil(planContext, evaluationContext, userContext, userAuthorities, "secret", 86400);
+
+        togglingUtil.addExpressionToToken("maxVisitsPerMonthAndPets", "userContext['pets'] < planContext['maxPets']");
 
         String token = togglingUtil.generateUserToken();
 
@@ -145,7 +154,7 @@ This function generates a JWT token that has the follogin payload:
       "used": null
     },
     "maxVisitsPerMonthAndPet": {
-      "eval": true,
+      "eval": "userContext['pets'] < planContext['maxPets']",
       "limit": null,
       "used": null
     },

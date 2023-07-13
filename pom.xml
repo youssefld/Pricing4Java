@@ -7,7 +7,7 @@
 
 	<groupId>io.github.isa-group</groupId>
 	<artifactId>pricingplans-4j</artifactId>
-	<version>1.1.0</version>
+	<version>1.2.0</version>
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>A pricing driven feature toggling library for java</description>
@@ -50,16 +50,48 @@
 
 	<properties>
 		<jackson.version>2.14.2</jackson.version>
+		<aspectj.version>1.9.7</aspectj.version>
+		<spring.version>5.3.24</spring.version>
 		<maven.compiler.source>8</maven.compiler.source>
 		<maven.compiler.target>8</maven.compiler.target>
 	</properties>
 
 
 	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<version>2.7.6</version>
+		</dependency>
+
+		<dependency> 
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+			<version>2.7.6</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-expression</artifactId>
-			<version>5.3.24</version>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>${aspectj.version}</version>
 		</dependency>
 
 		<!-- JSON WEB TOKEN -->

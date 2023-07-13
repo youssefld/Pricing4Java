@@ -1,1 +1,0 @@
-typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"io.github.isagroup","l":"main"},{"p":"io.github.isagroup","l":"PricingEvaluatorUtil"}];updateSearchResults();

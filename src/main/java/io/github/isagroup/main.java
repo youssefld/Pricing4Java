@@ -1,12 +1,20 @@
 package io.github.isagroup;
 
 import java.util.Map;
+
+import io.github.isagroup.annotations.PricingPlanAware;
+
 import java.util.HashMap;
 
 public class main {
 
     public static void main(String[] args) {
 
+        System.out.println(buildToken());
+
+    }
+
+    private static String buildToken(){
         Map<String, String> userAuthorities = new HashMap<>();
         userAuthorities.put("role", "admin");
         userAuthorities.put("username", "admin1");
@@ -44,6 +52,6 @@ public class main {
 
         String token = togglingUtil.generateUserToken();
 
-        System.out.println(token);
+        return token;
     }
 }

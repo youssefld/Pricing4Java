@@ -29,6 +29,14 @@ public class JwtUtils {
 		return (Map<String, Map<String, Object>>) Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().get("features");
 	}
 
+	public Map<String, Object> getPlanContextFromJwtToken(String token) {
+		return (Map<String, Object>) Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().get("planContext");
+	}
+
+	public Map<String, Object> getUserContextFromJwtToken(String token) {
+		return (Map<String, Object>) Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().get("userContext");
+	}
+
 	public boolean validateJwtToken(String authToken) {
 		try {
 			Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);

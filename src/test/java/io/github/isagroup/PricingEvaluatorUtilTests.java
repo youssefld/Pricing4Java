@@ -8,14 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 
 import io.github.isagroup.services.jwt.JwtUtils;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PricingEvaluatorUtilTests {
 
     private static final String JWT_SECRET_TEST = "secret";
@@ -50,23 +46,22 @@ public class PricingEvaluatorUtilTests {
         evaluationContext.put("maxPets", "userContext['pets'] < planContext['maxPets']");
         evaluationContext.put("maxVisitsPerMonthAndPet", "userContext['pets']*4 < planContext['maxPets']");
         evaluationContext.put("supportPriority", "");
-        evaluationContext.put("haveCalendar", "planContext['haveVetSelection']");
-        evaluationContext.put("havePetsDashboard", "planContext['haveCalendar']");
-        evaluationContext.put("haveVetSelection", "planContext['havePetsDashboard']");
-        evaluationContext.put("haveOnlineConsultation", "planContext['haveOnlineConsultations']");
+        evaluationContext.put("haveCalendar", "planContext['haveCalendar']");
+        evaluationContext.put("havePetsDashboard", "planContext['havePetsDashboard']");
+        evaluationContext.put("haveVetSelection", "planContext['haveVetSelection']");
+        evaluationContext.put("haveOnlineConsultation", "planContext['haveOnlineConsultation']");
         
         planContext.put("maxPets", 6);
         planContext.put("maxVisitsPerMonthAndPet", 6);
         planContext.put("supportPriority", "");
         planContext.put("haveCalendar", true);
         planContext.put("havePetsDashboard", true);
-        planContext.put("haveVetSelection", true);
+        planContext.put("haveVetSelection", false);
         planContext.put("haveOnlineConsultation", true);
 
     }
 
     @Test
-    @Order(10)
     void simpleTokenGenerationTest() {
 
         PricingEvaluatorUtil togglingUtil = new PricingEvaluatorUtil(planContext, evaluationContext, userContext,
@@ -79,11 +74,12 @@ public class PricingEvaluatorUtilTests {
         assertTrue(jwtUtil.validateJwtToken(token), "Token is not valid");
         assertTrue((Boolean) features.get("maxPets").get("eval"), "Features is not a string");
         assertFalse((Boolean) features.get("maxVisitsPerMonthAndPet").get("eval"), "Features is not a string");
+        assertTrue((Boolean) features.get("haveCalendar").get("eval"), "haveCalendar evaluation should be true");
+        assertFalse((Boolean) features.get("haveVetSelection").get("eval"), "haveVetSelection evaluation should be false");
 
     }
 
     @Test
-    @Order(20)
     void checkTokenSubjectTest() {
 
         PricingEvaluatorUtil togglingUtil = new PricingEvaluatorUtil(planContext, evaluationContext, userContext,
@@ -99,7 +95,6 @@ public class PricingEvaluatorUtilTests {
     }
 
     @Test
-    @Order(30)
     void checkTokenTimeoutTest() {
 
         PricingEvaluatorUtil togglingUtil = new PricingEvaluatorUtil(planContext, evaluationContext, userContext,
@@ -119,7 +114,6 @@ public class PricingEvaluatorUtilTests {
     }
 
     @Test
-    @Order(40)
     void tokenExpressionsTest() {
 
         PricingEvaluatorUtil togglingUtil = new PricingEvaluatorUtil(planContext, evaluationContext, userContext,
@@ -134,6 +128,39 @@ public class PricingEvaluatorUtilTests {
 
         assertTrue(jwtUtil.validateJwtToken(token), "Token is not valid");
         assertEquals(JWT_EXPRESSION_TEST, (String) features.get("maxVisitsPerMonthAndPet").get("eval"), "The expression for the feature maxVisitsPerMonthAndPet has not being correctly set");
+
+    }
+
+    @Test
+    void tokenPlanContextTest() {
+
+        PricingEvaluatorUtil togglingUtil = new PricingEvaluatorUtil(planContext, evaluationContext, userContext,
+                userAuthorities, JWT_SECRET_TEST, JWT_EXPIRATION_TEST);
+
+        String token = togglingUtil.generateUserToken();
+
+        Map<String, Object> tokenicedPlanContext = jwtUtil.getPlanContextFromJwtToken(token);
+
+        assertTrue(jwtUtil.validateJwtToken(token), "Token is not valid");
+        assertEquals((Integer) planContext.get("maxPets"), (Integer) tokenicedPlanContext.get("maxPets"), "PlanContext maxPets value is not the same after token codification");
+        assertEquals((Boolean) planContext.get("havePetsDashboard"), (Boolean) tokenicedPlanContext.get("havePetsDashboard"), "PlanContext havePetsDashboard value is not the same after token codification");
+        assertEquals((String) planContext.get("supportPriority"), (String) tokenicedPlanContext.get("supportPriority"), "PlanContext havePetsDashboard value is not the same after token codification");
+
+    }
+
+    @Test
+    void tokenUserContextTest() {
+
+        PricingEvaluatorUtil togglingUtil = new PricingEvaluatorUtil(planContext, evaluationContext, userContext,
+                userAuthorities, JWT_SECRET_TEST, JWT_EXPIRATION_TEST);
+
+        String token = togglingUtil.generateUserToken();
+
+        Map<String, Object> tokenicedUserContext = jwtUtil.getUserContextFromJwtToken(token);
+
+        assertTrue(jwtUtil.validateJwtToken(token), "Token is not valid");
+        assertEquals((Integer) userContext.get("pets"), (Integer) tokenicedUserContext.get("pets"), "UserContext pets value is not the same after token codification");
+        assertEquals((Boolean) userContext.get("havePetsDashboard"), (Boolean) tokenicedUserContext.get("havePetsDashboard"), "UserContext havePetsDashboard value is not the same after token codification");
 
     }
 }

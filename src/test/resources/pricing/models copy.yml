@@ -1,6 +1,5 @@
 plans:
   BASIC:
-    name: Basic
     description: Basic plan
     price: 0.00
     currency: EUR
@@ -34,7 +33,6 @@ plans:
         type: CONDITION
         value: false
   ADVANCED:
-    name: Advanced
     description: Advanced plan
     price: 5.00
     currency: EUR
@@ -68,7 +66,6 @@ plans:
         type: CONDITION
         value: false 
   PRO:
-    name: Pro
     description: Pro plan
     price: 12.00
     currency: EUR
@@ -103,17 +100,17 @@ plans:
         value: true
 
 evaluators:
-  - name: maxPets
+  maxPets:
     expression: "userContext['pets'] < planContext['maxPets']"
-  - name: maxVisitsPerMonthAndPet
+  maxVisitsPerMonthAndPet:
     expression: "userContext['pets']*4 < planContext['maxPets']"
-  - name: supportPriority
+  supportPriority:
     expression: ''
-  - name: haveCalendar
+  haveCalendar:
     expression: "planContext['haveCalendar']"
-  - name: havePetsDashboard
+  havePetsDashboard:
     expression: "planContext['havePetsDashboard']"
-  - name: haveVetSelection
+  haveVetSelection:
     expression: "planContext['haveVetSelection']"
-  - name: haveOnlineConsultation
+  haveOnlineConsultation:
     expression: "planContext['haveOnlineConsultation']"

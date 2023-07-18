@@ -4,42 +4,43 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import io.github.isagroup.PricingContext;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 
+@Component
 public class JwtUtils {
+
+	@Autowired
+	private PricingContext pricingContext;
 
 	private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-	private String jwtSecret;
-
-    public JwtUtils(String jwtSecret) {
-        this.jwtSecret = jwtSecret;
-    }
-
 	public String getSubjectFromJwtToken(String token) {
-		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+		return Jwts.parser().setSigningKey(pricingContext.getJwtSecret()).parseClaimsJws(token).getBody().getSubject();
 	}
 
 	public Map<String, Map<String, Object>> getFeaturesFromJwtToken(String token) {
-		return (Map<String, Map<String, Object>>) Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().get("features");
+		return (Map<String, Map<String, Object>>) Jwts.parser().setSigningKey(pricingContext.getJwtSecret()).parseClaimsJws(token).getBody().get("features");
 	}
 
 	public Map<String, Object> getPlanContextFromJwtToken(String token) {
-		return (Map<String, Object>) Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().get("planContext");
+		return (Map<String, Object>) Jwts.parser().setSigningKey(pricingContext.getJwtSecret()).parseClaimsJws(token).getBody().get("planContext");
 	}
 
 	public Map<String, Object> getUserContextFromJwtToken(String token) {
-		return (Map<String, Object>) Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().get("userContext");
+		return (Map<String, Object>) Jwts.parser().setSigningKey(pricingContext.getJwtSecret()).parseClaimsJws(token).getBody().get("userContext");
 	}
 
 	public boolean validateJwtToken(String authToken) {
 		try {
-			Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
+			Jwts.parser().setSigningKey(pricingContext.getJwtSecret()).parseClaimsJws(authToken);
 			return true;
 		} catch (SignatureException e) {
 			logger.error("Invalid JWT signature: {}", e.getMessage());

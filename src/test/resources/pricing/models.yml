@@ -1,119 +1,115 @@
+evaluators:
+  maxPets:
+    expression: userContext['pets'] < planContext['maxPets']
+  maxVisitsPerMonthAndPet:
+    expression: ''
+  supportPriority:
+    expression: ''
+  haveCalendar:
+    expression: planContext['haveCalendar']
+  havePetsDashboard:
+    expression: planContext['havePetsDashboard']
+  haveVetSelection:
+    expression: planContext['haveVetSelection']
+  haveOnlineConsultation:
+    expression: planContext['haveOnlineConsultation']
 plans:
   BASIC:
-    name: Basic
-    description: Basic plan
-    price: 0.00
     currency: EUR
+    description: Basic plan
     features:
-      - name: maxPets
+      maxPets:
         description: maxPets description
         type: NUMERIC
         value: 2
-      - name: maxVisitsPerMonthAndPet
+      maxVisitsPerMonthAndPet:
         description: maxVisitsPerMonthAndPet description
         type: NUMERIC
         value: 1
-      - name: supportPriority
+      supportPriority:
         description: supportPriority description
         type: TEXT
         value: LOW
-      - name: haveCalendar
+      haveCalendar:
         description: haveCalendar description
         type: CONDITION
         value: false
-      - name: havePetsDashboard
+      havePetsDashboard:
         description: havePetsDashboard description
         type: CONDITION
         value: false
-      - name: haveVetSelection
+      haveVetSelection:
         description: haveVetSelection description
         type: CONDITION
         value: false
-      - name: haveOnlineConsultation
+      haveOnlineConsultation:
         description: haveOnlineConsultation description
         type: CONDITION
         value: false
+    price: 0.0
   ADVANCED:
-    name: Advanced
-    description: Advanced plan
-    price: 5.00
     currency: EUR
+    description: Advanced plan
     features:
-      - name: maxPets
+      maxPets:
         description: maxPets description
         type: NUMERIC
         value: 4
-      - name: maxVisitsPerMonthAndPet
+      maxVisitsPerMonthAndPet:
         description: maxVisitsPerMonthAndPet description
         type: NUMERIC
         value: 3
-      - name: supportPriority
+      supportPriority:
         description: supportPriority description
         type: TEXT
         value: MEDIUM
-      - name: haveCalendar
+      haveCalendar:
         description: haveCalendar description
         type: CONDITION
         value: true
-      - name: havePetsDashboard
+      havePetsDashboard:
         description: havePetsDashboard description
         type: CONDITION
         value: false
-      - name: haveVetSelection
+      haveVetSelection:
         description: haveVetSelection description
         type: CONDITION
         value: true
-      - name: haveOnlineConsultation
+      haveOnlineConsultation:
         description: haveOnlineConsultation description
         type: CONDITION
-        value: false 
+        value: false
+    price: 5.0
   PRO:
-    name: Pro
-    description: Pro plan
-    price: 12.00
     currency: EUR
+    description: Pro plan
     features:
-      - name: maxPets
+      maxPets:
         description: maxPets description
         type: NUMERIC
         value: 7
-      - name: maxVisitsPerMonthAndPet
+      maxVisitsPerMonthAndPet:
         description: maxVisitsPerMonthAndPet description
         type: NUMERIC
         value: 6
-      - name: supportPriority
+      supportPriority:
         description: supportPriority description
         type: TEXT
         value: HIGH
-      - name: haveCalendar
+      haveCalendar:
         description: haveCalendar description
         type: CONDITION
         value: true
-      - name: havePetsDashboard
+      havePetsDashboard:
         description: havePetsDashboard description
         type: CONDITION
         value: true
-      - name: haveVetSelection
+      haveVetSelection:
         description: haveVetSelection description
         type: CONDITION
         value: true
-      - name: haveOnlineConsultation
+      haveOnlineConsultation:
         description: haveOnlineConsultation description
         type: CONDITION
         value: true
-
-evaluators:
-  - name: maxPets
-    expression: "userContext['pets'] < planContext['maxPets']"
-  - name: maxVisitsPerMonthAndPet
-    expression: "userContext['pets']*4 < planContext['maxPets']"
-  - name: supportPriority
-    expression: ''
-  - name: haveCalendar
-    expression: "planContext['haveCalendar']"
-  - name: havePetsDashboard
-    expression: "planContext['havePetsDashboard']"
-  - name: haveVetSelection
-    expression: "planContext['haveVetSelection']"
-  - name: haveOnlineConsultation
-    expression: "planContext['haveOnlineConsultation']"
+    price: 12.0

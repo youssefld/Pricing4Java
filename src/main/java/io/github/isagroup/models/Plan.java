@@ -1,15 +1,20 @@
 package io.github.isagroup.models;
 
 import java.util.List;
+import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Plan {
-    public String name;
     public String description;
     public Double price;
     public String currency;
-    public List<Feature> features;
+    public Map<String, Feature> features;
 
     public String toString(){
-        return name + " plan: " + features.toString();
+        return "Plan: " + features.toString();
     }
 }

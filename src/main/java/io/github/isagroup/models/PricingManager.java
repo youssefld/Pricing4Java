@@ -1,9 +1,13 @@
 package io.github.isagroup.models;
 
-import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class PricingManager {
     public Map<String, Plan> plans;
-    public List<Evaluator> evaluators;
+    public Map<String, Evaluator> evaluators;
 }

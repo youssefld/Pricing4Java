@@ -53,7 +53,7 @@ public class PricingPlanAwareTests {
                 Map<String, Object> userContext = new HashMap<>();
                 
                 userContext.put("username", JWT_SUBJECT_TEST);
-                userContext.put("pets", 200);
+                userContext.put("pets", 2);
                 userContext.put("haveVetSelection", true);
                 userContext.put("haveCalendar", true);
                 userContext.put("havePetsDashboard", true);
@@ -89,8 +89,6 @@ public class PricingPlanAwareTests {
 
     @Test
     void test1() throws Throwable{
-        System.out.println("Test 1");
-        Object testObject = new Object();
 
         Mockito.when(joinPoint.proceed()).thenReturn("Result");
 

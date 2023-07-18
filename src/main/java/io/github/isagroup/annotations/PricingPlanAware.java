@@ -9,6 +9,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PricingPlanAware {
     public String featureId() default "";
-
-    public String jwtSecret() default "jwtSecret";
 }

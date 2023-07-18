@@ -13,14 +13,10 @@ import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.stereotype.Component;
 
 import io.github.isagroup.models.Evaluator;
+import io.github.isagroup.models.PlanContextManager;
 import io.github.isagroup.services.jwt.JwtUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-
-class PlanContextManager {
-    public Map<String, Object> userContext;
-    public Map<String, Object> planContext;
-}
 
 @Component
 public class PricingEvaluatorUtil {

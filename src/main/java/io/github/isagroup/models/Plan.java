@@ -1,6 +1,5 @@
 package io.github.isagroup.models;
 
-import java.util.List;
 import java.util.Map;
 
 import lombok.Getter;

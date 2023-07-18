@@ -1,5 +1,7 @@
 package io.github.isagroup.services.jwt;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import io.github.isagroup.PricingContext;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 
@@ -26,6 +29,14 @@ public class JwtUtils {
 		return Jwts.parser().setSigningKey(pricingContext.getJwtSecret()).parseClaimsJws(token).getBody().getSubject();
 	}
 
+	public String generateTokenFromUsername(String username) {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("authorities", pricingContext.getUserAuthorities());
+		return Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(new Date())
+				.setExpiration(new Date((new Date()).getTime() + pricingContext.getJwtExpiration()))
+				.signWith(SignatureAlgorithm.HS512, pricingContext.getJwtSecret()).compact();
+	}
+
 	public Map<String, Map<String, Object>> getFeaturesFromJwtToken(String token) {
 		return (Map<String, Map<String, Object>>) Jwts.parser().setSigningKey(pricingContext.getJwtSecret()).parseClaimsJws(token).getBody().get("features");
 	}
@@ -36,6 +47,10 @@ public class JwtUtils {
 
 	public Map<String, Object> getUserContextFromJwtToken(String token) {
 		return (Map<String, Object>) Jwts.parser().setSigningKey(pricingContext.getJwtSecret()).parseClaimsJws(token).getBody().get("userContext");
+	}
+
+	public String getUserNameFromJwtToken(String token) {
+		return Jwts.parser().setSigningKey(pricingContext.getJwtSecret()).parseClaimsJws(token).getBody().getSubject();
 	}
 
 	public boolean validateJwtToken(String authToken) {

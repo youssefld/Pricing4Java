@@ -93,7 +93,7 @@ public class PricingPlanAwareTests {
         Mockito.when(joinPoint.proceed()).thenReturn("Result");
 
         // Obtener el valor del parámetro featureId que deseas probar
-        String featureId = "haveVetSelection";
+        String featureId = "maxPets";
 
         pricingPlanAwareAspect.validatePricingPlan(joinPoint, new PricingPlanAware() {
             @Override

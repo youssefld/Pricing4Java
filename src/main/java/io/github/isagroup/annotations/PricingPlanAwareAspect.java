@@ -1,6 +1,7 @@
 package io.github.isagroup.annotations;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.github.isagroup.PricingContext;
+import io.github.isagroup.exceptions.PricingPlanEvaluationException;
 import io.github.isagroup.models.Evaluator;
 import io.github.isagroup.models.PlanContextManager;
 
@@ -24,8 +26,8 @@ public class PricingPlanAwareAspect {
     private PricingContext pricingContext;
 
     @Around("@annotation(pricingPlanAware)")
-    @Transactional
-    public Object validatePricingPlan(ProceedingJoinPoint joinPoint, PricingPlanAware pricingPlanAware) throws Throwable {
+    @Transactional(rollbackFor = PricingPlanEvaluationException.class)
+    public Object validatePricingPlan(ProceedingJoinPoint joinPoint, PricingPlanAware pricingPlanAware) throws Throwable, PricingPlanEvaluationException {
         
         Object proceed = joinPoint.proceed();
         
@@ -33,9 +35,13 @@ public class PricingPlanAwareAspect {
         
         // Realizar la evaluación del contexto utilizando el valor de "featureId"
         Boolean contextEvaluation = evaluateContext(featureId);
+
+        if(contextEvaluation == null){
+            contextEvaluation = false;
+        }
         
         if (!contextEvaluation) {
-            throw new RuntimeException("Context evaluation failed for featureId: " + featureId);
+            throw new PricingPlanEvaluationException("You have reached the limit of the feature: " + featureId);
         }
 
         return proceed;

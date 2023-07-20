@@ -1,77 +1,74 @@
 package io.github.isagroup.annotations;
 
+import java.util.Map;
+import java.util.logging.Logger;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
-import org.springframework.samples.petclinic.configuration.services.UserDetailsImpl;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import io.github.isagroup.PricingContext;
 import io.github.isagroup.exceptions.PricingPlanEvaluationException;
+import io.github.isagroup.models.Evaluator;
+import io.github.isagroup.models.PlanContextManager;
 
 @Aspect
 @Component
 public class PricingPlanAwareAspect {
+    
+    @Autowired
+    private PricingContext pricingContext;
 
     @Around("@annotation(pricingPlanAware)")
-    public Object validatePricingPlan(ProceedingJoinPoint joinPoint, PricingPlanAware pricingPlanAware) throws Throwable {
+    @Transactional(rollbackFor = PricingPlanEvaluationException.class)
+    public Object validatePricingPlan(ProceedingJoinPoint joinPoint, PricingPlanAware pricingPlanAware) throws Throwable, PricingPlanEvaluationException {
+        
+        Object proceed = joinPoint.proceed();
+        
         String featureId = pricingPlanAware.featureId();
         
         // Realizar la evaluación del contexto utilizando el valor de "featureId"
-        boolean contextEvaluation = evaluateContext(featureId);
+        Boolean contextEvaluation = evaluateContext(featureId);
+
+        if(contextEvaluation == null){
+            contextEvaluation = false;
+        }
         
         if (!contextEvaluation) {
-            throw new PricingPlanEvaluationException("Context evaluation failed for featureId: " + featureId);
+            throw new PricingPlanEvaluationException("You have reached the limit of the feature: " + featureId);
         }
 
-        return joinPoint.proceed();
+        return proceed;
     }
 
-    private boolean evaluateContext(String featureId) {
-        try {
-			String jwt = parseJwt(request);
-			String newToken = null;
-			if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-				Authentication userAuth = SecurityContextHolder.getContext().getAuthentication();
+    private Boolean evaluateContext(String featureId) {
 
-				Object userAuthorities = new HashMap<>();
+        Map<String, Object> userContext = pricingContext.getUserContext();
+        Map<String, Object> planContext = pricingContext.getPlanContext();
+        Map<String, Evaluator> evaluationContext = pricingContext.getEvaluators();
 
-				if (!(userAuth.getPrincipal() instanceof String)) {
-					UserDetailsImpl userDetails = (UserDetailsImpl) userAuth.getPrincipal();
-					userAuthorities = userDetails.getAuthorities().stream().map(auth -> auth.getAuthority())
-							.collect(Collectors.toList());
-				}
+        PlanContextManager planContextManager = new PlanContextManager();
 
-				Map<String, Object> userContext = userService.findUserContext();
-				Plan userPlan = userService.findUserPlan();
-				ParserPlan planParser = planService.findPlanParserById(1);
-				
-				Map<String, Object> planContext = new HashMap<>();
+        planContextManager.userContext = userContext;
+        planContextManager.planContext = planContext;
 
-				if(userPlan != null){
-					planContext = userPlan.parseToMap();
-				}
+        String expression = evaluationContext.get(featureId).getExpression();
 
-				PricingEvaluatorUtil util = new PricingEvaluatorUtil(planContext,
-						planParser.parseToMap(), userContext, userAuthorities, jwtSecret);
+        if (!expression.trim().equals("")) {
 
-				util.addExpressionToToken("maxVisitsPerMonthAndPet", "userContext['pets'] < planContext['maxPets']");
+            ExpressionParser parser = new SpelExpressionParser();
+            EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
 
-				newToken = util.generateUserToken();
+            return parser.parseExpression(expression).getValue(context, planContextManager, Boolean.class);
+        }else{
+            return false;
+        }
 
-				String newTokenFeatures = jwtUtils.getFeaturesFromJwtToken(newToken);
-				String jwtFeatures = jwtUtils.getFeaturesFromJwtToken(jwt);
-
-				System.out.println("New token features: " + newTokenFeatures);
-				System.out.println("Old token features: " + jwtFeatures);
-
-				if (!newTokenFeatures.equals(jwtFeatures)) {
-					response.addHeader("New-Token", newToken);
-				}
-			}
-		} catch (Exception e) {
-			logger.error("Cannot set user authentication: {}", e);
-			logger.info("Anonymous user logged");
-		}
     }
 }

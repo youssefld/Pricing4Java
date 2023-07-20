@@ -1,0 +1,115 @@
+evaluators:
+  maxPets:
+    expression: userContext['pets'] < planContext['maxPets']
+  maxVisitsPerMonthAndPet:
+    expression: ''
+  supportPriority:
+    expression: ''
+  haveCalendar:
+    expression: planContext['haveCalendar']
+  havePetsDashboard:
+    expression: planContext['havePetsDashboard']
+  haveVetSelection:
+    expression: planContext['haveVetSelection']
+  haveOnlineConsultation:
+    expression: planContext['haveOnlineConsultation']
+plans:
+  BASIC:
+    currency: EUR
+    description: Basic plan
+    features:
+      maxPets:
+        description: maxPets description
+        type: NUMERIC
+        value: 2
+      maxVisitsPerMonthAndPet:
+        description: maxVisitsPerMonthAndPet description
+        type: NUMERIC
+        value: 1
+      supportPriority:
+        description: supportPriority description
+        type: TEXT
+        value: LOW
+      haveCalendar:
+        description: haveCalendar description
+        type: CONDITION
+        value: false
+      havePetsDashboard:
+        description: havePetsDashboard description
+        type: CONDITION
+        value: false
+      haveVetSelection:
+        description: haveVetSelection description
+        type: CONDITION
+        value: false
+      haveOnlineConsultation:
+        description: haveOnlineConsultation description
+        type: CONDITION
+        value: false
+    price: 0.0
+  ADVANCED:
+    currency: EUR
+    description: Advanced plan
+    features:
+      maxPets:
+        description: maxPets description
+        type: NUMERIC
+        value: 4
+      maxVisitsPerMonthAndPet:
+        description: maxVisitsPerMonthAndPet description
+        type: NUMERIC
+        value: 3
+      supportPriority:
+        description: supportPriority description
+        type: TEXT
+        value: MEDIUM
+      haveCalendar:
+        description: haveCalendar description
+        type: CONDITION
+        value: true
+      havePetsDashboard:
+        description: havePetsDashboard description
+        type: CONDITION
+        value: false
+      haveVetSelection:
+        description: haveVetSelection description
+        type: CONDITION
+        value: true
+      haveOnlineConsultation:
+        description: haveOnlineConsultation description
+        type: CONDITION
+        value: false
+    price: 5.0
+  PRO:
+    currency: EUR
+    description: Pro plan
+    features:
+      maxPets:
+        description: maxPets description
+        type: NUMERIC
+        value: 7
+      maxVisitsPerMonthAndPet:
+        description: maxVisitsPerMonthAndPet description
+        type: NUMERIC
+        value: 6
+      supportPriority:
+        description: supportPriority description
+        type: TEXT
+        value: HIGH
+      haveCalendar:
+        description: haveCalendar description
+        type: CONDITION
+        value: true
+      havePetsDashboard:
+        description: havePetsDashboard description
+        type: CONDITION
+        value: true
+      haveVetSelection:
+        description: haveVetSelection description
+        type: CONDITION
+        value: true
+      haveOnlineConsultation:
+        description: haveOnlineConsultation description
+        type: CONDITION
+        value: true
+    price: 12.0

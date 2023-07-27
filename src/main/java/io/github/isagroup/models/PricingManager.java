@@ -9,5 +9,5 @@ import lombok.Setter;
 @Setter
 public class PricingManager {
     public Map<String, Plan> plans;
-    public Map<String, Evaluator> evaluators;
+    public Map<String, Feature> features;
 }

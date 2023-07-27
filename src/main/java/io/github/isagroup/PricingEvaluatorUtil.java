@@ -12,7 +12,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.stereotype.Component;
 
-import io.github.isagroup.models.Evaluator;
+import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.PlanContextManager;
 import io.github.isagroup.services.jwt.JwtUtils;
 import io.jsonwebtoken.Jwts;
@@ -39,7 +39,7 @@ public class PricingEvaluatorUtil {
 
         planContextManager.planContext = pricingContext.getPlanContext();
 
-        Map<String, Evaluator> evaluationConext = pricingContext.getEvaluators();
+        Map<String, Feature> evaluationConext = pricingContext.getFeatures();
 
         ExpressionParser parser = new SpelExpressionParser();
         EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();

@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import io.github.isagroup.models.Evaluator;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.yaml.YamlUtils;
@@ -39,8 +38,8 @@ public abstract class PricingContext {
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getValue()));
     };
 
-    public final Map<String, Evaluator> getEvaluators(){
-        return this.getPricingManager().getEvaluators();
+    public final Map<String, Feature> getFeatures(){
+        return this.getPricingManager().getFeatures();
     }
 
     public final PricingManager getPricingManager(){

@@ -22,6 +22,8 @@ public class YamlParsingTests {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/models.yml");
 
         assertTrue(pricingManager.plans.get("BASIC") instanceof Plan, "Should be an instance of PricingManager");
+        assertEquals(false, pricingManager.plans.get("BASIC").getFeatures().get("haveCalendar").getDefaultValue(), "The deafult value of the haveCalendar feature should be false");
+        assertEquals(2, pricingManager.plans.get("BASIC").getFeatures().get("maxPets").getValue(), "The value of the maxPets feature should be 2, as it must be copied from the defaultValue");
     }
 
     @Test

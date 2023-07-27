@@ -1,7 +1,6 @@
 package io.github.isagroup.annotations;
 
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
@@ -15,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.github.isagroup.PricingContext;
 import io.github.isagroup.exceptions.PricingPlanEvaluationException;
-import io.github.isagroup.models.Evaluator;
+import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.PlanContextManager;
 
 @Aspect
@@ -51,7 +50,7 @@ public class PricingPlanAwareAspect {
 
         Map<String, Object> userContext = pricingContext.getUserContext();
         Map<String, Object> planContext = pricingContext.getPlanContext();
-        Map<String, Evaluator> evaluationContext = pricingContext.getEvaluators();
+        Map<String, Feature> evaluationContext = pricingContext.getFeatures();
 
         PlanContextManager planContextManager = new PlanContextManager();
 

@@ -16,6 +16,13 @@ import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 
 public class YamlUtils {
+
+    /**
+     * This method maps the content of the YAML file located in {@code yamlPath}
+     * into a {@link PricingManager} object.
+     * @param yamlPath Path of the YAML file, relative to the resources folder
+     * @return PricingManager object that represents the content of the YAML file
+     */
     public static PricingManager retrieveManagerFromYaml(String yamlPath){
         Yaml yaml = new Yaml();
 
@@ -53,6 +60,11 @@ public class YamlUtils {
         return pricingManager;
     }
 
+    /**
+     * Writes a {@link PricingManager} object into a YAML file.
+     * @param pricingManager a {@link PricingManager} object that represents a pricing configuration
+     * @param yamlPath Path of the YAML file, relative to the resources folder
+     */
     public static void writeYaml(PricingManager pricingManager, String yamlPath){
         DumperOptions dump = new DumperOptions();
         dump.setIndent(2);

@@ -24,6 +24,7 @@ public class PricingPlanAwareAspect {
     @Autowired
     private PricingContext pricingContext;
 
+    
     @Around("@annotation(pricingPlanAware)")
     @Transactional(rollbackFor = PricingPlanEvaluationException.class)
     public Object validatePricingPlan(ProceedingJoinPoint joinPoint, PricingPlanAware pricingPlanAware) throws Throwable, PricingPlanEvaluationException {

@@ -20,6 +20,12 @@ public class PricingService {
 
     // ------------------------- PLAN MANAGEMENT ------------------------- //
 
+    /**
+     * Returns the plan of the configuration that matchs the given name.
+     * @param planName name of the plan that must be returned
+     * @return The plan of the configuration that matchs the given name 
+     * @throws IllegalArgumentException if the plan does not exist in the current pricing configuration
+     */
     public Plan getPlanFromName(String planName) {
         
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
@@ -32,6 +38,16 @@ public class PricingService {
         }
     }
 
+    /**
+     * Adds a new plan to the current pricing configuration. 
+     * The plan must not exist and must contain all the 
+     * features declared on the configuration. It is recommended to use the 
+     * {@link PricingContext#getFeatures()} method to get the list of features that 
+     * appear in the configuration.
+     * @param name name of the plan that is going to be added
+     * @param plan {@link Plan} object that includes the details of the plan that is going to be added
+     * @throws IllegalArgumentException if the plan does already exist in the current pricing configuration
+     */
     @Transactional
     public void addPlanToConfiguration(String name, Plan plan){
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
@@ -47,6 +63,12 @@ public class PricingService {
         }
     }
 
+    /**
+     * Creates a new global feature in the pricing configuration and adds it to all the plans using its default value.
+     * @param name name of the feature that is going to be added
+     * @param feature {@link Feature} object that includes the details of the feature that is going to be added
+     * @throws IllegalArgumentException if the feature does already exist in the current pricing configuration
+     */
     @Transactional
     public void addFeatureToConfiguration(String name, Feature feature){
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
@@ -86,17 +108,27 @@ public class PricingService {
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
     }
     
+    /**
+     * Modifies a plan's feature value. In order to do that, the plan must exist in the {@link PricingContext} 
+     * that is being used. A feature with the given feature name must also exist.
+     * @param plan name of the plan whose feature will suffer the change
+     * @param feature name of the feature that will suffer the change
+     * @param value the new value of the feature. It must be a supported type depending on the feature's {@link FeatureType} attribute
+     * @throws IllegalArgumentException if the plan does not exist in the current pricing configuration
+     * @throws IllegalArgumentException if the plan does not contain the feature
+     * @throws IllegalArgumentException if the value does not match a supported type depending on the feature's {@link FeatureType} attribute
+     */
     @Transactional
-    public void setPlanFeatureValue(String plan, String attribute, Object value) {
+    public void setPlanFeatureValue(String plan, String feature, Object value) {
         
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
         try{
 
-            Feature selectedPlanFeature = pricingManager.getPlans().get(plan).getFeatures().get(attribute);
+            Feature selectedPlanFeature = pricingManager.getPlans().get(plan).getFeatures().get(feature);
 
             if (selectedPlanFeature == null) {
-                throw new IllegalArgumentException("The plan " + plan + " does not have the attribute " + attribute);
+                throw new IllegalArgumentException("The plan " + plan + " does not have the feature " + feature);
             }else if(isNumeric(value) && selectedPlanFeature.getType() == FeatureType.NUMERIC){
                 selectedPlanFeature.setValue((Integer) value);
             }else if(isText(value) && selectedPlanFeature.getType() == FeatureType.TEXT){
@@ -107,7 +139,7 @@ public class PricingService {
                 throw new IllegalArgumentException("The value " + value + " is not of the type " + selectedPlanFeature.getType());
             }
 
-            pricingManager.getPlans().get(plan).getFeatures().put(attribute, selectedPlanFeature);
+            pricingManager.getPlans().get(plan).getFeatures().put(feature, selectedPlanFeature);
 
             YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
 
@@ -117,6 +149,12 @@ public class PricingService {
 
     }
 
+    /**
+     * Modifies a plan's price. In order to do that, the plan must exist in the {@link PricingContext} that is being used.
+     * @param planName name of the plan whose price will suffer the change
+     * @param newPrice the new price value of the plan
+     * @throws IllegalArgumentException if the plan does not exist in the current pricing configuration
+     */
     @Transactional
     public void setPlanPrice(String planName, Double newPrice) {
         
@@ -136,6 +174,12 @@ public class PricingService {
 
     }
 
+    /**
+     * Modifies a feature's expression. In order to do that, the feature must exist in the {@link PricingContext} that is being used.
+     * @param featureName name of the feature whose expression will suffer the change
+     * @param expression the new expression to evaluate the feature
+     * @throws IllegalArgumentException if the feature does not exist in the current pricing configuration
+     */
     @Transactional
     public void setFeatureExpression(String featureName, String expression) {
         
@@ -155,6 +199,12 @@ public class PricingService {
 
     }
 
+    /**
+     * Modifies a feature's type. In order to do that, the feature must exist in the {@link PricingContext} that is being used.
+     * @param featureName name of the feature whose type will suffer the change
+     * @param newType the new type of the feature
+     * @throws IllegalArgumentException if the feature does not exist in the current pricing configuration
+     */
     @Transactional
     public void setFeatureType(String featureName, FeatureType newType) {
         
@@ -174,6 +224,11 @@ public class PricingService {
 
     }
 
+    /**
+     * Removes a plan from the pricing configuration. In order to do that, it must exist in the {@link PricingContext} that is being used.
+     * @param name the name of the plan that is going to be removed
+     * @throws IllegalArgumentException if the plan does not exist in the current pricing configuration
+     */
     @Transactional
     public void removePlanFromConfiguration(String name){
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
@@ -189,6 +244,13 @@ public class PricingService {
         }
     }
 
+    /**
+     * Removes a feature from the pricing configuration. 
+     * In order to do that, it must exist in the {@link PricingContext} that is being used.
+     * The method also removes the feature from all the plans that include it.
+     * @param name the name of the feature that is going to be removed
+     * @throws IllegalArgumentException if the feature does not exist in the current pricing configuration
+     */
     @Transactional
     public void removeFeatureFromConfiguration(String name){
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());

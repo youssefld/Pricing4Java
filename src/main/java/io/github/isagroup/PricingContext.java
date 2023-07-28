@@ -66,7 +66,7 @@ public abstract class PricingContext {
     };
 
     /**
-     * This method returns the features declared on the pricing configuration that is being used.
+     * This method returns the features declared on the pricing configuration.
      * @return Map with the features
      */
     public final Map<String, Feature> getFeatures(){

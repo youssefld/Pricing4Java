@@ -111,24 +111,24 @@ public class PricingService {
     /**
      * Modifies a plan's feature value. In order to do that, the plan must exist in the {@link PricingContext} 
      * that is being used. A feature with the given feature name must also exist.
-     * @param plan name of the plan whose feature will suffer the change
-     * @param feature name of the feature that will suffer the change
+     * @param planName name of the plan whose feature will suffer the change
+     * @param featureName name of the feature that will suffer the change
      * @param value the new value of the feature. It must be a supported type depending on the feature's {@link FeatureType} attribute
      * @throws IllegalArgumentException if the plan does not exist in the current pricing configuration
      * @throws IllegalArgumentException if the plan does not contain the feature
      * @throws IllegalArgumentException if the value does not match a supported type depending on the feature's {@link FeatureType} attribute
      */
     @Transactional
-    public void setPlanFeatureValue(String plan, String feature, Object value) {
+    public void setPlanFeatureValue(String planName, String featureName, Object value) {
         
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
         try{
 
-            Feature selectedPlanFeature = pricingManager.getPlans().get(plan).getFeatures().get(feature);
+            Feature selectedPlanFeature = pricingManager.getPlans().get(planName).getFeatures().get(featureName);
 
             if (selectedPlanFeature == null) {
-                throw new IllegalArgumentException("The plan " + plan + " does not have the feature " + feature);
+                throw new IllegalArgumentException("The plan " + planName + " does not have the feature " + featureName);
             }else if(isNumeric(value) && selectedPlanFeature.getType() == FeatureType.NUMERIC){
                 selectedPlanFeature.setValue((Integer) value);
             }else if(isText(value) && selectedPlanFeature.getType() == FeatureType.TEXT){
@@ -139,12 +139,12 @@ public class PricingService {
                 throw new IllegalArgumentException("The value " + value + " is not of the type " + selectedPlanFeature.getType());
             }
 
-            pricingManager.getPlans().get(plan).getFeatures().put(feature, selectedPlanFeature);
+            pricingManager.getPlans().get(planName).getFeatures().put(featureName, selectedPlanFeature);
 
             YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
 
         }catch(NullPointerException e){
-            throw new IllegalArgumentException("The plan " + plan + " does not exist in the current pricing configuration");
+            throw new IllegalArgumentException("The plan " + planName + " does not exist in the current pricing configuration");
         }
 
     }

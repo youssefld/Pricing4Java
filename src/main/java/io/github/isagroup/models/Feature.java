@@ -11,12 +11,14 @@ public class Feature {
     public Object defaultValue;
     public Object value;
     public String expression;
+    public String serverExpression;
 
     public void prepareToPlanWriting(){
         this.description = null;
         this.type = null;
         this.defaultValue = null;
         this.expression = null;
+        this.serverExpression = null;
     }
 
     public String toString(){

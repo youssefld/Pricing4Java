@@ -35,6 +35,7 @@ features:
   feature1:
     description: feature1 description
     expression: # SPEL expression
+    serverExpression: # SPEL expression that will be evaluated on the server side
     type: NUMERIC # The value of this field can be NUMERIC, TEXT or CONDITION
     defaultValue: 2
   feature2:
@@ -103,6 +104,40 @@ Important notes to have in mind while configuring the YAML:
     expression: userContext['feature1use'] <= planContext['feature1']
     # ...
   ```
+
+  It's also possible to define a server side evaluation that will be used to evaluate any feature using @PricingPlanAware annotation. This use can be interesting on NUMERIC features, let's see an example.
+
+  If we have a button on the UI to add items to a list, it should be only available while the amount of products is under the feature limit, so when it is reached, the button disapears. The expression that models this behaviour will be the following:
+
+  ```yaml
+  # ...
+  feature1:
+    # ...
+    expression: userContext['feature1use'] < planContext['feature1']
+    # ...
+  ```
+
+  However, on the server side, we should consider that the application has a valid state if the limit is not exceeded, which is evaluated with the following expression:
+
+  ```yaml
+  # ...
+  feature1:
+    # ...
+    expression: userContext['feature1use'] <= planContext['feature1']
+    # ...
+  ```
+
+  To handle this type of situations, features configuration includes an optional `serverExpression` attribute that will be used to evaluate the feature on the server side (when using @PricingPlanAware annotation). If this attribute is not defined, the `expression` will be used instead on any evaluation context. The snippet below shows how to define the situation described above:
+
+  ```yaml
+  # ...
+  feature1:
+    # ...
+    expression: userContext['feature1use'] < planContext['feature1']
+    serverExpression: userContext['feature1use'] <= planContext['feature1']
+    # ...
+  ```
+
 
 - Each feature inside a plan must have a name that match with one of the declared in the `features` section. Each of this features must only contains a `value` attribute of a type supported by the feature. The `value` attribute can also can be set to `null` if you want the library to consider the `defaultValue` as the value of the field.
 

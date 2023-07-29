@@ -59,7 +59,11 @@ public class PricingPlanAwareAspect {
         planContextManager.planContext = planContext;
 
         try{
-            String expression = evaluationContext.get(featureId).getExpression();
+            String expression = evaluationContext.get(featureId).getServerExpression();
+
+            if(expression == null){
+                expression = evaluationContext.get(featureId).getExpression();
+            }
     
             if (!expression.trim().equals("")) {
     

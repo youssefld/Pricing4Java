@@ -46,6 +46,7 @@ public class YamlUtils {
                 planFeature.setType(globalFeature.getType());
                 planFeature.setDefaultValue(globalFeature.getDefaultValue());
                 planFeature.setExpression(globalFeature.getExpression());
+                planFeature.setServerExpression(globalFeature.getServerExpression());
                 if (planFeature.getValue() == null){
                     planFeature.setValue(globalFeature.getDefaultValue());
                 }

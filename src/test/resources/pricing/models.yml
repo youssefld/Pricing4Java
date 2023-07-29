@@ -3,6 +3,7 @@ features:
     defaultValue: 2
     description: maxPets description
     expression: userContext['pets'] < planContext['maxPets']
+    serverExpression: userContext['pets'] <= planContext['maxPets']
     type: NUMERIC
   maxVisitsPerMonthAndPet:
     defaultValue: 1

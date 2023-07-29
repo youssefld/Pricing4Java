@@ -58,17 +58,22 @@ public class PricingPlanAwareAspect {
         planContextManager.userContext = userContext;
         planContextManager.planContext = planContext;
 
-        String expression = evaluationContext.get(featureId).getExpression();
-
-        if (!expression.trim().equals("")) {
-
-            ExpressionParser parser = new SpelExpressionParser();
-            EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
-
-            return parser.parseExpression(expression).getValue(context, planContextManager, Boolean.class);
-        }else{
-            return false;
+        try{
+            String expression = evaluationContext.get(featureId).getExpression();
+    
+            if (!expression.trim().equals("")) {
+    
+                ExpressionParser parser = new SpelExpressionParser();
+                EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
+    
+                return parser.parseExpression(expression).getValue(context, planContextManager, Boolean.class);
+            }else{
+                return false;
+            }
+        }catch(NullPointerException e){
+            throw new PricingPlanEvaluationException("The feature " + featureId + " does not exist in the current pricing configuration");
         }
+
 
     }
 }

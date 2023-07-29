@@ -4,7 +4,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.error.YAMLException;
 
+import io.github.isagroup.exceptions.PricingPlanEvaluationException;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.yaml.YamlUtils;
@@ -78,6 +80,10 @@ public abstract class PricingContext {
      * @return PricingManager object
      */
     public final PricingManager getPricingManager(){
-        return YamlUtils.retrieveManagerFromYaml(this.getConfigFilePath());
+        try{
+            return YamlUtils.retrieveManagerFromYaml(this.getConfigFilePath());
+        }catch(YAMLException e){
+            throw new PricingPlanEvaluationException("Error while parsing YAML file");
+        }
     }
 }

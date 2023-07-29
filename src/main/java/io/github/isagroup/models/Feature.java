@@ -3,6 +3,9 @@ package io.github.isagroup.models;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Object to model pricing features
+ */
 @Getter
 @Setter
 public class Feature {

@@ -15,6 +15,9 @@ import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 
+/**
+ * Utility class to handle YAML files
+ */
 public class YamlUtils {
 
     /**

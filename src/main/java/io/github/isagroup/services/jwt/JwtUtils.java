@@ -18,6 +18,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 
+/**
+ * Utility class that provides methods to generate and manage JWT.
+ */
 @Component
 public class JwtUtils {
 

@@ -5,6 +5,9 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Object to model pricing plans
+ */
 @Getter
 @Setter
 public class Plan {

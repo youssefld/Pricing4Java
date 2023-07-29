@@ -18,6 +18,9 @@ import io.github.isagroup.services.jwt.JwtUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+/**
+ * Utility class that provides methods to generate and manage JWT that contains the pricing plan evaluation context.
+ */
 @Component
 public class PricingEvaluatorUtil {
 

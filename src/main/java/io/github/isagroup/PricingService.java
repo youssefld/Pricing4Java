@@ -12,6 +12,9 @@ import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.yaml.YamlUtils;
 
+/**
+ * Service that provides methods to manage the pricing configuration.
+ */
 @Service
 public class PricingService {
     

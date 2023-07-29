@@ -10,7 +10,11 @@ import io.github.isagroup.exceptions.PricingPlanEvaluationException;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.yaml.YamlUtils;
+import io.github.isagroup.models.Plan;
 
+/**
+ * An abstract class from which create a component that adapt the pricing configuration to the application domain
+ */
 @Component
 public abstract class PricingContext {
 

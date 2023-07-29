@@ -225,6 +225,15 @@ public class PricingService {
     }
 
     /**
+     * Receives a {@link PricingManager} object and writes it to the pricing configuration file.
+     * @param pricingManager the {@link PricingManager} object that models the pricing configuration
+     */
+    @Transactional
+    public void setPricingConfiguration(PricingManager pricingManager){
+        YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
+    } 
+
+    /**
      * Removes a plan from the pricing configuration. In order to do that, it must exist in the {@link PricingContext} that is being used.
      * @param name the name of the plan that is going to be removed
      * @throws IllegalArgumentException if the plan does not exist in the current pricing configuration

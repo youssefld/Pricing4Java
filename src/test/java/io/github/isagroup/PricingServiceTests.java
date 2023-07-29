@@ -1,5 +1,6 @@
 package io.github.isagroup;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -552,6 +553,16 @@ public class PricingServiceTests {
         });
 
         assertEquals("There is no plan with the name " + TEST_NEW_PLAN + " in the current pricing configuration", exception.getMessage());
+    }
+
+    // --------------------------- PRICING CONFIGURATION MANAGEMENT ---------------------------
+
+    @Test
+    @Order(270)
+    void changePricingConfigurationTest(){
+        assertDoesNotThrow(()->{
+            pricingService.setPricingConfiguration(originalPricingManager);
+        });
     }
 
     @AfterAll

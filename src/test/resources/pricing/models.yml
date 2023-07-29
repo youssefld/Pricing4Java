@@ -1,0 +1,95 @@
+features:
+  maxPets:
+    defaultValue: 2
+    description: maxPets description
+    expression: userContext['pets'] < planContext['maxPets']
+    serverExpression: userContext['pets'] <= planContext['maxPets']
+    type: NUMERIC
+  maxVisitsPerMonthAndPet:
+    defaultValue: 1
+    description: maxVisitsPerMonthAndPet description
+    expression: ''
+    type: NUMERIC
+  supportPriority:
+    defaultValue: LOW
+    description: supportPriority description
+    expression: ''
+    type: TEXT
+  haveCalendar:
+    defaultValue: false
+    description: haveCalendar description
+    expression: planContext['haveCalendar']
+    type: CONDITION
+  havePetsDashboard:
+    defaultValue: false
+    description: havePetsDashboard description
+    expression: planContext['havePetsDashboard']
+    type: CONDITION
+  haveVetSelection:
+    defaultValue: false
+    description: haveVetSelection description
+    expression: planContext['haveVetSelection']
+    type: CONDITION
+  haveOnlineConsultation:
+    defaultValue: false
+    description: haveOnlineConsultation description
+    expression: planContext['haveOnlineConsultation']
+    type: CONDITION
+plans:
+  BASIC:
+    currency: EUR
+    description: Basic plan
+    features:
+      maxPets:
+        value: 2
+      maxVisitsPerMonthAndPet:
+        value: 1
+      supportPriority:
+        value: LOW
+      haveCalendar:
+        value: false
+      havePetsDashboard:
+        value: false
+      haveVetSelection:
+        value: false
+      haveOnlineConsultation:
+        value: false
+    price: 0.0
+  ADVANCED:
+    currency: EUR
+    description: Advanced plan
+    features:
+      maxPets:
+        value: 4
+      maxVisitsPerMonthAndPet:
+        value: 3
+      supportPriority:
+        value: MEDIUM
+      haveCalendar:
+        value: true
+      havePetsDashboard:
+        value: false
+      haveVetSelection:
+        value: true
+      haveOnlineConsultation:
+        value: false
+    price: 5.0
+  PRO:
+    currency: EUR
+    description: Pro plan
+    features:
+      maxPets:
+        value: 7
+      maxVisitsPerMonthAndPet:
+        value: 6
+      supportPriority:
+        value: HIGH
+      haveCalendar:
+        value: true
+      havePetsDashboard:
+        value: true
+      haveVetSelection:
+        value: true
+      haveOnlineConsultation:
+        value: true
+    price: 12.0

@@ -1,3 +1,11 @@
 {
-    "java.compile.nullAnalysis.mode": "automatic"
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.test.config": {
+        "name": "myConfiguration",
+        "workingDirectory": "${workspaceFolder}",
+        "vmargs": [ "-Xmx512M" ],
+        "env": {},
+    },
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.debug.settings.onBuildFailureProceed": true
 }

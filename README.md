@@ -1,6 +1,6 @@
 # pricingplans-4j
 
-The aim of this package is to provide a simple and easy to use java class that evaluates the context of an user driven by pricing features and wraps the results inside a JWT token. The package have been designed to be used with [pricingplans-react](https://github.com/Alex-GF/pricingplans-react), the frontend library that consumes the JWT token and toggles on and off functionalities based on the user pricing plan.
+The aim of this package is to provide a simple and easy to use tools that allow users to set a pricing configuration on the spring server side of an app automatically. It also can evaluate the context of an user driven by pricing features and wrap the results inside a JWT. The package have been designed to be used with [pricingplans-react](https://github.com/Alex-GF/pricingplans-react), the frontend library that consumes the JWT and toggles on and off functionalities based on the user pricing plan.
 
 ## Installation
 
@@ -24,145 +24,291 @@ The package have been build to be used with maven. To install it, just add the f
 </dependencies>
 ```
 
+## Pricing Configuration
+
+The packages uses a YAML file to represent all the pricing configuration, which includes: plans specifications, features used, values of these features for each plan… 
+
+The file must be placed inside the resources folder of the project, and must have the structure of this example:
+
+```yaml
+features:
+  feature1:
+    description: feature1 description
+    expression: # SPEL expression
+    serverExpression: # SPEL expression that will be evaluated on the server side
+    type: NUMERIC # The value of this field can be NUMERIC, TEXT or CONDITION
+    defaultValue: 2
+  feature2:
+    description: feature2 description
+    expression: # SPEL expression
+    type: CONDITION
+    defaultValue: true
+  feature3:
+    description: feature3 description
+    expression: '' # This feature will be evaluated as false by default
+    type: TEXT
+    defaultValue: LOW
+  # ...
+plans:
+  BASIC:
+    description: Basic plan
+    price: 0.0
+    currency: EUR
+    features:
+      feature1:
+        value: null
+      feature2:
+        value: false
+      feature3:
+        value: null
+  PRO:
+    description: Pro plan
+    price: 12.0
+    currency: EUR
+    features:
+      feature1:
+        value: 6
+      feature2:
+        value: null
+      feature3:
+        value: HIGH
+```
+
+Important notes to have in mind while configuring the YAML:
+
+- The `features` section must contain all the features that are going to be used in the app. Each feature must have a `description`, a `type` and a `defaultValue` and a `expression`. 
+
+  The `type` can be `NUMERIC` (handles Integer, Double, Long…), `TEXT` (handles String) or `CONDITION` (handles Boolean). 
+
+  The `defaultValue` must be a value supported by the type of the feature:
+  
+  - If the `type` is `CONDITION`, the `defaultValue` must be a boolean. 
+  - If the `type` is `NUMERIC`, the `defaultValue` must be: integer, double, long… 
+  - If the `type` is `TEXT`, the `defaultValue` must be a string. 
+
+  The `expression` must be a string `SPEL` expression that evaluates the value of the feature. It can access the data of the user context using the `userContext` variable, while the plan's is available through `planContext`. For example, considering a user context that contains the following information:
+
+  ```json
+  {
+    "username": "John",
+    "feature1use": 2,
+  }
+  ```
+
+  If we want to check if the use of the feature exceeds its limit, the `SPEL` expression should be:
+
+  ```yaml
+  # ...
+  feature1:
+    # ...
+    expression: userContext['feature1use'] <= planContext['feature1']
+    # ...
+  ```
+
+  It's also possible to define a server side evaluation that will be used to evaluate any feature using @PricingPlanAware annotation. This use can be interesting on NUMERIC features, let's see an example.
+
+  If we have a button on the UI to add items to a list, it should be only available while the amount of products is under the feature limit, so when it is reached, the button disapears. The expression that models this behaviour will be the following:
+
+  ```yaml
+  # ...
+  feature1:
+    # ...
+    expression: userContext['feature1use'] < planContext['feature1']
+    # ...
+  ```
+
+  However, on the server side, we should consider that the application has a valid state if the limit is not exceeded, which is evaluated with the following expression:
+
+  ```yaml
+  # ...
+  feature1:
+    # ...
+    expression: userContext['feature1use'] <= planContext['feature1']
+    # ...
+  ```
+
+  To handle this type of situations, features configuration includes an optional `serverExpression` attribute that will be used to evaluate the feature on the server side (when using @PricingPlanAware annotation). If this attribute is not defined, the `expression` will be used instead on any evaluation context. The snippet below shows how to define the situation described above:
+
+  ```yaml
+  # ...
+  feature1:
+    # ...
+    expression: userContext['feature1use'] < planContext['feature1']
+    serverExpression: userContext['feature1use'] <= planContext['feature1']
+    # ...
+  ```
+
+
+- Each feature inside a plan must have a name that match with one of the declared in the `features` section. Each of this features must only contains a `value` attribute of a type supported by the feature. The `value` attribute can also can be set to `null` if you want the library to consider the `defaultValue` as the value of the field.
+
+  The library will automatically add the rest of the attributes when parsing YAML to PricingManager.
+
+## Java objects to manage pricing
+
+The package provides a set of java objects that model the YAML configuration. These objects can be used to access information about the pricing all over the app.
+
+### PricingManager
+
+This class is the main object of the package. It contains all the information about the pricing configuration and can be used to evaluate the context of an user and generate a JWT with the results.
+
+```java
+public class PricingManager {
+    public Map<String, Plan> plans;
+    public Map<String, Feature> features;
+
+    // Getters and setters...
+}
+```
+
+The name of each plan and feature is used as a key to access the information of the object. For example, to access the price of the plan `BASIC` we can use:
+
+```java
+pricingManager.getPlans().get("BASIC").getPrice();
+```
+
+### Plan
+
+This class models the information of a plan. It contains the name, description, price and currency of the plan, as well as a map of the features used by the plan.
+
+```java
+public class Plan {
+    public String description;
+    public Double price;
+    public String currency;
+    public Map<String, Feature> features;
+
+    // Getters and setters...
+
+    // toString()
+}
+```
+
+### Feature
+
+This class models the information of a feature.
+
+```java
+public class Feature {
+    public String description;
+    public FeatureType type;
+    public Object defaultValue;
+    public Object value;
+    public String expression;
+
+    // Getters and setters...
+
+    // toString()
+}
+```
+
+The class also includes a method called `prepareToPlanWriting()`. It is used to prepare the object to be written inside a plan in the YAML file by removing the setting the value of all the attributes to `null`, except `value`.
+
 ## Usage
 
-The package provides a simple class called PricingEvaluatorUtil that can be used to evaluate the context of an user compared to his plan and generate a JWT token with the results, using a single java method. The class constructor requires the following parameters:
+The package provides up to three different main classes to manage pricing inside our application.
 
-- **(REQUIRED) planContext**: A `Map<String, Object>` that contains the context of the plan. The keys must be the `featureId` of each feature (i.e myFeature) and the values could be integers, strings or booleans.
+### PricingContext
 
-- **(REQUIRED) evaluationConext**: A `Map<String, Object>` that contains the evaluation context. The keys must be the `featureId` of each feature (i.e myFeature) and the values must be strings in `SPEL` format. The `SPEL` expressions can access the data of the user context using the `userContext` variable, while the plan's is available through `planContext`. 
-
-- **(REQUIRED) userContext**: A `Map<String, Object>` that contains the context of the user. The keys don't have to be the same as `planContext` and `evaluationContext`, they are only needed inside the `SPEL` expressions. The values could be integers, strings or booleans.
-
-For example, if we have the following maps that represent the user and plan contexts:
+This abstract class is the key to manage the YAML configuration inside a spring app. It provides a set of configurable methods that need to be implemented inside a new component that extends this class to use other classes of the package. Inside your spring project, create the following component:
 
 ```java
-Map<String, Object> userContext = new HashMap<>();
-userContext.put("feature1use", 2);
 
-Map<String, Object> planContext = new HashMap<>();
-planContext.put("feature1", 5);
-planContext.put("feature2", false);
-```
+import io.github.isagroup.PricingContext;
 
-Then, if we want to check that the `feature1` user context does not exceeds the limit of the plan and if the `feature2` is enabled, the `SPEL` expression to evaluate the context could be:
+@Component
+public class PricingConfiguration extends PricingContext {
 
-```java
-Map<String, Object> evaluationContext = new HashMap<>();
-evaluationContext.put("feature1", "userContext['feature1use'] <= planContext['feature1']");
-evaluationContext.put("feature2", "planContext['feature2']");
-```
-
-It is important to note that the keys of the `evaluationContext` map must be the same as the keys of the `planContext`. This is because the class will use them as the matching criteria between the evaluation to apply and the plan feature.
-
-- **(REQUIRED) userAuthorities**: An `Object` that represents the authorities of the user inside the aplication. Depending on which framework is being used to create the API (i.e Spring Security), the type of this object could be different. The class will only use this object to include its content inside the token's body.
-
-- **jwtSecret**: A `String` that represents the secret with which the token will be signed. If this parameter is not provided, the class will set it to a default value: `secret`. **Not providing a secret for the JWT token introduces a major vulnerability to the system. The use of default secret is strongly discouraged**.
-
-- **jwtExpirationMs**: An `int` that represents the expiration time of the token in miliseconds. If this parameter is not provided, the class will set it to a default value: `86400000` (1 day).
-
-Once the class have been created. The token can be generated using the `generateUserToken` method, that requires no parameters and returns a `String` with the JWT token.
-
-## Advance Usage
-
-It is also possible to pass a whole expression through JWT to be evaluated in frontend. This is useful when the evaluation of a feature depends on the evaluation of another feature. To inject the expression string in the JWT token, the class provides the `addExpressionToToken` method. It requires the following parameters:
-
-- **(REQUIRED) featureId**: A `String` that represents the id of the feature to be evaluated (must exist inside the token).
-- **(REQUIRED) expression**: A `String` that represents the expression to be evaluated. The expression must be written in `javascript` as it is going to be evaluated in frontend. You can use the `userContext` and `planContext` variables inside the expression.
-
-This method must be used before the call of `generateUserToken`.
-
-## Example
-
-In this section we provide a simple code snippet on which the class is used to generate a JWT token based on a pricing template made for `spring petclinic`.
-
-```java
-import java.util.Map;
-import java.util.HashMap;
-
-public class main {
-
-    public static void main(String[] args) {
-
-        Map<String, String> userAuthorities = new HashMap<>();
-        userAuthorities.put("role", "admin");
-        userAuthorities.put("username", "admin1");
-        userAuthorities.put("password", "4dm1n");
-
-        Map<String, Object> userContext = new HashMap<>();
-        userContext.put("username", "admin1");
-        userContext.put("pets", 2);
-
-        Map<String, Object> planContext = new HashMap<>();
-        planContext.put("maxPets", 6);
-        planContext.put("maxVisitsPerMonthAndPet", 2);
-        planContext.put("supportPriority", "HIGH");
-        planContext.put("haveCalendar", true);
-        planContext.put("havePetsDashboard", true);
-        planContext.put("haveVetSelection", true);
-        planContext.put("haveOnlineConsultation", true);
-        
-        Map<String, String> evaluationContext = new HashMap<>();
-        evaluationContext.put("maxPets", "userContext['pets'] < planContext['maxPets']");
-        evaluationContext.put("maxVisitsPerMonthAndPet", "");
-        evaluationContext.put("supportPriority", "");
-        evaluationContext.put("haveCalendar", "planContext['haveVetSelection']");
-        evaluationContext.put("havePetsDashboard", "planContext['haveCalendar']");
-        evaluationContext.put("haveVetSelection", "planContext['havePetsDashboard']");
-        evaluationContext.put("haveOnlineConsultation", "planContext['haveOnlineConsultations']");
-
-        PricingEvaluatorUtil togglingUtil = new PricingEvaluatorUtil(planContext, evaluationContext, userContext, userAuthorities, "secret", 86400);
-
-        togglingUtil.addExpressionToToken("maxVisitsPerMonthAndPets", "userContext['pets'] < planContext['maxPets']");
-
-        String token = togglingUtil.generateUserToken();
-
-        System.out.println(token);
+    @Override
+    public String getJwtSecret(){
+        // This method must return the JWT secret that should be used to create tokens
     }
+
+    @Override
+    public String getConfigFilePath(){
+        // This method must return the configuration file path relative to the resources folder
+    }
+
+    @Override
+    public Object getUserAuthorities() {
+        // This method should return the object used inside the application to determine the authority of the user inside the JWT.
+    }
+
+    @Override
+    public Map<String, Object> getUserContext() {
+        // This method should return the user context that will be used to evaluate the pricing plan.
+        // It should be considered which users has accessed the service and what information is available.
+    }
+
+    @Override
+    public String getUserPlan() {
+        // This method should return the plan name of the current user.
+        // With this information, the library will be able to build the Plan object of the user from the configuration.
+    }
+    
 }
 
 ```
 
-This function generates a JWT token that has the follogin payload:
+By creating this component inside your project, spring will be able to use this information wherever it is needed.
+
+The class also provides a set of methods that can be used to retrieve information about the pricing configuration anywhere in the app. By injecting the component in any class, the following methods can be used:
+
+- **getPlanContext**: Returns a Map<String, Plan> that represents the plan context that is going to be evaluated.
+
+- **getFeatures**: Returns the features declared on the pricing configuration.
+
+- **getPricingManager**: Maps the information of the YAML configuration file to a PricingManager object to easily operate with pricing properties.
+
+### PricingEvaluatorUtil
+
+It can be used to evaluate the context of an user compared to his plan and generate a JWT with the results, using a single java method. This class consumes the information of the configured PricingContext to perform its operations.
+
+Once a class that extends from PricingContext exists inside the spring app, PricingEvaluatorUtil can be injected in any bean by using @Autowired. Once declared, the token can be generated using the `generateUserToken` method anywhere. It requires no parameters and returns a `String` with the JWT token. This is an example:
+
+```java
+import io.github.isagroup.PricingEvaluatorUtil;
+
+@Component
+public class MyComponent {
+
+    @Autowired
+    private PricingEvaluatorUtil pricingEvaluatorUtil;
+
+    public String myMethod() {
+        String token = pricingEvaluatorUtil.generateUserToken();
+        return token;
+    }
+}
+```
+
+The class also contains a method that modifies a given JWT by changing the evaluation of the given feature by a String expression that will be evaluated on the client side of the application and returns the new version. The following snippet is an example of this method:
+
+```java
+// ...
+
+String firstToken = pricingEvaluatorUtil.generateUserToken();
+String newToken = pricingEvaluatorUtil.addExpressionToToken(firstToken, "feature1", "userContext['feature1use'] < planContext['feature1']");
+
+Map<String, Map<String, Object>> features = jwtUtils.getFeaturesFromJwtToken(newToken);
+
+// ...
+```
+
+Considering just two NUMERIC features, this function could have generated a JWT that has the following payload:
 
 ```
 {
   "features": {
-    "haveCalendar": {
-      "eval": true,
-      "limit": null,
-      "used": null
-    },
-    "haveVetSelection": {
-      "eval": true,
-      "limit": null,
-      "used": null
-    },
-    "haveOnlineConsultation": {
-      "eval": null,
-      "limit": null,
-      "used": null
-    },
-    "maxPets": {
-      "eval": true,
-      "limit": 6,
+    "feature1": {
+      "eval": "userContext['feature1use'] < planContext['feature1']",
+      "limit": 2,
       "used": 2
     },
-    "havePetsDashboard": {
+    "feature2": {
       "eval": true,
-      "limit": null,
-      "used": null
+      "limit": 5,
+      "used": 1
     },
-    "maxVisitsPerMonthAndPet": {
-      "eval": "userContext['pets'] < planContext['maxPets']",
-      "limit": null,
-      "used": null
-    },
-    "supportPriority": {
-      "eval": true,
-      "limit": null,
-      "used": null
-    }
   },
   "sub": "admin1",
   "exp": 1687705951,
@@ -179,4 +325,52 @@ This function generates a JWT token that has the follogin payload:
     ...
   }
 }
+```
+
+### PricingService
+
+This class offers a set of methods that can be used to manage the pricing configuration without manually modifying the YAML file. It can be used to retrieve, add, remove or modify plans and features.
+
+| **Method**                                                                  | **Description**                                                                                                                                                                                                                                                                  |
+|-----------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Plan getPlanFromName(String planName)                                       | Returns the plan of the configuration that matchs the given name.                                                                                                                                                                                                                |
+| void addPlanToConfiguration(String name, Plan plan)                         | Adds a new plan to the current pricing configuration. The plan must not exist and must contain all the  features declared on the configuration. It is recommended  to use the PricingContext.getFeatures() method to get the  list of features that appear in the configuration. |
+| void addFeatureToConfiguration(String name, Feature feature)                | Creates a new global feature in the pricing configuration and adds  it to all the plans using its default value.                                                                                                                                                                 |
+| void setPlanFeatureValue(String planName, String featureName, Object value) | Modifies a plan's feature value. In order to do that, the plan  must exist in the PricingContext that is being used. A feature  with the given feature name must also exist.                                                                                                     |
+| void setPlanPrice(String planName, Double newPrice)                         | Modifies a plan's price. In order to do that, the plan must exist  in the PricingContext that is being used.                                                                                                                                                                     |
+| void setFeatureExpression(String featureName, String expression)            | Modifies a feature's expression. In order to do that, the feature  must exist in the PricingContext that is being used.                                                                                                                                                          |
+| void setFeatureType(String featureName, FeatureType newType)                | Modifies a feature's type. In order to do that, the feature must  exist in the PricingContext that is being used.                                                                                                                                                                |
+| void setPricingConfiguration(PricingManager pricingManager)                 | Receives a PricingManager object and writes it to the pricing configuration file.                                                                                                                                                                                                |
+| void removePlanFromConfiguration(String name)                               | Removes a plan from the pricing configuration. In order to do that,  it must exist in the PricingContext that is being used.                                                                                                                                                     |
+| void removeFeatureFromConfiguration(String name)                            | Removes a feature from the pricing configuration. In order to do  that, it must exist in the PricingContext that is being used. The  method also removes the feature from all the plans that include it.                                                                         |                                                                    |
+
+As any other spring service, to use this class it must be injected in any bean using @Autowired. Once declared, the methods can be used to manage the pricing configuration.
+
+## Extra functionalities
+
+The library also provides an method level annotation called @PricingPlanAware that receives a string called `featureId` as paramater. This feature must exist inside the pricing configuration.
+By combining the use of this annotation with the spring's @Transactional, it is possible to automate feature checking on the service layer of the application.
+
+The annotation performs an evaluation of the feature right after the method is executed. If the evaluation determines that the pricing plan is not being respected, a PricingPlanEvaluationException is thrown, so all the changes made are removed by the @Transactional annotation rollback. On the other hand, if the evaluation is correct, the changes are commited and the method returns normally.
+
+The following snippet is an example of the use of this annotation inside a demo app service:
+
+```java
+// ...
+
+@PricingPlanAware(featureId = "maxPets")
+@Transactional(rollbackFor = { DuplicatedPetNameException.class, PricingPlanEvaluationException.class })
+public Pet savePet(Pet pet) throws DataAccessException, DuplicatedPetNameException {
+  Pet otherPet = getPetWithNameAndIdDifferent(pet);
+  if (otherPet != null && !otherPet.getId().equals(pet.getId())) {
+    throw new DuplicatedPetNameException();
+  } else
+    petRepository.save(pet);
+
+  
+
+  return pet;
+}
+
+// ...
 ```

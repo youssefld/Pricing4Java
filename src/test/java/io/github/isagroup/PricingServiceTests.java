@@ -397,7 +397,7 @@ public class PricingServiceTests {
             pricingService.setPlanFeatureValue(TEST_PLAN, unexistentAttribute, newValue);
         });
 
-        assertEquals("The plan " + TEST_PLAN + " does not have the attribute " + unexistentAttribute, exception.getMessage());
+        assertEquals("The plan " + TEST_PLAN + " does not have the feature " + unexistentAttribute, exception.getMessage());
 
     }
 

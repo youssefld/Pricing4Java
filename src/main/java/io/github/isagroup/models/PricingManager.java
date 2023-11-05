@@ -13,4 +13,6 @@ import lombok.Setter;
 public class PricingManager {
     public Map<String, Plan> plans;
     public Map<String, Feature> features;
+    public Map<String, UsageLimit> usageLimits;
+    public Map<String, AddOn> addOns;
 }

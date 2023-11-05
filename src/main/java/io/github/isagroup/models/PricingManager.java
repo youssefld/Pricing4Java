@@ -11,6 +11,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PricingManager {
+    public String saasName;
+    public int day;
+    public int month;
+    public int year;
+    public String currency;
+    public boolean hasAnnualPayment;
     public Map<String, Plan> plans;
     public Map<String, Feature> features;
     public Map<String, UsageLimit> usageLimits;

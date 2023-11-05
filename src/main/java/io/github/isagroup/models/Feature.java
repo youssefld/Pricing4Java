@@ -8,13 +8,14 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class Feature {
-    public String description;
-    public FeatureType type;
-    public Object defaultValue;
-    public Object value;
-    public String expression;
-    public String serverExpression;
+public abstract class Feature {
+    protected String description;
+    protected ValueType valueType;
+    protected Object defaultValue;
+    protected FeatureType type;
+    protected Object value;
+    protected String expression;
+    protected String serverExpression;
 
     public void prepareToPlanWriting(){
         this.description = null;

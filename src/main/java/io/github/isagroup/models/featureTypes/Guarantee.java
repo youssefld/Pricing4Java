@@ -1,4 +1,4 @@
-package io.github.isagroup.models.featureTypes;
+package io.github.isagroup.models.featuretypes;
 
 import io.github.isagroup.models.Feature;
 import lombok.Getter;
@@ -8,4 +8,8 @@ import lombok.Setter;
 @Setter
 public class Guarantee extends Feature{
     private String docURL;
+
+    public String toString(){
+        return "Guarantee[valueType: " + valueType + ", defaultValue: " + defaultValue + ", docURL: " + docURL + "]";
+    }
 }

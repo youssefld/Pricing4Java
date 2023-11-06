@@ -174,7 +174,7 @@ public class PricingService {
             throw new IllegalArgumentException("There is no plan with the name " + planName + " in the current pricing configuration");
         }else{
             Plan plan = plans.get(planName);
-            plan.setPrice(newPrice);
+            plan.setMonthlyPrice(newPrice);
             plans.put(planName, plan);
             pricingManager.setPlans(plans);
             YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());

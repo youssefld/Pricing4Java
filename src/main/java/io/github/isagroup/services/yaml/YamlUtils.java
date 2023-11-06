@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
@@ -14,6 +15,7 @@ import org.yaml.snakeyaml.representer.Representer;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
+import io.github.isagroup.services.parsing.PricingManagerParser;
 
 /**
  * Utility class to handle YAML files
@@ -29,39 +31,41 @@ public class YamlUtils {
     public static PricingManager retrieveManagerFromYaml(String yamlPath){
         Yaml yaml = new Yaml();
 
-        PricingManager pricingManager = yaml.loadAs(
-            YamlUtils.class.getClassLoader().getResourceAsStream(yamlPath),
-            PricingManager.class
-        );
+        Map<String, Object> test = yaml.load(YamlUtils.class.getClassLoader().getResourceAsStream(yamlPath));
 
-        Map<String, Plan> plans = pricingManager.getPlans();
-        Map<String, Feature> globalFeatures = pricingManager.getFeatures();
+        // PricingManager pricingManager = yaml.loadAs(
+        //     YamlUtils.class.getClassLoader().getResourceAsStream(yamlPath),
+        //     PricingManager.class
+        // );
 
-        for (String planName: plans.keySet()){
-            Plan plan = plans.get(planName);
+        // Map<String, Plan> plans = pricingManager.getPlans();
+        // Map<String, Feature> globalFeatures = pricingManager.getFeatures();
+
+        // for (String planName: plans.keySet()){
+        //     Plan plan = plans.get(planName);
             
-            Map<String, Feature> planFeatures = plan.getFeatures();
+        //     Map<String, Feature> planFeatures = plan.getFeatures();
 
-            for (String featureName: planFeatures.keySet()){
-                Feature globalFeature = globalFeatures.get(featureName);
-                Feature planFeature = planFeatures.get(featureName);
-                planFeature.setDescription(globalFeature.getDescription());
-                planFeature.setType(globalFeature.getType());
-                planFeature.setDefaultValue(globalFeature.getDefaultValue());
-                planFeature.setExpression(globalFeature.getExpression());
-                planFeature.setServerExpression(globalFeature.getServerExpression());
-                if (planFeature.getValue() == null){
-                    planFeature.setValue(globalFeature.getDefaultValue());
-                }
+        //     for (String featureName: planFeatures.keySet()){
+        //         Feature globalFeature = globalFeatures.get(featureName);
+        //         Feature planFeature = planFeatures.get(featureName);
+        //         planFeature.setDescription(globalFeature.getDescription());
+        //         planFeature.setType(globalFeature.getType());
+        //         planFeature.setDefaultValue(globalFeature.getDefaultValue());
+        //         planFeature.setExpression(globalFeature.getExpression());
+        //         planFeature.setServerExpression(globalFeature.getServerExpression());
+        //         if (planFeature.getValue() == null){
+        //             planFeature.setValue(globalFeature.getDefaultValue());
+        //         }
 
-                planFeatures.put(featureName, planFeature);
-            }
+        //         planFeatures.put(featureName, planFeature);
+        //     }
 
-            plan.setFeatures(planFeatures);
-            plans.put(planName, plan);
-        }
+        //     plan.setFeatures(planFeatures);
+        //     plans.put(planName, plan);
+        // }
 
-        return pricingManager;
+        return PricingManagerParser.parseMapToPricingManager(test);
     }
 
     /**

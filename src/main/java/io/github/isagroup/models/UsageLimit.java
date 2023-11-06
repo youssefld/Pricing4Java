@@ -5,6 +5,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UsageLimit {
-    
+public abstract class UsageLimit {
+    private String description;
+    private ValueType valueType;
+    private Object defaultValue;
+    private String unit;
+    private Object value;
+    private String linkedFeature;
+    private String expression;
+    private String serverExpression;
 }

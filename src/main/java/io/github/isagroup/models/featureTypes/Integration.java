@@ -1,4 +1,4 @@
-package io.github.isagroup.models.featureTypes;
+package io.github.isagroup.models.featuretypes;
 
 import java.util.List;
 
@@ -11,4 +11,9 @@ import lombok.Setter;
 public class Integration extends Feature{
     private IntegrationType integrationType;
     private List<String> pricingUrls;
+
+    public String toString(){
+        return "Integration[valueType: " + valueType + ", defaultValue: " + defaultValue + ", integrationType: " + integrationType + ", pricingUrls: " + pricingUrls + "]";
+    }
+        
 }

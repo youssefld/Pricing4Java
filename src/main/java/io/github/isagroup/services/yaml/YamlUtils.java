@@ -33,11 +33,6 @@ public class YamlUtils {
 
         Map<String, Object> test = yaml.load(YamlUtils.class.getClassLoader().getResourceAsStream(yamlPath));
 
-        // PricingManager pricingManager = yaml.loadAs(
-        //     YamlUtils.class.getClassLoader().getResourceAsStream(yamlPath),
-        //     PricingManager.class
-        // );
-
         // Map<String, Plan> plans = pricingManager.getPlans();
         // Map<String, Feature> globalFeatures = pricingManager.getFeatures();
 

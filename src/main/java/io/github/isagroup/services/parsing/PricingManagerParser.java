@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.github.isagroup.models.Feature;
+import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
 
@@ -18,6 +19,7 @@ public class PricingManagerParser {
         setBasicAttributes(map, pricingManager);
         setFeatures(map, pricingManager);
         setUsageLimits(map, pricingManager);
+        setPlans(map, pricingManager);
 
         return pricingManager;
     }
@@ -56,5 +58,19 @@ public class PricingManagerParser {
         }
 
         pricingManager.setUsageLimits(usageLimits);
+    }
+
+    private static void setPlans(Map<String, Object> map, PricingManager pricingManager){
+        Map<String, Object> plansMap = (Map<String, Object>) map.get("plans");
+        Map<String, Plan> plans = new HashMap<>();
+
+        for (String planName: plansMap.keySet()){
+            Map<String, Object> planMap = (Map<String, Object>) plansMap.get(planName);
+            Plan plan = PlanParser.parseMapToPlan(planName, planMap, pricingManager);
+            
+            plans.put(planName, plan);
+        }
+
+        pricingManager.setPlans(plans);
     }
 }

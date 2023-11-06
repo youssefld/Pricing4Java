@@ -21,7 +21,7 @@ public class PostmanYamlParsingTests {
 
         assertEquals("Postman", pricingManager.getSaasName(), "The saasName should be Postman");
 
-        System.out.println(pricingManager.getFeatures());
+        System.out.println(pricingManager.getPlans().get("BASIC").getUsageLimits());
 
         // assertTrue(pricingManager.plans.get("BASIC") instanceof Plan, "Should be an instance of PricingManager");
         // assertEquals(false, pricingManager.plans.get("BASIC").getFeatures().get("haveCalendar").getDefaultValue(), "The deafult value of the haveCalendar feature should be false");

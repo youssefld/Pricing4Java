@@ -12,13 +12,13 @@ import lombok.Setter;
 @Setter
 public class Plan {
     private String description;
-    private double monthlyPrice;
+    private Double monthlyPrice;
     private Double annualPrice;
     private String unit;
     private Map<String, Feature> features;
     private Map<String, UsageLimit> usageLimits;
 
     public String toString(){
-        return "Plan: " + features.toString();
+        return "Plan[monthlyPrice="+ monthlyPrice + ", annualPrice=" + annualPrice + ", unit=" + unit + "]";
     }
 }

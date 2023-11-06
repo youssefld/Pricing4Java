@@ -90,7 +90,7 @@ public class UsageLimitParser {
                 case NUMERIC:
                     limit.setDefaultValue(map.get("defaultValue"));
                     if (!(limit.getDefaultValue() instanceof Integer || limit.getDefaultValue() instanceof Double || limit.getDefaultValue() instanceof Long)){
-                        throw new InvalidDefaultValueException("The feature " + limitName + " does not have a valid defaultValue. Current valueType:" + limit.getValueType().toString() + "; Current defaultValue: " + map.get("defaultValue").toString());
+                        throw new InvalidDefaultValueException("The usageLimit " + limitName + " does not have a valid defaultValue. Current valueType:" + limit.getValueType().toString() + "; Current defaultValue: " + map.get("defaultValue").toString());
                     }
                     break;
                 case BOOLEAN:
@@ -101,15 +101,21 @@ public class UsageLimitParser {
                     break;
             }
         }catch(ClassCastException e){
-            throw new ClassCastException("The feature " + limitName + " does not have a valid defaultValue. Current valueType:" + limit.getValueType().toString() + "; Current defaultValue: " + map.get("defaultValue").toString());
+            throw new InvalidDefaultValueException("The feature " + limitName + " does not have a valid defaultValue. Current valueType:" + limit.getValueType().toString() + "; Current defaultValue: " + map.get("defaultValue").toString());
         }
         limit.setUnit((String) map.get("unit"));
-        String linkedFeature = (String) map.get("linkedFeature");
 
-        if (featureKeys.contains(linkedFeature)){
-            limit.setLinkedFeature(linkedFeature);
+        if (map.get("linkedFeature") == null){
+            limit.setLinkedFeature(null);
         }else{
-            throw new InvalidLinkedFeatureException("The feature " + limitName + " is linked to a nonexistent feature. Current linkedFeature: " + linkedFeature);
+
+            String linkedFeature = (String) map.get("linkedFeature");
+
+            if (featureKeys.contains(linkedFeature)){
+                limit.setLinkedFeature(linkedFeature);
+            }else{
+                throw new InvalidLinkedFeatureException("The feature " + limitName + " is linked to a nonexistent feature. Current linkedFeature: " + linkedFeature);
+            }
         }
     }
 

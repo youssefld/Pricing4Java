@@ -144,7 +144,7 @@ public class PricingService {
             }else if(isCondition(value) && selectedPlanFeature.getValueType() == ValueType.BOOLEAN){
                 selectedPlanFeature.setValue((Boolean) value);
             }else{
-                throw new IllegalArgumentException("The value " + value + " is not of the type " + selectedPlanFeature.getType());
+                throw new IllegalArgumentException("The value " + value + " is not of the type " + selectedPlanFeature.getValueType());
             }
 
             pricingManager.getPlans().get(planName).getFeatures().put(featureName, selectedPlanFeature);

@@ -13,7 +13,7 @@ public class Integration extends Feature{
     private List<String> pricingUrls;
 
     public String toString(){
-        return "Integration[valueType: " + valueType + ", defaultValue: " + defaultValue + ", integrationType: " + integrationType + ", pricingUrls: " + pricingUrls + "]";
+        return "Integration[valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + ", integrationType: " + integrationType + ", pricingUrls: " + pricingUrls + "]";
     }
         
 }

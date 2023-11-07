@@ -67,7 +67,7 @@ public class PricingManagerParser {
         for (String planName: plansMap.keySet()){
             Map<String, Object> planMap = (Map<String, Object>) plansMap.get(planName);
             Plan plan = PlanParser.parseMapToPlan(planName, planMap, pricingManager);
-            
+
             plans.put(planName, plan);
         }
 

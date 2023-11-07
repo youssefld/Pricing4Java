@@ -37,7 +37,14 @@ public class PlanParser {
         Map<String, Feature> globalFeaturesMap = pricingManager.getFeatures();
         Map<String, Feature> planFeatures = new HashMap<>();
         
-        planFeatures.putAll(globalFeaturesMap);
+        for (String globalFeatureName: globalFeaturesMap.keySet()){
+            Feature globalFeature = globalFeaturesMap.get(globalFeatureName);
+            try {
+                planFeatures.put(globalFeatureName, Feature.cloneFeature(globalFeature));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         
         plan.setFeatures(planFeatures);
 
@@ -82,8 +89,18 @@ public class PlanParser {
     private static void setUsageLimitsToPlan(String planName, Map<String, Object> map, PricingManager pricingManager, Plan plan){
         Map<String, Object> planUsageLimitsMap = (Map<String, Object>) map.get("usageLimits");
         Map<String, UsageLimit> globalUsageLimitsMap = pricingManager.getUsageLimits();
+        Map<String, UsageLimit> planUsageLimits = new HashMap<>();
 
-        plan.setUsageLimits(globalUsageLimitsMap);
+        for (String globalUsageLimitName: globalUsageLimitsMap.keySet()){
+            UsageLimit globalUsageLimit = globalUsageLimitsMap.get(globalUsageLimitName);
+            try {
+                planUsageLimits.put(globalUsageLimitName, UsageLimit.cloneUsageLimit(globalUsageLimit));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        plan.setUsageLimits(planUsageLimits);
 
         if (planUsageLimitsMap == null){
             return;

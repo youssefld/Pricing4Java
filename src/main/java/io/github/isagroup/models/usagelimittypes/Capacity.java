@@ -1,5 +1,7 @@
 package io.github.isagroup.models.usagelimittypes;
 
+import java.io.Serializable;
+
 import io.github.isagroup.models.UsageLimit;
 import lombok.Getter;
 import lombok.Setter;

@@ -3,6 +3,7 @@ package io.github.isagroup.services.parsing;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.github.isagroup.models.AddOn;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
@@ -20,6 +21,7 @@ public class PricingManagerParser {
         setFeatures(map, pricingManager);
         setUsageLimits(map, pricingManager);
         setPlans(map, pricingManager);
+        setAddOns(map, pricingManager);
 
         return pricingManager;
     }
@@ -72,5 +74,19 @@ public class PricingManagerParser {
         }
 
         pricingManager.setPlans(plans);
+    }
+
+    private static void setAddOns(Map<String, Object> map, PricingManager pricingManager){
+        Map<String, Object> addOnsMap = (Map<String, Object>) map.get("addOns");
+        Map<String, AddOn> addOns = new HashMap<>();
+
+        for (String addOnName: addOnsMap.keySet()){
+            Map<String, Object> addOnMap = (Map<String, Object>) addOnsMap.get(addOnName);
+            AddOn addOn = AddOnParser.parseMapToAddOn(addOnName, addOnMap, pricingManager);
+
+            addOns.put(addOnName, addOn);
+        }
+
+        pricingManager.setAddOns(addOns);
     }
 }

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.yaml.YamlUtils;
 
@@ -20,11 +21,8 @@ public class PostmanYamlParsingTests {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/postman.yml");
 
         assertEquals("Postman", pricingManager.getSaasName(), "The saasName should be Postman");
-
-        System.out.println(pricingManager.getPlans().get("BASIC").getFeatures());
-
-        // assertTrue(pricingManager.plans.get("BASIC") instanceof Plan, "Should be an instance of PricingManager");
-        // assertEquals(false, pricingManager.plans.get("BASIC").getFeatures().get("haveCalendar").getDefaultValue(), "The deafult value of the haveCalendar feature should be false");
-        // assertEquals(2, pricingManager.plans.get("BASIC").getFeatures().get("maxPets").getValue(), "The value of the maxPets feature should be 2, as it must be copied from the defaultValue");
+        assertTrue(pricingManager.getPlans().get("BASIC") instanceof Plan, "Should be an instance of PricingManager");
+        assertEquals(true, pricingManager.getPlans().get("BASIC").getFeatures().get("apiClient").getDefaultValue(), "The deafult value of the apiClient feature should be true");
+        assertEquals(10000, pricingManager.plans.get("BASIC").getUsageLimits().get("callsToPostmanApi").getDefaultValue(), "The default value of the callsToPostmanApi usageLimit should be 10000, as it must be copied from the defaultValue");
     }
 }

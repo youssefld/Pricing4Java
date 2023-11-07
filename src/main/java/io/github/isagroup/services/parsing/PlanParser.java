@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.github.isagroup.exceptions.CloneFeatureException;
+import io.github.isagroup.exceptions.CloneUsageLimitException;
 import io.github.isagroup.exceptions.FeatureNotFoundException;
 import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.models.Feature;
@@ -41,8 +43,8 @@ public class PlanParser {
             Feature globalFeature = globalFeaturesMap.get(globalFeatureName);
             try {
                 planFeatures.put(globalFeatureName, Feature.cloneFeature(globalFeature));
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (CloneFeatureException e) {
+                throw new CloneFeatureException("Error while clonnig the feature " + globalFeatureName);
             }
         }
         
@@ -95,8 +97,8 @@ public class PlanParser {
             UsageLimit globalUsageLimit = globalUsageLimitsMap.get(globalUsageLimitName);
             try {
                 planUsageLimits.put(globalUsageLimitName, UsageLimit.cloneUsageLimit(globalUsageLimit));
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (CloneUsageLimitException e) {
+                throw new CloneUsageLimitException("Error while clonnig the usageLimit " + globalUsageLimitName);
             }
         }
 

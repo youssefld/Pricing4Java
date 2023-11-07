@@ -33,33 +33,6 @@ public class YamlUtils {
 
         Map<String, Object> test = yaml.load(YamlUtils.class.getClassLoader().getResourceAsStream(yamlPath));
 
-        // Map<String, Plan> plans = pricingManager.getPlans();
-        // Map<String, Feature> globalFeatures = pricingManager.getFeatures();
-
-        // for (String planName: plans.keySet()){
-        //     Plan plan = plans.get(planName);
-            
-        //     Map<String, Feature> planFeatures = plan.getFeatures();
-
-        //     for (String featureName: planFeatures.keySet()){
-        //         Feature globalFeature = globalFeatures.get(featureName);
-        //         Feature planFeature = planFeatures.get(featureName);
-        //         planFeature.setDescription(globalFeature.getDescription());
-        //         planFeature.setType(globalFeature.getType());
-        //         planFeature.setDefaultValue(globalFeature.getDefaultValue());
-        //         planFeature.setExpression(globalFeature.getExpression());
-        //         planFeature.setServerExpression(globalFeature.getServerExpression());
-        //         if (planFeature.getValue() == null){
-        //             planFeature.setValue(globalFeature.getDefaultValue());
-        //         }
-
-        //         planFeatures.put(featureName, planFeature);
-        //     }
-
-        //     plan.setFeatures(planFeatures);
-        //     plans.put(planName, plan);
-        // }
-
         return PricingManagerParser.parseMapToPricingManager(test);
     }
 

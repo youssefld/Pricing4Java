@@ -13,7 +13,7 @@ import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.yaml.YamlUtils;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class PostmanYamlParsingTests {
+public class saasYamlParsingTests {
     @Test
     @Order(1)
     void parsePostmanYamlToClassTest() {

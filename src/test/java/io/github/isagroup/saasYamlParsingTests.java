@@ -47,6 +47,18 @@ public class saasYamlParsingTests {
         assertEquals("Microsoft 365 Enterpise", pricingManager.getSaasName(), "The saasName should be Microsoft 365 Enterpise");
         assertTrue(pricingManager.getPlans().get("APPS_FOR_BUSINESS") instanceof Plan, "Should be an instance of Plan");
         assertEquals(false, pricingManager.getPlans().get("APPS_FOR_BUSINESS").getFeatures().get("sharedCalendars").getDefaultValue(), "The deafult value of the sharedCalendars feature should be false");
-        assertEquals(300, pricingManager.plans.get("BUSINESS_PREMIUM").getUsageLimits().get("webinarsMaxLimit").getDefaultValue(), "The value of the teamsLimit usageLimit for the plan BUSINESS_PREMIUM should be 300, as it must be copied from the defaultValue");
+        assertEquals(300, pricingManager.plans.get("BUSINESS_PREMIUM").getUsageLimits().get("webinarsMaxLimit").getDefaultValue(), "The default value of the teamsLimit usageLimit for the plan BUSINESS_PREMIUM should be 300, as it must be copied from the defaultValue");
+    }
+
+    @Test
+    @Order(4)
+    void parseRapidAPIToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/rapidAPI.yml");
+
+        assertEquals("RapidAPI", pricingManager.getSaasName(), "The saasName should be RapidAPI");
+        assertTrue(pricingManager.getPlans().get("BASIC") instanceof Plan, "Should be an instance of Plan");
+        assertEquals(true, pricingManager.getPlans().get("BASIC").getFeatures().get("search").getDefaultValue(), "The deafult value of the search feature should be true");
+        assertEquals(Double.POSITIVE_INFINITY, pricingManager.plans.get("ENTERPRISE").getUsageLimits().get("numberOfBuilders").getValue(), "The value of the numberOfBuilders usageLimit for the plan ENTERPRISE should be infinite, is it's customizable");
     }
 }

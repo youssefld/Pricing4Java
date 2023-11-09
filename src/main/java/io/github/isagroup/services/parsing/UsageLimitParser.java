@@ -5,6 +5,7 @@ import java.util.Set;
 
 import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.exceptions.InvalidLinkedFeatureException;
+import io.github.isagroup.exceptions.InvalidValueTypeException;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
 import io.github.isagroup.models.UsageLimitType;
@@ -83,7 +84,7 @@ public class UsageLimitParser {
         try{
             limit.setValueType(ValueType.valueOf((String) map.get("valueType")));
         }catch(IllegalArgumentException e){
-            throw new IllegalArgumentException("The feature " + limitName + "does not have a supported valueType. Current valueType: " + (String) map.get("valueType"));
+            throw new InvalidValueTypeException("The feature " + limitName + " does not have a supported valueType. Current valueType: " + (String) map.get("valueType"));
         }
         try{
             switch (limit.getValueType()) {

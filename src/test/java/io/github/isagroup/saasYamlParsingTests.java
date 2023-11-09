@@ -32,9 +32,21 @@ public class saasYamlParsingTests {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/figma.yml");
 
-        assertEquals("Figma", pricingManager.getSaasName(), "The saasName should be Postman");
-        assertTrue(pricingManager.getPlans().get("STARTER") instanceof Plan, "Should be an instance of PricingManager");
+        assertEquals("Figma", pricingManager.getSaasName(), "The saasName should be Figma");
+        assertTrue(pricingManager.getPlans().get("STARTER") instanceof Plan, "Should be an instance of Plan");
         assertEquals(true, pricingManager.getPlans().get("STARTER").getFeatures().get("versionHistory").getDefaultValue(), "The deafult value of the versionHistory feature should be true");
         assertEquals(100, pricingManager.plans.get("STARTER").getUsageLimits().get("teamsLimit").getDefaultValue(), "The default value of the teamsLimit usageLimit should be 100, as it must be copied from the defaultValue");
+    }
+
+    @Test
+    @Order(3)
+    void parseMicrosoftBusinessToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/microsoftEnterprise.yml");
+
+        assertEquals("Microsoft 365 Enterpise", pricingManager.getSaasName(), "The saasName should be Microsoft 365 Enterpise");
+        assertTrue(pricingManager.getPlans().get("APPS_FOR_BUSINESS") instanceof Plan, "Should be an instance of Plan");
+        assertEquals(false, pricingManager.getPlans().get("APPS_FOR_BUSINESS").getFeatures().get("sharedCalendars").getDefaultValue(), "The deafult value of the sharedCalendars feature should be false");
+        assertEquals(300, pricingManager.plans.get("BUSINESS_PREMIUM").getUsageLimits().get("webinarsMaxLimit").getDefaultValue(), "The value of the teamsLimit usageLimit for the plan BUSINESS_PREMIUM should be 300, as it must be copied from the defaultValue");
     }
 }

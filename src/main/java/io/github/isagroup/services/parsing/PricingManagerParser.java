@@ -80,6 +80,10 @@ public class PricingManagerParser {
         Map<String, Object> addOnsMap = (Map<String, Object>) map.get("addOns");
         Map<String, AddOn> addOns = new HashMap<>();
 
+        if (addOnsMap == null){
+            return;
+        }
+
         for (String addOnName: addOnsMap.keySet()){
             Map<String, Object> addOnMap = (Map<String, Object>) addOnsMap.get(addOnName);
             AddOn addOn = AddOnParser.parseMapToAddOn(addOnName, addOnMap, pricingManager);

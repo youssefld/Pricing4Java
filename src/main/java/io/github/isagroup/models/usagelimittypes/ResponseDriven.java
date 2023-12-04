@@ -9,6 +9,6 @@ import lombok.Setter;
 public class ResponseDriven extends UsageLimit{
     @Override
     public String toString() {
-        return "ResponseDriven[valueType: " + this.getValueType() + ", defaultValue: " + this.getDefaultValue() + ", value: " + this.getValue() + ", linkedFeature: " + this.getLinkedFeature() + "]";
+        return "ResponseDriven[valueType: " + this.getValueType() + ", defaultValue: " + this.getDefaultValue() + ", value: " + this.getValue() + ", linkedFeature: " + this.getLinkedFeatures() + "]";
     }
 }

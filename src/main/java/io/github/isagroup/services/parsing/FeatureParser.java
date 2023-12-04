@@ -11,6 +11,7 @@ import io.github.isagroup.models.FeatureType;
 import io.github.isagroup.models.ValueType;
 import io.github.isagroup.models.featuretypes.Automation;
 import io.github.isagroup.models.featuretypes.AutomationType;
+import io.github.isagroup.models.featuretypes.Domain;
 import io.github.isagroup.models.featuretypes.Guarantee;
 import io.github.isagroup.models.featuretypes.Information;
 import io.github.isagroup.models.featuretypes.Integration;
@@ -19,7 +20,6 @@ import io.github.isagroup.models.featuretypes.Management;
 import io.github.isagroup.models.featuretypes.Payment;
 import io.github.isagroup.models.featuretypes.PaymentType;
 import io.github.isagroup.models.featuretypes.Support;
-import io.github.isagroup.models.featuretypes.Tool;
 
 public class FeatureParser {
 
@@ -37,8 +37,8 @@ public class FeatureParser {
                 case INTEGRATION:
                     return parseMapToIntegration(featureName, featureMap);
     
-                case TOOL:
-                    return parseMapToTool(featureName, featureMap); 
+                case DOMAIN:
+                    return parseMapToDomain(featureName, featureMap); 
     
                 case AUTOMATION:
                     return parseMapToAutomation(featureName, featureMap);
@@ -89,12 +89,12 @@ public class FeatureParser {
         return integration;
     }
 
-    private static Tool parseMapToTool(String featureName, Map<String, Object> map){
-        Tool tool = new Tool();
+    private static Domain parseMapToDomain(String featureName, Map<String, Object> map){
+        Domain domain = new Domain();
 
-        loadBasicAttributes(tool, featureName, map);
+        loadBasicAttributes(domain, featureName, map);
 
-        return tool;
+        return domain;
     }
 
     private static Automation parseMapToAutomation(String featureName, Map<String, Object> map){

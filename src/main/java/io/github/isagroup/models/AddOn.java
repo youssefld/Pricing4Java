@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 public class AddOn {
     private List<String> availableFor;
-    private Double price;
+    private Object price;
     private Double monthlyPrice;
     private Double annualPrice;
     private String unit;

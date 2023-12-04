@@ -9,6 +9,6 @@ import lombok.Setter;
 public class TimeDriven extends UsageLimit{
     @Override
     public String toString() {
-        return "TimeDriven[valueType: " + this.getValueType() + ", defaultValue: " + this.getDefaultValue() + ", value: " + this.getValue() + ", linkedFeature: " + this.getLinkedFeature() + "]";
+        return "TimeDriven[valueType: " + this.getValueType() + ", defaultValue: " + this.getDefaultValue() + ", value: " + this.getValue() + ", linkedFeature: " + this.getLinkedFeatures() + "]";
     }
 }

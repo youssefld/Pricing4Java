@@ -22,7 +22,11 @@ public class AddOnParser {
         AddOn addOn = new AddOn();
 
         setAvailableFor(addOnMap, pricingManager, addOn);
-        addOn.setPrice(addOnMap.containsKey("price") ? (Double) addOnMap.get("price") : null);
+        try{
+            addOn.setPrice(addOnMap.containsKey("price") ? (Double) addOnMap.get("price") : null);
+        }catch(ClassCastException e){
+            addOn.setPrice(addOnMap.containsKey("price") ? (String) addOnMap.get("price") : null);
+        }
         addOn.setMonthlyPrice(addOnMap.containsKey("monthlyPrice") ? (Double) addOnMap.get("monthlyPrice") : null);
         addOn.setAnnualPrice(addOnMap.containsKey("annualPrice") ? (Double) addOnMap.get("annualPrice") : null);
         addOn.setUnit((String) addOnMap.get("unit"));

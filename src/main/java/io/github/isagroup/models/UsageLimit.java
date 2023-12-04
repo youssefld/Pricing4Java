@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.List;
 
 import io.github.isagroup.exceptions.CloneUsageLimitException;
 
@@ -19,7 +20,7 @@ public abstract class UsageLimit implements Serializable{
     private Object defaultValue;
     private String unit;
     private transient Object value;
-    private String linkedFeature;
+    private List<String> linkedFeatures;
     private String expression;
     private String serverExpression;
 

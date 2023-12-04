@@ -6,10 +6,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Tool extends Feature {
+public class Domain extends Feature {
 
     public String toString(){
-        return "Tool[valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + "]";
+        return "Domain[valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + "]";
     }
 
 }

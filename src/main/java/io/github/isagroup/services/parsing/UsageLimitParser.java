@@ -1,5 +1,6 @@
 package io.github.isagroup.services.parsing;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -106,17 +107,19 @@ public class UsageLimitParser {
         }
         limit.setUnit((String) map.get("unit"));
 
-        if (map.get("linkedFeature") == null){
-            limit.setLinkedFeature(null);
+        if (map.get("linkedFeatures") == null){
+            limit.setLinkedFeatures(null);
         }else{
 
-            String linkedFeature = (String) map.get("linkedFeature");
+            List<String> linkedFeatures = (List<String>) map.get("linkedFeatures");
 
-            if (featureKeys.contains(linkedFeature)){
-                limit.setLinkedFeature(linkedFeature);
-            }else{
-                throw new InvalidLinkedFeatureException("The feature " + limitName + " is linked to a nonexistent feature. Current linkedFeature: " + linkedFeature);
+            for (String linkedFeature : linkedFeatures){
+                if(!featureKeys.contains(linkedFeature)){
+                    throw new InvalidLinkedFeatureException("The feature " + limitName + " is linked to a nonexistent feature. Current linkedFeature: " + linkedFeature);
+                }
             }
+
+            limit.setLinkedFeatures(linkedFeatures);
         }
     }
 

@@ -61,4 +61,16 @@ public class saasYamlParsingTests {
         assertEquals(true, pricingManager.getPlans().get("BASIC").getFeatures().get("search").getDefaultValue(), "The deafult value of the search feature should be true");
         assertEquals(Double.POSITIVE_INFINITY, pricingManager.plans.get("ENTERPRISE").getUsageLimits().get("numberOfBuilders").getValue(), "The value of the numberOfBuilders usageLimit for the plan ENTERPRISE should be infinite, is it's customizable");
     }
+
+    @Test
+    @Order(5)
+    void parseSalesCloudToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/salescloud.yml");
+
+        assertEquals("salescloud", pricingManager.getSaasName(), "The saasName should be salescloud");
+        assertTrue(pricingManager.getPlans().get("STARTER") instanceof Plan, "Should be an instance of Plan");
+        assertEquals(true, pricingManager.getPlans().get("STARTER").getFeatures().get("leadManagement").getDefaultValue(), "The deafult value of the leadManagement feature should be true");
+        assertEquals(Double.POSITIVE_INFINITY, pricingManager.plans.get("ENTERPRISE").getUsageLimits().get("numberOfProcessesAndFlows").getValue(), "The value of the numberOfProcessesAndFlows usageLimit for the plan ENTERPRISE should be infinite, is it's customizable");
+    }
 }

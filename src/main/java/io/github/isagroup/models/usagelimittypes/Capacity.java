@@ -11,6 +11,6 @@ import lombok.Setter;
 public class Capacity extends UsageLimit{
     @Override
     public String toString() {
-        return "Capacity[valueType: " + this.getValueType() + ", defaultValue: " + this.getDefaultValue() + ", value: " + this.getValue() + ", linkedFeature: " + this.getLinkedFeature() + "]";
+        return "Capacity[valueType: " + this.getValueType() + ", defaultValue: " + this.getDefaultValue() + ", value: " + this.getValue() + ", linkedFeature: " + this.getLinkedFeatures() + "]";
     }
 }

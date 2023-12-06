@@ -81,6 +81,7 @@ public class UsageLimitParser {
     }
 
     private static void loadBasicAttributes(UsageLimit limit, String limitName, Map<String, Object> map, Set<String> featureKeys){
+        limit.setName(limitName);
         limit.setDescription((String) map.get("description"));
         try{
             limit.setValueType(ValueType.valueOf((String) map.get("valueType")));

@@ -23,9 +23,25 @@ public class PlanParser {
         
         Plan plan = new Plan();
 
+        plan.setName(planName);
         plan.setDescription((String) map.get("description"));
-        plan.setMonthlyPrice((Double) map.get("monthlyPrice"));
-        plan.setAnnualPrice((Double) map.get("annualPrice"));
+        try{
+            plan.setMonthlyPrice((Double) map.get("monthlyPrice"));
+            plan.setAnnualPrice((Double) map.get("annualPrice"));
+        }catch(ClassCastException e){
+            if(map.get("monthlyPrice") instanceof Integer){
+                plan.setMonthlyPrice(((Integer) map.get("monthlyPrice")).doubleValue());
+            }
+            
+            if (map.get("annualPrice") instanceof Integer){
+                plan.setAnnualPrice(((Integer) map.get("annualPrice")).doubleValue());
+            }
+            
+            if (map.get("monthlyPrice") instanceof String && map.get("annualPrice") instanceof String){
+                plan.setMonthlyPrice(((String) map.get("monthlyPrice")));
+                plan.setAnnualPrice(((String) map.get("annualPrice")));
+            }
+        }
         plan.setUnit((String) map.get("unit"));
 
         setFeaturesToPlan(planName, map, pricingManager, plan);
@@ -38,6 +54,10 @@ public class PlanParser {
         Map<String, Object> planFeaturesMap = (Map<String, Object>) map.get("features");
         Map<String, Feature> globalFeaturesMap = pricingManager.getFeatures();
         Map<String, Feature> planFeatures = new HashMap<>();
+
+        if (globalFeaturesMap == null){
+            throw new IllegalArgumentException("The pricing manager does not have any features");
+        }
         
         for (String globalFeatureName: globalFeaturesMap.keySet()){
             Feature globalFeature = globalFeaturesMap.get(globalFeatureName);
@@ -67,10 +87,13 @@ public class PlanParser {
                     case NUMERIC:
                         feature.setValue(planFeatureMap.get("value"));
                         if (!(feature.getValue() instanceof Integer || feature.getValue() instanceof Double || feature.getValue() instanceof Long)){
-                            throw new InvalidDefaultValueException("The feature " + feature + " does not have a valid value. Current valueType:" + feature.getValueType().toString() + "; Current defaultValue: " + planFeatureMap.get("value").toString());
+                            throw new InvalidDefaultValueException("The feature " + feature.getName() + " does not have a valid value. Current valueType: " + feature.getValueType().toString() + "; Current value in " + plan.getName() + ": " + planFeatureMap.get("value").toString());
                         }
                         break;
                     case BOOLEAN:
+                        if(!(planFeatureMap.get("value") instanceof Boolean)){
+                            throw new InvalidDefaultValueException("The feature " + feature.getName() + " does not have a valid value. Current valueType: " + feature.getValueType().toString() + "; Current value in " + plan.getName() + ": " + planFeatureMap.get("value").toString());
+                        }
                         feature.setValue((boolean) planFeatureMap.get("value"));
                         break;
                     case TEXT:  
@@ -78,6 +101,9 @@ public class PlanParser {
                         if (feature instanceof Payment){
                             parsePaymentValue(feature, planFeatureName, planFeatureMap);
                         }else{
+                            if (!(planFeatureMap.get("value") instanceof String)){
+                                throw new InvalidDefaultValueException("The feature " + feature.getName() + " does not have a valid value. Current valueType: " + feature.getValueType().toString() + "; Current value in " + plan.getName() + ": " + planFeatureMap.get("value").toString());
+                            }
                             feature.setValue((String) planFeatureMap.get("value"));
                         }
                         break;
@@ -92,6 +118,10 @@ public class PlanParser {
         Map<String, Object> planUsageLimitsMap = (Map<String, Object>) map.get("usageLimits");
         Map<String, UsageLimit> globalUsageLimitsMap = pricingManager.getUsageLimits();
         Map<String, UsageLimit> planUsageLimits = new HashMap<>();
+
+        if (globalUsageLimitsMap == null){
+            return;
+        }
 
         for (String globalUsageLimitName: globalUsageLimitsMap.keySet()){
             UsageLimit globalUsageLimit = globalUsageLimitsMap.get(globalUsageLimitName);

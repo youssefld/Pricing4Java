@@ -10,6 +10,6 @@ public class Guarantee extends Feature{
     private String docURL;
 
     public String toString(){
-        return "Guarantee[valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + ", docURL: " + docURL + "]";
+        return "Guarantee[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + ", docURL: " + docURL + "]";
     }
 }

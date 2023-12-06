@@ -32,13 +32,17 @@ public class PricingManagerParser {
         pricingManager.setMonth((int) map.get("month"));
         pricingManager.setYear((int) map.get("year"));
         pricingManager.setCurrency((String) map.get("currency"));
-        pricingManager.setHasAnnualPayment((boolean) map.get("hasAnnualPayment"));
+        pricingManager.setHasAnnualPayment((Boolean) map.get("hasAnnualPayment"));
     }
 
     private static void setFeatures(Map<String, Object> map, PricingManager pricingManager){
         Map<String, Feature> pricingFeatures = new HashMap<>();
         Map<String, Object> featuresMap = (Map<String, Object>) map.get("features");
         
+        if (featuresMap == null){
+            throw new IllegalArgumentException("The pricing manager does not have any features");
+        }
+
         for (String featureName: featuresMap.keySet()){
             Map<String, Object> featureMap = (Map<String, Object>) featuresMap.get(featureName);
             Feature feature = FeatureParser.parseMapToFeature(featureName, featureMap);
@@ -51,6 +55,10 @@ public class PricingManagerParser {
     private static void setUsageLimits(Map<String, Object> map, PricingManager pricingManager){
         Map<String, Object> usageLimitsMap = (Map<String, Object>) map.get("usageLimits");
         Map<String, UsageLimit> usageLimits = new HashMap<>();
+
+        if (usageLimitsMap == null){
+            return;
+        }
 
         for (String limitName: usageLimitsMap.keySet()){
             Map<String, Object> limitMap = (Map<String, Object>) usageLimitsMap.get(limitName);
@@ -65,6 +73,10 @@ public class PricingManagerParser {
     private static void setPlans(Map<String, Object> map, PricingManager pricingManager){
         Map<String, Object> plansMap = (Map<String, Object>) map.get("plans");
         Map<String, Plan> plans = new HashMap<>();
+
+        if (plansMap == null){
+            return;
+        }
 
         for (String planName: plansMap.keySet()){
             Map<String, Object> planMap = (Map<String, Object>) plansMap.get(planName);

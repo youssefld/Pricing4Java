@@ -15,7 +15,7 @@ import io.github.isagroup.services.yaml.YamlUtils;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class saasYamlParsingTests {
     @Test
-    @Order(1)
+    @Order(10)
     void parsePostmanYamlToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/postman.yml");
@@ -27,7 +27,7 @@ public class saasYamlParsingTests {
     }
 
     @Test
-    @Order(2)
+    @Order(20)
     void parseFigmaToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/figma.yml");
@@ -39,7 +39,7 @@ public class saasYamlParsingTests {
     }
 
     @Test
-    @Order(3)
+    @Order(30)
     void parseMicrosoftBusinessToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/microsoftEnterprise.yml");
@@ -51,7 +51,7 @@ public class saasYamlParsingTests {
     }
 
     @Test
-    @Order(4)
+    @Order(40)
     void parseRapidAPIToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/rapidAPI.yml");
@@ -63,7 +63,7 @@ public class saasYamlParsingTests {
     }
 
     @Test
-    @Order(5)
+    @Order(50)
     void parseSalesCloudToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/salescloud.yml");
@@ -72,5 +72,97 @@ public class saasYamlParsingTests {
         assertTrue(pricingManager.getPlans().get("STARTER") instanceof Plan, "Should be an instance of Plan");
         assertEquals(true, pricingManager.getPlans().get("STARTER").getFeatures().get("leadManagement").getDefaultValue(), "The deafult value of the leadManagement feature should be true");
         assertEquals(Double.POSITIVE_INFINITY, pricingManager.plans.get("ENTERPRISE").getUsageLimits().get("numberOfProcessesAndFlows").getValue(), "The value of the numberOfProcessesAndFlows usageLimit for the plan ENTERPRISE should be infinite, is it's customizable");
+    }
+
+    @Test
+    @Order(60)
+    void parseCanvaToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/canva.yml");
+
+        assertEquals("canva", pricingManager.getSaasName(), "The saasName should be canva");
+    }
+
+    @Test
+    @Order(70)
+    void parseClockifyToClassTest(){
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/clockify.yml");
+
+        assertEquals("clockify", pricingManager.getSaasName(), "The saasName should be clockify");
+        assertEquals(null, pricingManager.getUsageLimits(), "Clockify does not have usageLimits");
+        assertEquals(null, pricingManager.getPlans().get("FREE").getUsageLimits(), "Clockify does not have usageLimits");
+    }
+
+    @Test
+    @Order(80)
+    void parseGitHubToClassTest(){
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/github.yml");
+
+        assertEquals("github", pricingManager.getSaasName(), "The saasName should be github");
+    }
+
+    @Test
+    @Order(90)
+    void parseJiraToClassTest(){
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/jira.yml");
+
+        assertEquals("Jira", pricingManager.getSaasName(), "The saasName should be Jira");
+    }
+
+    @Test
+    @Order(100)
+    void parseMondayToClassTest(){
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/monday.yml");
+
+        assertEquals("Monday", pricingManager.getSaasName(), "The saasName should be Monday");
+    }
+
+    @Test
+    @Order(110)
+    void parseNavetorToClassTest(){
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/navetor.yml");
+
+        assertEquals("Navetor", pricingManager.getSaasName(), "The saasName should be Navetor");
+    }
+
+    @Test
+    @Order(120)
+    void parseOverleafToClassTest(){
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/overleaf.yml");
+
+        assertEquals("Overleaf", pricingManager.getSaasName(), "The saasName should be Overleaf");
+    }
+
+    @Test
+    @Order(130)
+    void parsePipedriveToClassTest(){
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/pipedrive.yml");
+
+        assertEquals("Pipedrive", pricingManager.getSaasName(), "The saasName should be Pipedrive");
+    }
+
+    @Test
+    @Order(140)
+    void parseRipplingToClassTest(){
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/rippling.yml");
+
+        assertEquals("Rippling", pricingManager.getSaasName(), "The saasName should be Rippling");
+    }
+
+    @Test
+    @Order(150)
+    void parseWrikeToClassTest(){
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/wrike.yml");
+
+        assertEquals("Wrike", pricingManager.getSaasName(), "The saasName should be Wrike");
     }
 }

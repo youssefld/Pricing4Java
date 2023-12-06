@@ -16,7 +16,7 @@ public class PricingManager {
     public int month;
     public int year;
     public String currency;
-    public boolean hasAnnualPayment;
+    public Boolean hasAnnualPayment;
     public Map<String, Plan> plans;
     public Map<String, Feature> features;
     public Map<String, UsageLimit> usageLimits;

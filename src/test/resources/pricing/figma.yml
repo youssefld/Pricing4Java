@@ -9,22 +9,22 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   figmaEditor:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   advancedDrawingTools:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   autoLayout:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   pluginsAndWidgets:
     description: ""
     valueType: BOOLEAN
@@ -36,42 +36,42 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   crossPlatform:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   sketchImport:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   pdfPngJpgSvgExport:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   multiplayer:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   shareableLinks:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   onCanvasCommenting:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   observationMode:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   privateProjects:
     description: ""
     valueType: BOOLEAN
@@ -86,7 +86,7 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   teamAndProjectTransfer:
     description: ""
     valueType: BOOLEAN
@@ -101,92 +101,92 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   customWorkspaces:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   interactivePrototypes:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   videosInPrototypes:
     description: ""
     valueType: TEXT
     defaultValue: "Choose videos from the Figma Community"
-    type: TOOL
+    type: DOMAIN
   overlays:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   transitions:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   advancedAnimations:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   setVariable:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   conditionalLogic:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   multipleActions:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   expressions:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   variables:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   components:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   styles:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   modes:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   teamLibraries:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   organizationWideDesignSystems:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   sharedFonts:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   designSystemAnalytics:
     description: ""
     valueType: BOOLEAN
@@ -207,7 +207,7 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   figmaForVsCode:
     description: ""
     valueType: BOOLEAN
@@ -230,12 +230,12 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   webhooks:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   privatePluginsAndWidgets:
     description: ""
     valueType: BOOLEAN
@@ -339,7 +339,7 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   idleSessionTimeout:
     description: ""
     valueType: BOOLEAN
@@ -387,21 +387,24 @@ usageLimits:
     defaultValue: 30
     unit: day
     type: CAPACITY
-    linkedFeature: versionHistory
+    linkedFeatures: 
+      - versionHistory
   teamsLimit:
     description: ""
     valueType: NUMERIC
     defaultValue: 100
     unit: team
     type: CAPACITY
-    linkedFeature: teams
+    linkedFeatures: 
+      - teams
   modesLimits:
     description: ""
     valueType: NUMERIC
     defaultValue: 0
     unit: mode
     type: CAPACITY
-    linkedFeature: modes
+    linkedFeatures: 
+      - modes
 plans:
   STARTER:
     description: ""

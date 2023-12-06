@@ -10,6 +10,6 @@ public class Automation extends Feature{
     private AutomationType automationType;
 
     public String toString(){
-        return "Automation[valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + ", automationType: " + automationType + "]";
+        return "Automation[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + ", automationType: " + automationType + "]";
     }
 }

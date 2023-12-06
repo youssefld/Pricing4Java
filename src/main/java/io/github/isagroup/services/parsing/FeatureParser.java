@@ -78,7 +78,7 @@ public class FeatureParser {
 
         try{
             integration.setIntegrationType(IntegrationType.valueOf((String) map.get("integrationType")));
-        }catch (IllegalArgumentException e){
+        }catch (NullPointerException | IllegalArgumentException e){
             throw new InvalidIntegrationTypeException("The feature " + featureName + " does not have a supported integrationType. Current value: " + (String) map.get("integrationType"));
         }
 
@@ -146,6 +146,7 @@ public class FeatureParser {
     }
 
     private static void loadBasicAttributes(Feature feature, String featureName, Map<String, Object> map){
+        feature.setName(featureName);
         feature.setDescription((String) map.get("description"));
         try{
             feature.setValueType(ValueType.valueOf((String) map.get("valueType")));

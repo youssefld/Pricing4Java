@@ -9,32 +9,32 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   collections:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   apiTags:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   categories:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   testing:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   apiClient:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   vsCodeExtension:
     description: ""
     valueType: BOOLEAN
@@ -45,12 +45,12 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   announcements:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   apiAnalytics:
     description: ""
     valueType: BOOLEAN
@@ -60,7 +60,7 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   apiAlerts:
     description: ""
     valueType: BOOLEAN
@@ -86,12 +86,12 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   customLogo:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   customDomain:
     description: ""
     valueType: BOOLEAN
@@ -101,7 +101,7 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   currencyDisplayConfiguration:
     description: ""
     valueType: BOOLEAN
@@ -111,7 +111,7 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
-    type: TOOL
+    type: DOMAIN
   teamsAndOrganizations:
     description: ""
     valueType: BOOLEAN
@@ -121,7 +121,7 @@ features:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
-    type: TOOL
+    type: DOMAIN
   apiLinting:
     description: ""
     valueType: BOOLEAN
@@ -174,28 +174,28 @@ usageLimits:
     defaultValue: 2000000
     unit: calls
     type: CAPACITY
-    linkedFeature: null
+    linkedFeatures: null
   numberOfApis:
     description: ""
     valueType: NUMERIC
     defaultValue: .inf
     unit: api
     type: CAPACITY
-    linkedFeature: null
+    linkedFeatures: null
   numberOfBuilders:
     description: ""
     valueType: NUMERIC
     defaultValue: 5
     unit: builder
     type: CAPACITY
-    linkedFeature: null
+    linkedFeatures: null
   numberOfAdmins:
     description: ""
     valueType: NUMERIC
     defaultValue: 0
     unit: admin
     type: CAPACITY
-    linkedFeature: null
+    linkedFeatures: null
 plans:
   BASIC:
     description: "List your APIs on the world's largest API Hub"

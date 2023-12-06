@@ -11,14 +11,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Plan {
+    private String name;
     private String description;
-    private Double monthlyPrice;
-    private Double annualPrice;
+    private Object monthlyPrice;
+    private Object annualPrice;
     private String unit;
     private Map<String, Feature> features;
     private Map<String, UsageLimit> usageLimits;
 
     public String toString(){
-        return "Plan[monthlyPrice="+ monthlyPrice + ", annualPrice=" + annualPrice + ", unit=" + unit + ", features: " + features.get("superAdminRole") + "]";
+        return "Plan[name=" + name + ", monthlyPrice="+ monthlyPrice + ", annualPrice=" + annualPrice + ", unit=" + unit + ", features: " + features.get("superAdminRole") + "]";
     }
 }

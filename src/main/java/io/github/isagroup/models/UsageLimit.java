@@ -15,6 +15,7 @@ import io.github.isagroup.exceptions.CloneUsageLimitException;
 @Getter
 @Setter
 public abstract class UsageLimit implements Serializable{
+    private String name;
     private String description;
     private ValueType valueType;
     private Object defaultValue;

@@ -9,7 +9,7 @@ import lombok.Setter;
 public class Support extends Feature{
     
     public String toString(){
-        return "Support[valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + "]";
+        return "Support[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + "]";
     }
 
 }

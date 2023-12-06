@@ -11,8 +11,8 @@ import lombok.Setter;
 public class AddOn {
     private List<String> availableFor;
     private Object price;
-    private Double monthlyPrice;
-    private Double annualPrice;
+    private Object monthlyPrice;
+    private Object annualPrice;
     private String unit;
     private Map<String, Feature> features;
     private Map<String, UsageLimit> usageLimits;

@@ -1,8 +1,136 @@
 # pricingplans-4j
 
-The aim of this package is to provide a simple and easy to use tools that allow users to set a pricing configuration on the spring server side of an app automatically. It also can evaluate the context of an user driven by pricing features and wrap the results inside a JWT. The package have been designed to be used with [pricingplans-react](https://github.com/Alex-GF/pricingplans-react), the frontend library that consumes the JWT and toggles on and off functionalities based on the user pricing plan.
+The aim of this package is to provide a simple and easy to use tools that allow users to set a pricing configuration on the spring server side of an app automatically. It also can evaluate the context of an user driven by pricing features and wrap the results inside a JWT. The package have been designed to be used with [pricingplans-react](https://github.com/isa-group/pricingplans-react.git), the frontend library that consumes the JWT and toggles on and off functionalities based on the user pricing plan.
 
-## Installation
+Right now, the library is in a very early stage of development, so it is not recommended to use it in production environments. However, it is possible to use it in demo apps to test its functionalities. 
+
+The only feature that is implemented right now and tested is the Yaml4SaaS syntax validator.
+
+## Index
+
+- [Yaml4SaaS](#yaml4saas)
+- [Yaml4SaaS Syntax Validator Usage](#yaml4saas-syntax-validator-usage)
+
+## Yaml4SaaS
+
+Yaml4SaaS emerges as a pragmatic application of the Pricing4SaaS model (Figure \ref{fig:yaml4SaaS}), aligning with the overarching objective of formalizing and structuring pricing information for SaaS platforms. Building upon the foundational principles articulated in Pricing4SaaS, Yaml4SaaS embodies a simplified and versatile YAML-based syntax designed for serializing comprehensive details about SaaS offerings. The essence of Yaml4SaaS lies in its capacity to encapsulate pricing plans, add-ons, features and usage limits within a concise and human-readable YAML format. Here is a tempalte specification of the Yaml4SaaS syntax:
+
+```yaml
+saasName: GitHub
+day: 15
+month: 11
+year: 2023
+currency: USD
+hasAnnualPayment: true
+features:
+    githubPackages:
+        description: ...
+        valueType: BOOLEAN
+        defaultValue: true
+        type: DOMAIN
+    standardSupport:
+        description: ...
+        valueType: BOOLEAN
+        defaultValue: false
+        type: SUPPORT
+    #...
+usageLimits:
+    githubPackagesLimit:
+        description: ...
+        valueType: NUMERIC
+        unit: GB
+        defaultValue: 0.5
+        linkedFeatures:
+            - githubPackages
+    #...
+plans:
+    FREE:
+        description: ...
+        monthlyPrice: 0
+        annualPrice: 0
+        unit: "user/month"
+    TEAM:
+        description: ...
+        monthlyPrice: 4
+        annualPrice: 3.67
+        unit: "user/month"
+        features: 
+            standardSupport:
+                value: true
+        usageLimits: 
+            githubPackagesLimit:
+                value: 2
+    #...
+addOns:
+    extraGithubPackages:
+        availableFor:
+            - FREE
+            - TEAM
+        price: 0.5
+        unit: GB/month
+        features: null
+        usageLimits: null
+        usageLimitsExtensions:
+            githubPackagesLimit:
+                value: 1
+    #...
+```
+
+Starting with the top-level placeholder, we can describe basic information about the pricing, features, usage limits, plans and add-ons.
+
+`Features` enumerate all the functionalities encompassed in the pricing, classifying them into the types defined in Pricing4SaaS: 
+
+- INFORMATION
+- INTEGRATION
+- DOMAIN
+- AUTOMATION
+- MANAGEMENT
+- GUARANTEE
+- SUPPORT
+- PAYMENT
+
+detailing each feature's `description`, `valueType` (BOOLEAN, TEXT), and `defaultValue`, whose data type has to be aligned with the `valueType` defined. Notably, features do not handle NUMERIC values, which are reserved for limits. In addition, depending on each type of feature, the syntax  extends expressiveness for each feature type with additional fields:
+
+- For **integration** features, an `IntegrationType` (enum defined in Figure \ref{fig:yaml4SaaS}) can be specified through the `integrationType` field. If its value is WEB\_SAAS, a list of SaaS pricing URLs can be included.
+- **Automation** features do also allow to assign theirselves an `AutomationType`.
+- For **guarantee** features can reference the corresponding documentation section describing them via the `docURL` field.
+- **Payment** features differ from others, requiring values as a list of `PaymentTypes` (also detailed in Figure \ref{fig:yaml4SaaS}) for standardization.
+
+
+Similar to features, `UsageLimits` expounds on limitations affecting plans, add-ons, or features in the pricing, tagging each with the corresponding Pricing4SaaS type:
+
+
+- NON_RENEWABLE
+- RENEWABLE
+- RESPONSE_DRIVEN
+- TIME_DRIVEN
+
+
+For each limit, similar to features, a `description`, `valueType` (BOOLEAN, TEXT, NUMERIC), and `defaultValue` are provided, accompanied by additional fields such as `unit` or `linkedFeatures`. The latter must be a list of previously described features affected by the limitation.
+
+The `plans` section provides comprehensive details about the distinct pricing plans offered within the SaaS. Each plan is identified by a unique `name`, allowing for easy reference and differentiation. For each one, essential information is specified, including a brief `description`, the `monthlyPrice`, the `annualPrice` (if different from monthly) and the `unit` affected by them, typically expressed as "user/month".
+
+In the `features` and `usageLimits` subsections of each plan, only those requiring a modification in their `defaultValue` should be explicitly listed. For those not mentioned, the `defaultValue` is understood to be equivalent to the `value`.
+
+Within the `addOns` section, the focus is on delineating the specific details of additional offerings beyond the core plans. Each add-on is characterized by its unique features and usage limits, which have to be listed in the structure established in the `features` and `usageLimits` sections, but not included on plans. Similar to the approach taken in the previous section of the file, only those `features` or `usageLimits` necessitating an alteration in the `defaultValue` are explicitly outlined. As an extra field, add-ons also allow to extent a usageLimit, as can be seen in Figure \ref{fig:pricing4SaaSYAML}. This is extremely powerful for modeling overage cost to some limits.
+
+In conclusion, Yaml4SaaS stands as a practical implementation of the Pricing4SaaS model, providing a YAML-based syntax to formalize SaaS pricing structures in a human-readable format that enhances clarity and simplicity.
+
+## Yaml4SaaS Syntax Validator Usage
+
+The validator can be easyily run by creating a test inside the `saasYamlParsingTest.java` file following the next structure:
+
+```java
+@Test
+@Order(X)
+void parsePostmanYamlToClassTest() {
+    PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/{NAME_OF_YOUR_FILE}.yml");
+}
+```
+
+The test will fail if the YAML file does not correctly follow the Yaml4SaaS syntax, and will throw an exception explaining the problem.
+
+<!-- ## Installation
 
 The package have been build to be used with maven. To install it, just add the following dependencies to your pom.xml file:
 
@@ -12,7 +140,7 @@ The package have been build to be used with maven. To install it, just add the f
     ...
 
     <!-- PRICINGPLANS-4J -->
-
+<!--
     <dependency>
         <groupId>io.github.isa-group</groupId>
         <artifactId>pricingplans-4j</artifactId>
@@ -22,63 +150,82 @@ The package have been build to be used with maven. To install it, just add the f
     ...
 
 </dependencies>
-```
+``` -->
 
-## Pricing Configuration
+<!-- ## Pricing Configuration
 
 The packages uses a YAML file to represent all the pricing configuration, which includes: plans specifications, features used, values of these features for each plan… 
 
 The file must be placed inside the resources folder of the project, and must have the structure of this example:
 
 ```yaml
+saasName: GitHub
+day: 15
+month: 11
+year: 2023
+currency: USD
+hasAnnualPayment: true
 features:
-  feature1:
-    description: feature1 description
-    expression: # SPEL expression
-    serverExpression: # SPEL expression that will be evaluated on the server side
-    type: NUMERIC # The value of this field can be NUMERIC, TEXT or CONDITION
-    defaultValue: 2
-  feature2:
-    description: feature2 description
-    expression: # SPEL expression
-    type: CONDITION
-    defaultValue: true
-  feature3:
-    description: feature3 description
-    expression: '' # This feature will be evaluated as false by default
-    type: TEXT
-    defaultValue: LOW
-  # ...
+    githubPackages:
+        description: ...
+        valueType: BOOLEAN
+        defaultValue: true
+        type: DOMAIN
+    standardSupport:
+        description: ...
+        valueType: BOOLEAN
+        defaultValue: false
+        type: SUPPORT
+    #...
+usageLimits:
+    githubPackagesLimit:
+        description: ...
+        valueType: NUMERIC
+        unit: GB
+        defaultValue: 0.5
+        linkedFeatures:
+            - githubPackages
+    #...
 plans:
-  BASIC:
-    description: Basic plan
-    price: 0.0
-    currency: EUR
-    features:
-      feature1:
-        value: null
-      feature2:
-        value: false
-      feature3:
-        value: null
-  PRO:
-    description: Pro plan
-    price: 12.0
-    currency: EUR
-    features:
-      feature1:
-        value: 6
-      feature2:
-        value: null
-      feature3:
-        value: HIGH
-```
+    FREE:
+        description: ...
+        monthlyPrice: 0
+        annualPrice: 0
+        unit: "user/month"
+    TEAM:
+        description: ...
+        monthlyPrice: 4
+        annualPrice: 3.67
+        unit: "user/month"
+        features: 
+            standardSupport:
+                value: true
+        usageLimits: 
+            githubPackagesLimit:
+                value: 2
+    #...
+addOns:
+    extraGithubPackages:
+        availableFor:
+            - FREE
+            - TEAM
+        price: 0.5
+        unit: GB/month
+        features: null
+        usageLimits: null
+        usageLimitsExtensions:
+            githubPackagesLimit:
+                value: 1
+    #...
+``` -->
 
-Important notes to have in mind while configuring the YAML:
 
-- The `features` section must contain all the features that are going to be used in the app. Each feature must have a `description`, a `type` and a `defaultValue` and a `expression`. 
 
-  The `type` can be `NUMERIC` (handles Integer, Double, Long…), `TEXT` (handles String) or `CONDITION` (handles Boolean). 
+<!-- Important notes to have in mind while configuring the YAML:
+
+- The `features` section must contain all the features that are going to be used in the app. Each feature must have a `description`, a `valueType`, a `defaultValue`, a `unit` with whom the limit is measured and a list of `linkedFeatures` affected by the limit. 
+
+  The `type` can be `NUMERIC` (handles Integer, Double, Long…), `TEXT` (handles String) or `BOOLEAN` (handles Boolean). 
 
   The `defaultValue` must be a value supported by the type of the feature:
   
@@ -141,9 +288,9 @@ Important notes to have in mind while configuring the YAML:
 
 - Each feature inside a plan must have a name that match with one of the declared in the `features` section. Each of this features must only contains a `value` attribute of a type supported by the feature. The `value` attribute can also can be set to `null` if you want the library to consider the `defaultValue` as the value of the field.
 
-  The library will automatically add the rest of the attributes when parsing YAML to PricingManager.
+  The library will automatically add the rest of the attributes when parsing YAML to PricingManager. -->
 
-## Java objects to manage pricing
+<!-- ## Java objects to manage pricing
 
 The package provides a set of java objects that model the YAML configuration. These objects can be used to access information about the pricing all over the app.
 
@@ -373,4 +520,4 @@ public Pet savePet(Pet pet) throws DataAccessException, DuplicatedPetNameExcepti
 }
 
 // ...
-```
+``` -->

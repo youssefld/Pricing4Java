@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.github.isagroup.models.Feature;
-import io.github.isagroup.models.FeatureType;
+import io.github.isagroup.models.ValueType;
 import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.yaml.YamlUtils;
@@ -96,12 +96,17 @@ public class PricingService {
             if (planFeatures.containsKey(name)){
                 throw new IllegalArgumentException("The feature " + name + " does already exist in the current pricing configuration. Check the " + planName + " plan");
             }else{
-                Feature newFeature = new Feature();
-                newFeature.setValue(features.get(name).getDefaultValue());
-                
-                planFeatures.put(name, newFeature);
-                plan.setFeatures(planFeatures);
-                plans.put(planName, plan);
+                Feature newFeature;
+                try {
+                    newFeature = feature.getClass().newInstance();
+                    newFeature.setValue(features.get(name).getDefaultValue());
+                    
+                    planFeatures.put(name, newFeature);
+                    plan.setFeatures(planFeatures);
+                    plans.put(planName, plan);
+                } catch (InstantiationException | IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
             
         }
@@ -116,10 +121,10 @@ public class PricingService {
      * that is being used. A feature with the given feature name must also exist.
      * @param planName name of the plan whose feature will suffer the change
      * @param featureName name of the feature that will suffer the change
-     * @param value the new value of the feature. It must be a supported type depending on the feature's {@link FeatureType} attribute
+     * @param value the new value of the feature. It must be a supported type depending on the feature's {@link ValueType} attribute
      * @throws IllegalArgumentException if the plan does not exist in the current pricing configuration
      * @throws IllegalArgumentException if the plan does not contain the feature
-     * @throws IllegalArgumentException if the value does not match a supported type depending on the feature's {@link FeatureType} attribute
+     * @throws IllegalArgumentException if the value does not match a supported type depending on the feature's {@link ValueType} attribute
      */
     @Transactional
     public void setPlanFeatureValue(String planName, String featureName, Object value) {
@@ -132,14 +137,14 @@ public class PricingService {
 
             if (selectedPlanFeature == null) {
                 throw new IllegalArgumentException("The plan " + planName + " does not have the feature " + featureName);
-            }else if(isNumeric(value) && selectedPlanFeature.getType() == FeatureType.NUMERIC){
+            }else if(isNumeric(value) && selectedPlanFeature.getValueType() == ValueType.NUMERIC){
                 selectedPlanFeature.setValue((Integer) value);
-            }else if(isText(value) && selectedPlanFeature.getType() == FeatureType.TEXT){
+            }else if(isText(value) && selectedPlanFeature.getValueType() == ValueType.TEXT){
                 selectedPlanFeature.setValue((String) value);
-            }else if(isCondition(value) && selectedPlanFeature.getType() == FeatureType.CONDITION){
+            }else if(isCondition(value) && selectedPlanFeature.getValueType() == ValueType.BOOLEAN){
                 selectedPlanFeature.setValue((Boolean) value);
             }else{
-                throw new IllegalArgumentException("The value " + value + " is not of the type " + selectedPlanFeature.getType());
+                throw new IllegalArgumentException("The value " + value + " is not of the type " + selectedPlanFeature.getValueType());
             }
 
             pricingManager.getPlans().get(planName).getFeatures().put(featureName, selectedPlanFeature);
@@ -169,7 +174,7 @@ public class PricingService {
             throw new IllegalArgumentException("There is no plan with the name " + planName + " in the current pricing configuration");
         }else{
             Plan plan = plans.get(planName);
-            plan.setPrice(newPrice);
+            plan.setMonthlyPrice(newPrice);
             plans.put(planName, plan);
             pricingManager.setPlans(plans);
             YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
@@ -209,7 +214,7 @@ public class PricingService {
      * @throws IllegalArgumentException if the feature does not exist in the current pricing configuration
      */
     @Transactional
-    public void setFeatureType(String featureName, FeatureType newType) {
+    public void setValueType(String featureName, ValueType newType) {
         
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
@@ -219,7 +224,7 @@ public class PricingService {
             throw new IllegalArgumentException("There is no feature with the name " + featureName + " in the current pricing configuration");
         }else{
             Feature feature = features.get(featureName);
-            feature.setType(newType);
+            feature.setValueType(newType);
             features.put(featureName, feature);
             pricingManager.setFeatures(features);
             YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());

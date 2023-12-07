@@ -32,7 +32,7 @@ public class YamlParsingTests {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/models.yml");
 
-        pricingManager.plans.get("BASIC").price = 1000.0;
+        pricingManager.plans.get("BASIC").setMonthlyPrice(1000.0);
 
         YamlUtils.writeYaml(pricingManager, "pricing/models.yml");
 
@@ -43,9 +43,9 @@ public class YamlParsingTests {
 
         PricingManager newPricingManager = YamlUtils.retrieveManagerFromYaml("pricing/models.yml");
     
-        assertEquals(1000.0, newPricingManager.plans.get("BASIC").price, "The price has not being changed on the yaml");
+        assertEquals(1000.0, newPricingManager.plans.get("BASIC").getMonthlyPrice(), "The price has not being changed on the yaml");
         
-        newPricingManager.plans.get("BASIC").price = 0.0;
+        newPricingManager.plans.get("BASIC").setMonthlyPrice(0.0);
 
         YamlUtils.writeYaml(newPricingManager, "pricing/models.yml");
 
@@ -54,7 +54,7 @@ public class YamlParsingTests {
         }catch(InterruptedException e){
         }
 
-        assertEquals(0.0, newPricingManager.plans.get("BASIC").price, "The price has not being reset");
+        assertEquals(0.0, newPricingManager.plans.get("BASIC").getMonthlyPrice(), "The price has not being reset");
 
     }
 

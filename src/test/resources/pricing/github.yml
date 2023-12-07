@@ -408,7 +408,7 @@ usageLimits:
     description: "Free tier usage limit for public repositories"
     valueType: BOOLEAN
     defaultValue: false
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - protectedBranches
       - codeOwners
@@ -431,7 +431,7 @@ usageLimits:
     description: "Team tear usage limit for public repositories"
     valueType: BOOLEAN
     defaultValue: false
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - enviromentProtectionRules
       - codeScanning
@@ -445,7 +445,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 1000
     unit: minute/month
-    type: QUOTA
+    type: RENEWABLE
     linkedFeatures: 
       - githubActions
   diskSpaceForGithubPackages:
@@ -453,7 +453,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 0.5
     unit: GB
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: 
       - githubPackages
   githubCodepacesStorage:
@@ -461,7 +461,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 15
     unit: GB/month
-    type: QUOTA
+    type: RENEWABLE
     linkedFeatures: 
       - githubCodespaces
   githubCodepacesCoreHours:
@@ -469,7 +469,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 120
     unit: coreHours/month
-    type: QUOTA
+    type: RENEWABLE
     linkedFeatures:
       - githubCodespaces
   gitLFSMaximunFileSize:
@@ -477,7 +477,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 2
     unit: GB
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - gitLFS
   gitLFSStorageLimit:
@@ -485,7 +485,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 1
     unit: GB
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - gitLFS
   gitLFSBandwithLimit:
@@ -493,7 +493,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 1
     unit: GB
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - gitLFS
 plans:

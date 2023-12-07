@@ -307,28 +307,28 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 2
     unit: seat
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   items:
     description: ""
     valueType: NUMERIC
     defaultValue: 1000
     unit: item
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   fileStorage:
     description: ""
     valueType: NUMERIC
     defaultValue: 0.5
     unit: GB
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   activityLogDuration:
     description: ""
     valueType: NUMERIC
     defaultValue: 1
     unit: week
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - activityLog
   guestAccessLimit:
@@ -336,7 +336,7 @@ usageLimits:
     valueType: TEXT
     defaultValue: ""
     unit: guest/seat
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - guestAccess
   integrationsLimit:
@@ -344,7 +344,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 0
     unit: action/month
-    type: QUOTA
+    type: RENEWABLE
     linkedFeatures:
       - integrations
   automationsLimit:
@@ -352,7 +352,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 0
     unit: action/month
-    type: QUOTA
+    type: RENEWABLE
     linkedFeatures:
       - automations
   boardsPerDashboard:
@@ -360,7 +360,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 1
     unit: board/dashboard
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - dashboards
 plans:

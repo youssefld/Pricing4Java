@@ -173,28 +173,28 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 2000000
     unit: calls
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   numberOfApis:
     description: ""
     valueType: NUMERIC
     defaultValue: .inf
     unit: api
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   numberOfBuilders:
     description: ""
     valueType: NUMERIC
     defaultValue: 5
     unit: builder
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   numberOfAdmins:
     description: ""
     valueType: NUMERIC
     defaultValue: 0
     unit: admin
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
 plans:
   BASIC:

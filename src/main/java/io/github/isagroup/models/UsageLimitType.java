@@ -1,5 +1,5 @@
 package io.github.isagroup.models;
 
 public enum UsageLimitType {
-    CAPACITY, QUOTA, RESPONSE_DRIVEN, TIME_DRIVEN
+    NON_RENEWABLE, RENEWABLE, RESPONSE_DRIVEN, TIME_DRIVEN
 }

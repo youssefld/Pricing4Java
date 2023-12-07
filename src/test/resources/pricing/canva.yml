@@ -330,7 +330,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 10
     unit: use
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - magicDesign
   brandKitsUnits:
@@ -338,7 +338,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 100
     unit: kit
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - brandKits
   cloudStorageLimit:
@@ -346,7 +346,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 5
     unit: GB
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - cloudStorage
 plans:

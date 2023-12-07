@@ -334,7 +334,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 3
     unit: campaign/opportunity
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - campaignInfluence
   numberOfCustomAppsPerOrg:
@@ -342,7 +342,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 1
     unit: customApp/Org
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - salesConsoleApps
   numberOfProcessesAndFlows:
@@ -350,7 +350,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 5
     unit: processesFlows/org
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - lightingFlowAutomation
   numberOfCustomizableProfiles:
@@ -358,7 +358,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 2
     unit: profile/org
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - customizableProfilesAndPageLayouts
   numberOfRoles:
@@ -366,7 +366,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 2
     unit: rol/org
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - rolesAndPermissions
   numberOfRecordTypes:
@@ -374,7 +374,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 3
     unit: type/object
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - recordTypes
   numberOfPartialSandbox:
@@ -382,7 +382,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 1
     unit: partialSanbox/org
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - partialSandbox
   numberOfFullSanbox:
@@ -390,7 +390,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 1
     unit: fullSanbox/org
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - fullSandbox    
 plans:

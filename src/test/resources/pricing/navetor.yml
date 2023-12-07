@@ -105,14 +105,14 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 1
     unit: user
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   upperUserBoundary:
     description: ""
     valueType: NUMERIC
     defaultValue: 2
     unit: user
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
 plans:
   1/2Users:

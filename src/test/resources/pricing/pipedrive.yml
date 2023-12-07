@@ -543,7 +543,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 3000
     unit: openDeal/company
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - leadAndDealManagement
   customFieldsLimit:
@@ -551,7 +551,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 30
     unit: customField/company
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - customFields
   insightsReportsLimit:
@@ -559,7 +559,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 15
     unit: insightReport/user
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - activityReports
       - dealReports
@@ -570,7 +570,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 1
     unit: insightDashboard/user
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - visualDashboards
   schedulerGeneralAvailabilityLinks:
@@ -578,7 +578,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 0
     unit: availabilityLinks/user
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - generalAvailabilitySchedulingLinks
   activeEmailAccountSyncs:
@@ -586,7 +586,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 0
     unit: activeEmailAccountSync/user
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - multipleEmailAccountsSync
   activeAutomations:
@@ -594,7 +594,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 0
     unit: activeAutomation/user
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - automations
   delayAndWaitForStepsLimit:
@@ -602,7 +602,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 0
     unit: step/automation
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - delayAndWaitForSteps
   teamsLimit:
@@ -610,14 +610,14 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 0
     unit: team/company
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   customVisibilityGroups:
     description: "Does not include default visibility group"
     valueType: NUMERIC
     defaultValue: 0
     unit: customVisibilityGroup/company
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - userVisibilityGroups
   customPermissionSets:
@@ -625,7 +625,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 0
     unit: customPermissionSet/company
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - userPermissionsSets
 plans:

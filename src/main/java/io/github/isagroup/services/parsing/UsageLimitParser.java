@@ -11,8 +11,8 @@ import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
 import io.github.isagroup.models.UsageLimitType;
 import io.github.isagroup.models.ValueType;
-import io.github.isagroup.models.usagelimittypes.Capacity;
-import io.github.isagroup.models.usagelimittypes.Quota;
+import io.github.isagroup.models.usagelimittypes.NonRenewable;
+import io.github.isagroup.models.usagelimittypes.Renewable;
 import io.github.isagroup.models.usagelimittypes.ResponseDriven;
 import io.github.isagroup.models.usagelimittypes.TimeDriven;
 
@@ -28,11 +28,11 @@ public class UsageLimitParser {
 
             switch (UsageLimitType.valueOf((String)limitMap.get("type"))) {
                 
-                case CAPACITY:
-                    return parseMapToCapacity(limitName, limitMap, featureKeys);
+                case NON_RENEWABLE:
+                    return parseMapToNonRenewable(limitName, limitMap, featureKeys);
                     
-                case QUOTA:
-                    return parseMapToQuota(limitName, limitMap, featureKeys);
+                case RENEWABLE:
+                    return parseMapToRenewable(limitName, limitMap, featureKeys);
     
                 case RESPONSE_DRIVEN:
                     return parseMapToResponseDriven(limitName, limitMap, featureKeys); 
@@ -48,20 +48,20 @@ public class UsageLimitParser {
         }
     }
 
-    private static Capacity parseMapToCapacity(String limitName, Map<String, Object> map, Set<String> featureKeys){
-        Capacity capacity = new Capacity();
+    private static NonRenewable parseMapToNonRenewable(String limitName, Map<String, Object> map, Set<String> featureKeys){
+        NonRenewable nonRenewable = new NonRenewable();
 
-        loadBasicAttributes(capacity, limitName, map, featureKeys);
+        loadBasicAttributes(nonRenewable, limitName, map, featureKeys);
 
-        return capacity;
+        return nonRenewable;
     }
 
-    private static Quota parseMapToQuota(String limitName, Map<String, Object> map, Set<String> featureKeys){
-        Quota quota = new Quota();
+    private static Renewable parseMapToRenewable(String limitName, Map<String, Object> map, Set<String> featureKeys){
+        Renewable renewable = new Renewable();
 
-        loadBasicAttributes(quota, limitName, map, featureKeys);
+        loadBasicAttributes(renewable, limitName, map, featureKeys);
 
-        return quota;
+        return renewable;
     }
 
     private static ResponseDriven parseMapToResponseDriven(String limitName, Map<String, Object> map, Set<String> featureKeys){

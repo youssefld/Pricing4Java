@@ -462,14 +462,14 @@ usageLimits:
     description: ""
     valueType: TEXT
     defaultValue: Unlimited
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   usesOfAutomations:
     description: "Actions limits per month"
     valueType: NUMERIC
     defaultValue: 50
     unit: use/seat
-    type: QUOTA
+    type: RENEWABLE
     linkedFeatures:
       - automations
 plans:

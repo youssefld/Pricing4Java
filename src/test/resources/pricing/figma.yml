@@ -386,7 +386,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 30
     unit: day
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: 
       - versionHistory
   teamsLimit:
@@ -394,7 +394,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 100
     unit: team
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: 
       - teams
   modesLimits:
@@ -402,7 +402,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 0
     unit: mode
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: 
       - modes
 plans:

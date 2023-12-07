@@ -408,28 +408,28 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 3
     unit: agent
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   customerLimit:
     description: "Customers are unlicensed users who send requests to your service project through the portal, email, or widget.\n\nFor example, an employee raises a request to an internal service desk. This employee has access to the portal but no product access to the project. Employees like these are usually internal customers."
     valueType: NUMERIC
     defaultValue: .inf
     unit: customer
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   numberOfSites:
     description: "This is the number of sites (also called “instances”) you can license based on the subscription plan you choose. One site is typically enough for most small to medium organizations.\n\nEnterprise subscribers often opt for multiple sites, up to 150 per product, to:\n\nOffer organizational autonomy to independent brands\nImprove security through separating data by region or department\nCustomize instances based on Marketplace apps, project configurations, and more"
     valueType: NUMERIC
     defaultValue: 1
     unit: site
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   storageLimitPerSite:
     description: "Confluence and products in the Jira suite all come with their own file storage space, even if you have more than one instance of the same product.\n\nFor example, if you have two Jira Service Management instances from two sites, each has its own storage. This storage is primarily used for attachments."
     valueType: NUMERIC
     defaultValue: 2
     unit: GB
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - storage
   emailNotificationsLimit:
@@ -437,7 +437,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 100
     unit: email/day
-    type: QUOTA
+    type: RENEWABLE
     linkedFeatures:
       - emailNotifications
   automationLimit:
@@ -445,7 +445,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 500
     unit: rule/month
-    type: QUOTA
+    type: RENEWABLE
     linkedFeatures:
       - automation
   alertNotificationsLimit:
@@ -453,7 +453,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 200
     unit: SMS/month
-    type: QUOTA
+    type: RENEWABLE
     linkedFeatures:
       - alertNotificationsPerMonth
 plans:

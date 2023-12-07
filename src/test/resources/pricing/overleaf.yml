@@ -94,7 +94,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 2
     unit: collaborator
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: null
   compileTimeoutLimit:
     description: "This is how much time you get to compile your project on the Overleaf servers. You may need additional time for longer or more complex projects."

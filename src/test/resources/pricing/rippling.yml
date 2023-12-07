@@ -268,7 +268,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 10
     unit: uses
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - formulaFields
   onBoardingWorkflowsUses:
@@ -276,7 +276,7 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: .inf
     unit: workflow
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: 
       - onBoardingWorkflows
   customWorkflowsUses:
@@ -284,21 +284,21 @@ usageLimits:
     valueType: NUMERIC
     defaultValue: 10
     unit: workflow
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures: 
       - customWorkflows
   customWorkflowTriggerLimit:
     description: ""
     valueType: TEXT
     defaultValue: ONBOARDING_EVENT
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - customWorkflowTriggers
   advancedReportsLimit:
     description: ""
     valueType: NUMERIC
     defaultValue: 10
-    type: CAPACITY
+    type: NON_RENEWABLE
     linkedFeatures:
       - advancedReports
 plans:

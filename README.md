@@ -13,7 +13,7 @@ The only feature that is implemented right now and tested is the Yaml4SaaS synta
 
 ## Yaml4SaaS
 
-Yaml4SaaS emerges as a pragmatic application of the Pricing4SaaS model (Figure \ref{fig:yaml4SaaS}), aligning with the overarching objective of formalizing and structuring pricing information for SaaS platforms. Building upon the foundational principles articulated in Pricing4SaaS, Yaml4SaaS embodies a simplified and versatile YAML-based syntax designed for serializing comprehensive details about SaaS offerings. The essence of Yaml4SaaS lies in its capacity to encapsulate pricing plans, add-ons, features and usage limits within a concise and human-readable YAML format. Here is a tempalte specification of the Yaml4SaaS syntax:
+Yaml4SaaS emerges as a pragmatic application of the Pricing4SaaS model, aligning with the overarching objective of formalizing and structuring pricing information for SaaS platforms. Building upon the foundational principles articulated in Pricing4SaaS, Yaml4SaaS embodies a simplified and versatile YAML-based syntax designed for serializing comprehensive details about SaaS offerings. The essence of Yaml4SaaS lies in its capacity to encapsulate pricing plans, add-ons, features and usage limits within a concise and human-readable YAML format. Here is a tempalte specification of the Yaml4SaaS syntax:
 
 ```yaml
 saasName: GitHub
@@ -91,10 +91,10 @@ Starting with the top-level placeholder, we can describe basic information about
 
 detailing each feature's `description`, `valueType` (BOOLEAN, TEXT), and `defaultValue`, whose data type has to be aligned with the `valueType` defined. Notably, features do not handle NUMERIC values, which are reserved for limits. In addition, depending on each type of feature, the syntax  extends expressiveness for each feature type with additional fields:
 
-- For **integration** features, an `IntegrationType` (enum defined in Figure \ref{fig:yaml4SaaS}) can be specified through the `integrationType` field. If its value is WEB\_SAAS, a list of SaaS pricing URLs can be included.
+- For **integration** features, an `IntegrationType` can be specified through the `integrationType` field. If its value is WEB\_SAAS, a list of SaaS pricing URLs can be included.
 - **Automation** features do also allow to assign theirselves an `AutomationType`.
 - For **guarantee** features can reference the corresponding documentation section describing them via the `docURL` field.
-- **Payment** features differ from others, requiring values as a list of `PaymentTypes` (also detailed in Figure \ref{fig:yaml4SaaS}) for standardization.
+- **Payment** features differ from others, requiring values as a list of `PaymentTypes` for standardization.
 
 
 Similar to features, `UsageLimits` expounds on limitations affecting plans, add-ons, or features in the pricing, tagging each with the corresponding Pricing4SaaS type:
@@ -112,13 +112,13 @@ The `plans` section provides comprehensive details about the distinct pricing pl
 
 In the `features` and `usageLimits` subsections of each plan, only those requiring a modification in their `defaultValue` should be explicitly listed. For those not mentioned, the `defaultValue` is understood to be equivalent to the `value`.
 
-Within the `addOns` section, the focus is on delineating the specific details of additional offerings beyond the core plans. Each add-on is characterized by its unique features and usage limits, which have to be listed in the structure established in the `features` and `usageLimits` sections, but not included on plans. Similar to the approach taken in the previous section of the file, only those `features` or `usageLimits` necessitating an alteration in the `defaultValue` are explicitly outlined. As an extra field, add-ons also allow to extent a usageLimit, as can be seen in Figure \ref{fig:pricing4SaaSYAML}. This is extremely powerful for modeling overage cost to some limits.
+Within the `addOns` section, the focus is on delineating the specific details of additional offerings beyond the core plans. Each add-on is characterized by its unique features and usage limits, which have to be listed in the structure established in the `features` and `usageLimits` sections, but not included on plans. Similar to the approach taken in the previous section of the file, only those `features` or `usageLimits` necessitating an alteration in the `defaultValue` are explicitly outlined. As an extra field, add-ons also allow to extent a usageLimit. This is extremely powerful for modeling overage cost to some limits.
 
 In conclusion, Yaml4SaaS stands as a practical implementation of the Pricing4SaaS model, providing a YAML-based syntax to formalize SaaS pricing structures in a human-readable format that enhances clarity and simplicity.
 
 ## Yaml4SaaS Syntax Validator Usage
 
-The validator can be easyily run by creating a test inside the `saasYamlParsingTest.java` file following the next structure:
+The validator can be easily run by creating a test inside the `saasYamlParsingTest.java` file following the next structure:
 
 ```java
 @Test

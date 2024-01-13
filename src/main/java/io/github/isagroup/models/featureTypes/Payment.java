@@ -6,9 +6,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Payment extends Feature{
+public class Payment extends Feature {
 
-    public String toString(){
-        return "Payment[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + "]";
+    public String toString() {
+        return "Payment[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: "
+                + value + "]";
     }
 }

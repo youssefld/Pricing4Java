@@ -8,12 +8,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Integration extends Feature{
+public class Integration extends Feature {
     private IntegrationType integrationType;
     private List<String> pricingUrls;
 
-    public String toString(){
-        return "Integration[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + ", integrationType: " + integrationType + ", pricingUrls: " + pricingUrls + "]";
+    public String toString() {
+        return "Integration[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue
+                + ", value: " + value + ", integrationType: " + integrationType + ", pricingUrls: " + pricingUrls + "]";
     }
-        
+
 }

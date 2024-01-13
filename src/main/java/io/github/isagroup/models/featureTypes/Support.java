@@ -6,10 +6,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Support extends Feature{
-    
-    public String toString(){
-        return "Support[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + "]";
+public class Support extends Feature {
+
+    public String toString() {
+        return "Support[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: "
+                + value + "]";
     }
 
 }

@@ -15,7 +15,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class Feature implements Serializable{
+public abstract class Feature implements Serializable {
     protected String name;
     protected String description;
     protected ValueType valueType;
@@ -24,7 +24,7 @@ public abstract class Feature implements Serializable{
     protected String expression;
     protected String serverExpression;
 
-    public void prepareToPlanWriting(){
+    public void prepareToPlanWriting() {
         this.name = null;
         this.value = null;
         this.description = null;

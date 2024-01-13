@@ -13,7 +13,7 @@ import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.yaml.YamlUtils;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class saasYamlParsingTests {
+public class SaasYamlParsingTests {
     @Test
     @Order(10)
     void parsePostmanYamlToClassTest() {
@@ -22,8 +22,11 @@ public class saasYamlParsingTests {
 
         assertEquals("Postman", pricingManager.getSaasName(), "The saasName should be Postman");
         assertTrue(pricingManager.getPlans().get("BASIC") instanceof Plan, "Should be an instance of PricingManager");
-        assertEquals(true, pricingManager.getPlans().get("BASIC").getFeatures().get("apiClient").getDefaultValue(), "The deafult value of the apiClient feature should be true");
-        assertEquals(10000, pricingManager.plans.get("BASIC").getUsageLimits().get("callsToPostmanApi").getDefaultValue(), "The default value of the callsToPostmanApi usageLimit should be 10000, as it must be copied from the defaultValue");
+        assertEquals(true, pricingManager.getPlans().get("BASIC").getFeatures().get("apiClient").getDefaultValue(),
+                "The deafult value of the apiClient feature should be true");
+        assertEquals(10000,
+                pricingManager.plans.get("BASIC").getUsageLimits().get("callsToPostmanApi").getDefaultValue(),
+                "The default value of the callsToPostmanApi usageLimit should be 10000, as it must be copied from the defaultValue");
     }
 
     @Test
@@ -34,8 +37,11 @@ public class saasYamlParsingTests {
 
         assertEquals("Figma", pricingManager.getSaasName(), "The saasName should be Figma");
         assertTrue(pricingManager.getPlans().get("STARTER") instanceof Plan, "Should be an instance of Plan");
-        assertEquals(true, pricingManager.getPlans().get("STARTER").getFeatures().get("versionHistory").getDefaultValue(), "The deafult value of the versionHistory feature should be true");
-        assertEquals(100, pricingManager.plans.get("STARTER").getUsageLimits().get("teamsLimit").getDefaultValue(), "The default value of the teamsLimit usageLimit should be 100, as it must be copied from the defaultValue");
+        assertEquals(true,
+                pricingManager.getPlans().get("STARTER").getFeatures().get("versionHistory").getDefaultValue(),
+                "The deafult value of the versionHistory feature should be true");
+        assertEquals(100, pricingManager.plans.get("STARTER").getUsageLimits().get("teamsLimit").getDefaultValue(),
+                "The default value of the teamsLimit usageLimit should be 100, as it must be copied from the defaultValue");
     }
 
     @Test
@@ -44,10 +50,14 @@ public class saasYamlParsingTests {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/microsoftEnterprise.yml");
 
-        assertEquals("Microsoft 365 Enterpise", pricingManager.getSaasName(), "The saasName should be Microsoft 365 Enterpise");
+        assertEquals("Microsoft 365 Enterpise", pricingManager.getSaasName(),
+                "The saasName should be Microsoft 365 Enterpise");
         assertTrue(pricingManager.getPlans().get("APPS_FOR_BUSINESS") instanceof Plan, "Should be an instance of Plan");
-        assertEquals(false, pricingManager.getPlans().get("APPS_FOR_BUSINESS").getFeatures().get("sharedCalendars").getDefaultValue(), "The deafult value of the sharedCalendars feature should be false");
-        assertEquals(300, pricingManager.plans.get("BUSINESS_PREMIUM").getUsageLimits().get("webinarsMaxLimit").getDefaultValue(), "The default value of the teamsLimit usageLimit for the plan BUSINESS_PREMIUM should be 300, as it must be copied from the defaultValue");
+        assertEquals(false, pricingManager.getPlans().get("APPS_FOR_BUSINESS").getFeatures().get("sharedCalendars")
+                .getDefaultValue(), "The deafult value of the sharedCalendars feature should be false");
+        assertEquals(300,
+                pricingManager.plans.get("BUSINESS_PREMIUM").getUsageLimits().get("webinarsMaxLimit").getDefaultValue(),
+                "The default value of the teamsLimit usageLimit for the plan BUSINESS_PREMIUM should be 300, as it must be copied from the defaultValue");
     }
 
     @Test
@@ -58,8 +68,11 @@ public class saasYamlParsingTests {
 
         assertEquals("RapidAPI", pricingManager.getSaasName(), "The saasName should be RapidAPI");
         assertTrue(pricingManager.getPlans().get("BASIC") instanceof Plan, "Should be an instance of Plan");
-        assertEquals(true, pricingManager.getPlans().get("BASIC").getFeatures().get("search").getDefaultValue(), "The deafult value of the search feature should be true");
-        assertEquals(Double.POSITIVE_INFINITY, pricingManager.plans.get("ENTERPRISE").getUsageLimits().get("numberOfBuilders").getValue(), "The value of the numberOfBuilders usageLimit for the plan ENTERPRISE should be infinite, is it's customizable");
+        assertEquals(true, pricingManager.getPlans().get("BASIC").getFeatures().get("search").getDefaultValue(),
+                "The deafult value of the search feature should be true");
+        assertEquals(Double.POSITIVE_INFINITY,
+                pricingManager.plans.get("ENTERPRISE").getUsageLimits().get("numberOfBuilders").getValue(),
+                "The value of the numberOfBuilders usageLimit for the plan ENTERPRISE should be infinite, is it's customizable");
     }
 
     @Test
@@ -70,8 +83,12 @@ public class saasYamlParsingTests {
 
         assertEquals("salescloud", pricingManager.getSaasName(), "The saasName should be salescloud");
         assertTrue(pricingManager.getPlans().get("STARTER") instanceof Plan, "Should be an instance of Plan");
-        assertEquals(true, pricingManager.getPlans().get("STARTER").getFeatures().get("leadManagement").getDefaultValue(), "The deafult value of the leadManagement feature should be true");
-        assertEquals(Double.POSITIVE_INFINITY, pricingManager.plans.get("ENTERPRISE").getUsageLimits().get("numberOfProcessesAndFlows").getValue(), "The value of the numberOfProcessesAndFlows usageLimit for the plan ENTERPRISE should be infinite, is it's customizable");
+        assertEquals(true,
+                pricingManager.getPlans().get("STARTER").getFeatures().get("leadManagement").getDefaultValue(),
+                "The deafult value of the leadManagement feature should be true");
+        assertEquals(Double.POSITIVE_INFINITY,
+                pricingManager.plans.get("ENTERPRISE").getUsageLimits().get("numberOfProcessesAndFlows").getValue(),
+                "The value of the numberOfProcessesAndFlows usageLimit for the plan ENTERPRISE should be infinite, is it's customizable");
     }
 
     @Test
@@ -85,18 +102,19 @@ public class saasYamlParsingTests {
 
     @Test
     @Order(70)
-    void parseClockifyToClassTest(){
+    void parseClockifyToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/clockify.yml");
 
         assertEquals("clockify", pricingManager.getSaasName(), "The saasName should be clockify");
         assertEquals(null, pricingManager.getUsageLimits(), "Clockify does not have usageLimits");
-        assertEquals(null, pricingManager.getPlans().get("FREE").getUsageLimits(), "Clockify does not have usageLimits");
+        assertEquals(null, pricingManager.getPlans().get("FREE").getUsageLimits(),
+                "Clockify does not have usageLimits");
     }
 
     @Test
     @Order(80)
-    void parseGitHubToClassTest(){
+    void parseGitHubToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/github.yml");
 
@@ -105,7 +123,7 @@ public class saasYamlParsingTests {
 
     @Test
     @Order(90)
-    void parseJiraToClassTest(){
+    void parseJiraToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/jira.yml");
 
@@ -114,7 +132,7 @@ public class saasYamlParsingTests {
 
     @Test
     @Order(100)
-    void parseMondayToClassTest(){
+    void parseMondayToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/monday.yml");
 
@@ -123,7 +141,7 @@ public class saasYamlParsingTests {
 
     @Test
     @Order(110)
-    void parseNavetorToClassTest(){
+    void parseNavetorToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/navetor.yml");
 
@@ -132,7 +150,7 @@ public class saasYamlParsingTests {
 
     @Test
     @Order(120)
-    void parseOverleafToClassTest(){
+    void parseOverleafToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/overleaf.yml");
 
@@ -141,7 +159,7 @@ public class saasYamlParsingTests {
 
     @Test
     @Order(130)
-    void parsePipedriveToClassTest(){
+    void parsePipedriveToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/pipedrive.yml");
 
@@ -150,7 +168,7 @@ public class saasYamlParsingTests {
 
     @Test
     @Order(140)
-    void parseRipplingToClassTest(){
+    void parseRipplingToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/rippling.yml");
 
@@ -159,7 +177,7 @@ public class saasYamlParsingTests {
 
     @Test
     @Order(150)
-    void parseWrikeToClassTest(){
+    void parseWrikeToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/wrike.yml");
 

@@ -22,8 +22,10 @@ public class YamlParsingTests {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/models.yml");
 
         assertTrue(pricingManager.plans.get("BASIC") instanceof Plan, "Should be an instance of PricingManager");
-        assertEquals(false, pricingManager.plans.get("BASIC").getFeatures().get("haveCalendar").getDefaultValue(), "The deafult value of the haveCalendar feature should be false");
-        assertEquals(2, pricingManager.plans.get("BASIC").getFeatures().get("maxPets").getValue(), "The value of the maxPets feature should be 2, as it must be copied from the defaultValue");
+        assertEquals(false, pricingManager.plans.get("BASIC").getFeatures().get("haveCalendar").getDefaultValue(),
+                "The deafult value of the haveCalendar feature should be false");
+        assertEquals(2, pricingManager.plans.get("BASIC").getFeatures().get("maxPets").getValue(),
+                "The value of the maxPets feature should be 2, as it must be copied from the defaultValue");
     }
 
     @Test
@@ -36,22 +38,23 @@ public class YamlParsingTests {
 
         YamlUtils.writeYaml(pricingManager, "pricing/models.yml");
 
-        try{
+        try {
             Thread.sleep(1500);
-        }catch(InterruptedException e){
+        } catch (InterruptedException e) {
         }
 
         PricingManager newPricingManager = YamlUtils.retrieveManagerFromYaml("pricing/models.yml");
-    
-        assertEquals(1000.0, newPricingManager.plans.get("BASIC").getMonthlyPrice(), "The price has not being changed on the yaml");
-        
+
+        assertEquals(1000.0, newPricingManager.plans.get("BASIC").getMonthlyPrice(),
+                "The price has not being changed on the yaml");
+
         newPricingManager.plans.get("BASIC").setMonthlyPrice(0.0);
 
         YamlUtils.writeYaml(newPricingManager, "pricing/models.yml");
 
-        try{
+        try {
             Thread.sleep(1500);
-        }catch(InterruptedException e){
+        } catch (InterruptedException e) {
         }
 
         assertEquals(0.0, newPricingManager.plans.get("BASIC").getMonthlyPrice(), "The price has not being reset");

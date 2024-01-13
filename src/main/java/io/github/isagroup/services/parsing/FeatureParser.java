@@ -175,6 +175,9 @@ public class FeatureParser {
         }catch(ClassCastException e){
             throw new ClassCastException("The feature " + featureName + " does not have a valid defaultValue. Current valueType:" + feature.getValueType().toString() + "; Current defaultValue: " + (String) map.get("defaultValue"));
         }
+
+        feature.setExpression((String) map.get("expression"));
+        feature.setServerExpression((String) map.get("serverExpression"));
     }
 
     private static void parsePaymentValue(Feature feature, String featureName, Map<String, Object> map){

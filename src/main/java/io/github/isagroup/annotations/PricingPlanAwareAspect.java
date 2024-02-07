@@ -20,26 +20,26 @@ import io.github.isagroup.models.PlanContextManager;
 @Aspect
 @Component
 public class PricingPlanAwareAspect {
-    
+
     @Autowired
     private PricingContext pricingContext;
 
-    
     @Around("@annotation(pricingPlanAware)")
     @Transactional(rollbackFor = PricingPlanEvaluationException.class)
-    public Object validatePricingPlan(ProceedingJoinPoint joinPoint, PricingPlanAware pricingPlanAware) throws Throwable, PricingPlanEvaluationException {
-        
+    public Object validatePricingPlan(ProceedingJoinPoint joinPoint, PricingPlanAware pricingPlanAware)
+            throws Throwable, PricingPlanEvaluationException {
+
         Object proceed = joinPoint.proceed();
-        
+
         String featureId = pricingPlanAware.featureId();
-        
+
         // Realizar la evaluación del contexto utilizando el valor de "featureId"
         Boolean contextEvaluation = evaluateContext(featureId);
 
-        if(contextEvaluation == null){
+        if (contextEvaluation == null) {
             contextEvaluation = false;
         }
-        
+
         if (!contextEvaluation) {
             throw new PricingPlanEvaluationException("You have reached the limit of the feature: " + featureId);
         }
@@ -58,26 +58,26 @@ public class PricingPlanAwareAspect {
         planContextManager.userContext = userContext;
         planContextManager.planContext = planContext;
 
-        try{
+        try {
             String expression = evaluationContext.get(featureId).getServerExpression();
 
-            if(expression == null){
+            if (expression == null) {
                 expression = evaluationContext.get(featureId).getExpression();
             }
-    
+
             if (!expression.trim().equals("")) {
-    
+
                 ExpressionParser parser = new SpelExpressionParser();
                 EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
-    
+
                 return parser.parseExpression(expression).getValue(context, planContextManager, Boolean.class);
-            }else{
+            } else {
                 return false;
             }
-        }catch(NullPointerException e){
-            throw new PricingPlanEvaluationException("The feature " + featureId + " does not exist in the current pricing configuration");
+        } catch (NullPointerException e) {
+            throw new PricingPlanEvaluationException(
+                    "The feature " + featureId + " does not exist in the current pricing configuration");
         }
-
 
     }
 }

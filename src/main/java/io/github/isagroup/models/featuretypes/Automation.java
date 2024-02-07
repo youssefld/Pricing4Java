@@ -6,10 +6,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Automation extends Feature{
+public class Automation extends Feature {
     private AutomationType automationType;
 
-    public String toString(){
-        return "Automation[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + ", automationType: " + automationType + "]";
+    public String toString() {
+        return "Automation[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue
+                + ", value: " + value + ", automationType: " + automationType + "]";
     }
 }

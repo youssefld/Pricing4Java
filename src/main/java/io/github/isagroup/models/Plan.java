@@ -19,7 +19,8 @@ public class Plan {
     private Map<String, Feature> features;
     private Map<String, UsageLimit> usageLimits;
 
-    public String toString(){
-        return "Plan[name=" + name + ", monthlyPrice="+ monthlyPrice + ", annualPrice=" + annualPrice + ", unit=" + unit + ", features: " + features.get("superAdminRole") + "]";
+    public String toString() {
+        return "Plan[name=" + name + ", monthlyPrice=" + monthlyPrice + ", annualPrice=" + annualPrice + ", unit="
+                + unit + ", features: " + features.get("superAdminRole") + "]";
     }
 }

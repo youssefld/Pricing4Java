@@ -8,8 +8,9 @@ import lombok.Setter;
 @Setter
 public class Domain extends Feature {
 
-    public String toString(){
-        return "Domain[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: " + value + "]";
+    public String toString() {
+        return "Domain[name: " + name + ", valueType: " + valueType + ", defaultValue: " + defaultValue + ", value: "
+                + value + "]";
     }
 
 }

@@ -2,10 +2,12 @@ package io.github.isagroup.services.parsing;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import io.github.isagroup.exceptions.InvalidAutomationTypeException;
 import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.exceptions.InvalidIntegrationTypeException;
+import io.github.isagroup.exceptions.PricingParsingException;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.FeatureType;
 import io.github.isagroup.models.ValueType;
@@ -174,6 +176,13 @@ public class FeatureParser {
             }
         }catch(ClassCastException e){
             throw new ClassCastException("The feature " + featureName + " does not have a valid defaultValue. Current valueType:" + feature.getValueType().toString() + "; Current defaultValue: " + (String) map.get("defaultValue"));
+        }
+
+        try{
+            feature.setExpression((String) map.get("expression"));
+            feature.setServerExpression((String) map.get("serverExpression"));
+        }catch(NoSuchElementException e){
+            throw new PricingParsingException("The feature " + featureName + " does not have either an evaluation expression or serverExpression.");
         }
     }
 

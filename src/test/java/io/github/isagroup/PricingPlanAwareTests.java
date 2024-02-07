@@ -27,7 +27,8 @@ import io.github.isagroup.services.jwt.JwtUtils;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@Import({ io.github.isagroup.annotations.PricingPlanAwareAspect.class, io.github.isagroup.PricingEvaluatorUtil.class, io.github.isagroup.services.jwt.JwtUtils.class })
+@Import({ io.github.isagroup.annotations.PricingPlanAwareAspect.class, io.github.isagroup.PricingEvaluatorUtil.class,
+        io.github.isagroup.services.jwt.JwtUtils.class })
 public class PricingPlanAwareTests {
 
     private static final String JWT_SECRET_TEST = "secret";
@@ -117,7 +118,7 @@ public class PricingPlanAwareTests {
     private PricingContextImpl pricingContextImpl;
 
     @Autowired
-    private PricingEvaluatorUtil pricingEvaluatorUtil;    
+    private PricingEvaluatorUtil pricingEvaluatorUtil;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -157,17 +158,17 @@ public class PricingPlanAwareTests {
         String featureId = "maxPets";
 
         PricingPlanEvaluationException exception = assertThrows(PricingPlanEvaluationException.class, () -> {
-             pricingPlanAwareAspect.validatePricingPlan(joinPoint, new PricingPlanAware() {
-            @Override
-            public Class<? extends java.lang.annotation.Annotation> annotationType() {
-                return PricingPlanAware.class;
-            }
+            pricingPlanAwareAspect.validatePricingPlan(joinPoint, new PricingPlanAware() {
+                @Override
+                public Class<? extends java.lang.annotation.Annotation> annotationType() {
+                    return PricingPlanAware.class;
+                }
 
-            @Override
-            public String featureId() {
-                return featureId;
-            }
-        });
+                @Override
+                public String featureId() {
+                    return featureId;
+                }
+            });
         });
 
         assertEquals("You have reached the limit of the feature: " + featureId, exception.getMessage());
@@ -224,7 +225,8 @@ public class PricingPlanAwareTests {
             });
         });
 
-        assertEquals("The feature " + featureId + " does not exist in the current pricing configuration", exception.getMessage());
+        assertEquals("The feature " + featureId + " does not exist in the current pricing configuration",
+                exception.getMessage());
     }
 
     @Test

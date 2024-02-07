@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.github.isagroup.exceptions.CloneFeatureException;
 import io.github.isagroup.exceptions.FeatureNotFoundException;
 import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.exceptions.InvalidPlanException;
@@ -22,6 +21,7 @@ public class AddOnParser {
     public static AddOn parseMapToAddOn(String addOnName, Map<String, Object> addOnMap, PricingManager pricingManager) {
         AddOn addOn = new AddOn();
 
+        addOn.setName(addOnName);
         setAvailableFor(addOnMap, pricingManager, addOn);
         if (addOnMap.containsKey("price")) {
             try {

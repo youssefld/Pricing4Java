@@ -1,63 +1,75 @@
+saasName: petclinic
+day: 15
+month: 1
+year: 2024
+currency: EUR
+hasAnnualPayment: false
 features:
   maxPets:
-    defaultValue: 2
     description: maxPets description
+    valueType: NUMERIC
+    defaultValue: 2
     expression: userContext['pets'] < planContext['maxPets']
     serverExpression: userContext['pets'] <= planContext['maxPets']
-    type: NUMERIC
+    type: DOMAIN
   maxVisitsPerMonthAndPet:
-    defaultValue: 1
     description: maxVisitsPerMonthAndPet description
-    expression: ''
-    type: NUMERIC
+    valueType: NUMERIC
+    defaultValue: 1
+    expression: ""
+    type: DOMAIN
   supportPriority:
-    defaultValue: LOW
     description: supportPriority description
-    expression: ''
-    type: TEXT
+    valueType: TEXT
+    defaultValue: LOW
+    expression: ""
+    type: SUPPORT
   haveCalendar:
-    defaultValue: false
     description: haveCalendar description
+    valueType: BOOLEAN
+    defaultValue: false
     expression: planContext['haveCalendar']
-    type: CONDITION
+    type: DOMAIN
   havePetsDashboard:
-    defaultValue: false
     description: havePetsDashboard description
+    valueType: BOOLEAN
+    defaultValue: false
     expression: planContext['havePetsDashboard']
-    type: CONDITION
+    type: DOMAIN
   haveVetSelection:
-    defaultValue: false
     description: haveVetSelection description
-    expression: planContext['haveVetSelection']
-    type: CONDITION
-  haveOnlineConsultation:
+    valueType: BOOLEAN
     defaultValue: false
+    expression: planContext['haveVetSelection']
+    type: DOMAIN
+  haveOnlineConsultation:
     description: haveOnlineConsultation description
+    valueType: BOOLEAN
+    defaultValue: false
     expression: planContext['haveOnlineConsultation']
-    type: CONDITION
+    type: DOMAIN
+usageLimits:
+  maxPets:
+    description: ""
+    valueType: NUMERIC
+    defaultValue: 10
+    unit: pet
+    type: NON_RENEWABLE
+    linkedFeatures:
+      - maxPets
 plans:
   BASIC:
-    currency: EUR
     description: Basic plan
-    features:
-      maxPets:
-        value: 2
-      maxVisitsPerMonthAndPet:
-        value: 1
-      supportPriority:
-        value: LOW
-      haveCalendar:
-        value: false
-      havePetsDashboard:
-        value: false
-      haveVetSelection:
-        value: false
-      haveOnlineConsultation:
-        value: false
-    price: 0.0
+    monthlyPrice: 0.0
+    annualPrice: 0.0
+    unit: user/month
+    features: null
+    usageLimits: null
   ADVANCED:
-    currency: EUR
     description: Advanced plan
+    monthlyPrice: 5.0
+    annualPrice: 5.0
+    unit: user/month
     features:
       maxPets:
         value: 4
@@ -73,10 +85,12 @@ plans:
         value: true
       haveOnlineConsultation:
         value: false
-    price: 5.0
+    usageLimits: null
   PRO:
-    currency: EUR
     description: Pro plan
+    monthlyPrice: 10.0
+    annualPrice: 10.0
+    unit: user/month
     features:
       maxPets:
         value: 7
@@ -92,4 +106,5 @@ plans:
         value: true
       haveOnlineConsultation:
         value: true
-    price: 12.0
+    usageLimits: null
+addOns: null

@@ -20,15 +20,19 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import io.github.isagroup.exceptions.InvalidValueTypeException;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
+import io.github.isagroup.models.UsageLimit;
+import io.github.isagroup.models.UsageLimitType;
 import io.github.isagroup.models.ValueType;
 import io.github.isagroup.models.featuretypes.Domain;
+import io.github.isagroup.models.usagelimittypes.Renewable;
 import io.github.isagroup.services.yaml.YamlUtils;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class PricingServiceTests {
+class PricingServiceTests {
 
     private static final String JWT_SECRET_TEST = "secret";
     private static final Integer JWT_EXPIRATION_TEST = 86400;
@@ -36,18 +40,21 @@ public class PricingServiceTests {
     private static final String PETCLINIC_CONFIG_PATH = "pricing/petclinic.yml";
 
     private static final String TEMPORAL_CONFIG_PATH = "yaml-testing/temp.yml";
+    private boolean removeTempFile = true;
 
     private static final String TEST_PLAN = "BASIC";
     private static final String TEST_NEW_PLAN = "NEW_PLAN";
     private static Plan newPlan = new Plan();
-    private static final String TEST_BOOLEAN_ATTRIBUTE = "haveCalendar";
-    private static final String TEST_NUMERIC_ATTRIBUTE = "maxPets";
-    private static final String TEST_TEXT_ATTRIBUTE = "supportPriority";
+    private static UsageLimit newUsageLimit = new Renewable();
+    private static final String TEST_BOOLEAN_FEATURE = "haveCalendar";
+    private static final String TEST_NUMERIC_FEATURE = "maxPets";
+    private static final String TEST_TEXT_FEATURE = "supportPriority";
     private static final String NEW_FEATURE_NAME = "newFeature";
     private static final String NEW_FEATURE_TEST_VALUE = "testValue";
     private static final String NEW_FEATURE_TEST_EXPRESSION = "userContext['pets'] > 1";
     private static final PricingManager ORIGINAL_PRICING_MANAGER = YamlUtils
             .retrieveManagerFromYaml(PETCLINIC_CONFIG_PATH);
+
 
     private PricingService pricingService;
 
@@ -56,6 +63,8 @@ public class PricingServiceTests {
     @BeforeAll
     static void setUp() {
 
+        // Creation of new plan
+
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(PETCLINIC_CONFIG_PATH);
 
         newPlan.setDescription("New plan description");
@@ -63,20 +72,19 @@ public class PricingServiceTests {
 
         Map<String, Feature> features = pricingManager.getPlans().get(TEST_PLAN).getFeatures();
 
-        Feature newBooleanFeature = features.get(TEST_BOOLEAN_ATTRIBUTE);
-        Feature newNumericFeature = features.get(TEST_NUMERIC_ATTRIBUTE);
-        Feature newTextFeature = features.get(TEST_TEXT_ATTRIBUTE);
+        Feature newBooleanFeature = features.get(TEST_BOOLEAN_FEATURE);
+        Feature newNumericFeature = features.get(TEST_NUMERIC_FEATURE);
+        Feature newTextFeature = features.get(TEST_TEXT_FEATURE);
 
         newBooleanFeature.setValue(true);
         newNumericFeature.setValue(6);
         newTextFeature.setValue("HIGH");
 
-        features.put(TEST_BOOLEAN_ATTRIBUTE, newBooleanFeature);
-        features.put(TEST_NUMERIC_ATTRIBUTE, newNumericFeature);
-        features.put(TEST_TEXT_ATTRIBUTE, newTextFeature);
+        features.put(TEST_BOOLEAN_FEATURE, newBooleanFeature);
+        features.put(TEST_NUMERIC_FEATURE, newNumericFeature);
+        features.put(TEST_TEXT_FEATURE, newTextFeature);
 
         newPlan.setFeatures(features);
-
     }
 
     @BeforeEach
@@ -96,23 +104,36 @@ public class PricingServiceTests {
         userAuthorities.put("username", JWT_SUBJECT_TEST);
         userAuthorities.put("password", "4dm1n");
 
-        PricingContextTestImpl pricingContextTestImpl = new PricingContextTestImpl();
-        pricingContextTestImpl.setConfigFilePath(TEMPORAL_CONFIG_PATH);
-        pricingContextTestImpl.setJwtExpiration(JWT_EXPIRATION_TEST);
-        pricingContextTestImpl.setJwtSecret(JWT_SECRET_TEST);
-        pricingContextTestImpl.setUserPlan(TEST_PLAN);
-        pricingContextTestImpl.setUserAuthorities(userAuthorities);
-        pricingContextTestImpl.setUserContext(userContext);
+        PricingContextTestImpl pricingContextTest = new PricingContextTestImpl();
+        pricingContextTest.setConfigFilePath(TEMPORAL_CONFIG_PATH);
+        pricingContextTest.setJwtExpiration(JWT_EXPIRATION_TEST);
+        pricingContextTest.setJwtSecret(JWT_SECRET_TEST);
+        pricingContextTest.setUserPlan(TEST_PLAN);
+        pricingContextTest.setUserAuthorities(userAuthorities);
+        pricingContextTest.setUserContext(userContext);
 
-        this.pricingContextTestImpl = pricingContextTestImpl;
-        this.pricingService = new PricingService(pricingContextTestImpl);
+        // Reset of new usage limit
+
+        newUsageLimit.setName("newUsageLimit");
+        newUsageLimit.setDescription("New usage limit description");
+        newUsageLimit.setValueType(ValueType.NUMERIC);
+        newUsageLimit.setDefaultValue(10);
+        newUsageLimit.setUnit("appointment");
+        newUsageLimit.getLinkedFeatures().add(TEST_BOOLEAN_FEATURE);
+
+        this.pricingContextTestImpl = pricingContextTest;
+        this.pricingService = new PricingService(pricingContextTest);
+        this.removeTempFile = true;
     }
 
     @AfterEach
     void after() {
         try {
-            File file = new File("src/test/resources/yaml-testing/temp.yml");
-            file.delete();
+
+            if(this.removeTempFile){
+                File file = new File("src/test/resources/yaml-testing/temp.yml");
+                file.delete();
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -214,13 +235,13 @@ public class PricingServiceTests {
     @Order(70)
     void given__existing_plan_name_and_feature_should_update_boolean_feature() {
 
-        pricingService.setPlanFeatureValue(TEST_PLAN, TEST_BOOLEAN_ATTRIBUTE,
+        pricingService.setPlanFeatureValue(TEST_PLAN, TEST_BOOLEAN_FEATURE,
                 true);
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
 
         assertEquals(true,
-                pricingManager.getPlans().get(TEST_PLAN).getFeatures().get(TEST_BOOLEAN_ATTRIBUTE).getValue(),
+                pricingManager.getPlans().get(TEST_PLAN).getFeatures().get(TEST_BOOLEAN_FEATURE).getValue(),
                 "haveCalendar from plan BASIC should be true");
 
     }
@@ -232,7 +253,7 @@ public class PricingServiceTests {
         Integer newValue = 3;
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_BOOLEAN_ATTRIBUTE,
+            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_BOOLEAN_FEATURE,
                     newValue);
         });
 
@@ -247,7 +268,7 @@ public class PricingServiceTests {
         Boolean newValue = null;
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_BOOLEAN_ATTRIBUTE,
+            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_BOOLEAN_FEATURE,
                     newValue);
         });
 
@@ -264,13 +285,13 @@ public class PricingServiceTests {
 
         Integer newValue = 6;
 
-        pricingService.setPlanFeatureValue(TEST_PLAN, TEST_NUMERIC_ATTRIBUTE,
+        pricingService.setPlanFeatureValue(TEST_PLAN, TEST_NUMERIC_FEATURE,
                 newValue);
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
 
         assertEquals(newValue,
-                pricingManager.getPlans().get(TEST_PLAN).getFeatures().get(TEST_NUMERIC_ATTRIBUTE).getValue());
+                pricingManager.getPlans().get(TEST_PLAN).getFeatures().get(TEST_NUMERIC_FEATURE).getValue());
 
     }
 
@@ -281,7 +302,7 @@ public class PricingServiceTests {
         String newValue = "invalidValue";
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_NUMERIC_ATTRIBUTE,
+            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_NUMERIC_FEATURE,
                     newValue);
         });
 
@@ -296,7 +317,7 @@ public class PricingServiceTests {
         Integer newValue = null;
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_NUMERIC_ATTRIBUTE,
+            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_NUMERIC_FEATURE,
                     newValue);
         });
 
@@ -313,12 +334,12 @@ public class PricingServiceTests {
 
         String newValue = "HIGH";
 
-        pricingService.setPlanFeatureValue(TEST_PLAN, TEST_TEXT_ATTRIBUTE, newValue);
+        pricingService.setPlanFeatureValue(TEST_PLAN, TEST_TEXT_FEATURE, newValue);
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
 
         assertEquals(newValue,
-                pricingManager.getPlans().get(TEST_PLAN).getFeatures().get(TEST_TEXT_ATTRIBUTE).getValue());
+                pricingManager.getPlans().get(TEST_PLAN).getFeatures().get(TEST_TEXT_FEATURE).getValue());
 
     }
 
@@ -329,7 +350,7 @@ public class PricingServiceTests {
         Integer newValue = 2;
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_TEXT_ATTRIBUTE, newValue);
+            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_TEXT_FEATURE, newValue);
         });
 
         assertEquals("The value " + newValue + " is not of the type TEXT",
@@ -344,7 +365,7 @@ public class PricingServiceTests {
         String newValue = null;
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_TEXT_ATTRIBUTE, newValue);
+            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_TEXT_FEATURE, newValue);
         });
 
         assertEquals("The value " + newValue + " is not of the type TEXT",
@@ -455,13 +476,13 @@ public class PricingServiceTests {
     @Order(210)
     void given_feature_update_expression() {
 
-        pricingService.setFeatureExpression(TEST_NUMERIC_ATTRIBUTE,
+        pricingService.setFeatureExpression(TEST_NUMERIC_FEATURE,
                 NEW_FEATURE_TEST_EXPRESSION);
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
 
         assertEquals(NEW_FEATURE_TEST_EXPRESSION,
-                pricingManager.getFeatures().get(TEST_NUMERIC_ATTRIBUTE).getExpression());
+                pricingManager.getFeatures().get(TEST_NUMERIC_FEATURE).getExpression());
     }
 
     @Test
@@ -485,7 +506,7 @@ public class PricingServiceTests {
     @Order(230)
     void given_feature_should_update_value_type_to_text() {
 
-        pricingService.setValueType("maxPets", ValueType.TEXT);
+        pricingService.setFeatureValueType("maxPets", ValueType.TEXT);
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
         Feature feature = pricingManager.getFeatures().get("maxPets");
@@ -501,7 +522,7 @@ public class PricingServiceTests {
     @Order(240)
     void given_feature_should_update_value_type_to_boolean() {
 
-        pricingService.setValueType("maxPets", ValueType.BOOLEAN);
+        pricingService.setFeatureValueType("maxPets", ValueType.BOOLEAN);
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
         Feature feature = pricingManager.getFeatures().get("maxPets");
@@ -520,7 +541,7 @@ public class PricingServiceTests {
         String nonExistentFeature = "non-existent";
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setValueType(nonExistentFeature, ValueType.TEXT);
+            pricingService.setFeatureValueType(nonExistentFeature, ValueType.TEXT);
         });
 
         assertEquals(
@@ -553,10 +574,82 @@ public class PricingServiceTests {
                 exception.getMessage());
     }
 
-    // ------------- PRICING CONFIGURATION MANAGEMENT ---------------------------
+    // --------------- USAGE LIMITS' MANAGEMENT ----------------
 
     @Test
     @Order(280)
+    void shouldAddUsageLimit(){
+
+        pricingService.addUsageLimitToConfiguration(newUsageLimit);    
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+
+        UsageLimit createdUsageLimit = pricingManager.getUsageLimits().get(newUsageLimit.getName());
+        
+        assertEquals("New usage limit description", createdUsageLimit.getDescription());
+        assertEquals(ValueType.NUMERIC, createdUsageLimit.getValueType());
+        assertEquals(10, createdUsageLimit.getDefaultValue());
+        assertEquals("appointment", createdUsageLimit.getUnit());
+        assertTrue(createdUsageLimit.getLinkedFeatures().contains(TEST_BOOLEAN_FEATURE));
+    }
+
+    @Test
+    @Order(290)
+    void shouldUpdateUsageLimit(){
+
+        pricingService.addUsageLimitToConfiguration(newUsageLimit);
+
+        newUsageLimit.setDefaultValue(20);
+        newUsageLimit.setUnit("day");
+        newUsageLimit.getLinkedFeatures().add(TEST_TEXT_FEATURE);
+
+        pricingService.updateUsageLimitFromConfiguration(newUsageLimit);
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+
+        UsageLimit updatedUsageLimit = pricingManager.getUsageLimits().get(newUsageLimit.getName());
+        
+        assertEquals("New usage limit description", updatedUsageLimit.getDescription());
+        assertEquals(ValueType.NUMERIC, updatedUsageLimit.getValueType());
+        assertEquals(20, updatedUsageLimit.getDefaultValue());
+        assertEquals("day", updatedUsageLimit.getUnit());
+        assertTrue(updatedUsageLimit.getLinkedFeatures().contains(TEST_BOOLEAN_FEATURE));
+        assertTrue(updatedUsageLimit.getLinkedFeatures().contains(TEST_TEXT_FEATURE));
+    }
+
+    @Test
+    @Order(290)
+    void negativeShouldUpdateUsageLimit(){
+
+        pricingService.addUsageLimitToConfiguration(newUsageLimit);
+
+        newUsageLimit.setDefaultValue("test");
+
+        InvalidValueTypeException exception = assertThrows(InvalidValueTypeException.class, () -> {
+            pricingService.updateUsageLimitFromConfiguration(newUsageLimit);
+        });
+
+        assertEquals("The default value of the usage limit does not match the value type",
+                exception.getMessage());
+    }
+
+    @Test
+    @Order(300)
+    void shouldRemoveUsageLimit(){
+
+        pricingService.addUsageLimitToConfiguration(newUsageLimit);
+
+        pricingService.removeUsageLimitFromConfiguration(newUsageLimit.getName());
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+
+        assertFalse(pricingManager.getUsageLimits().containsKey(newUsageLimit.getName()));
+    }
+
+    // --------------- PRICING CONFIGURATION MANAGEMENT ---------------
+
+    @Test
+    @Order(10080)
     void changePricingConfigurationTest() {
         assertDoesNotThrow(() -> {
             pricingService.setPricingConfiguration(ORIGINAL_PRICING_MANAGER);

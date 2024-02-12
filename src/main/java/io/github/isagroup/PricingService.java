@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.github.isagroup.exceptions.CloneUsageLimitException;
+import io.github.isagroup.exceptions.FeatureNotFoundException;
+import io.github.isagroup.exceptions.InvalidValueTypeException;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.ValueType;
 import io.github.isagroup.models.Plan;
@@ -26,8 +29,14 @@ public class PricingService {
     @Autowired
     private PricingContext pricingContext;
 
+    private Map<ValueType, Object> DEFAULT_VALUES = new HashMap<>();
+
     public PricingService(PricingContext pricingContext) {
         this.pricingContext = pricingContext;
+        
+        DEFAULT_VALUES.put(ValueType.BOOLEAN, false);
+        DEFAULT_VALUES.put(ValueType.NUMERIC, 0);
+        DEFAULT_VALUES.put(ValueType.TEXT, "");
     }
 
     // ------------------------- PLAN MANAGEMENT ------------------------- //
@@ -266,7 +275,7 @@ public class PricingService {
      *                                  pricing configuration
      */
     @Transactional
-    public void setValueType(String featureName, ValueType newType) {
+    public void setFeatureValueType(String featureName, ValueType newType) {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
@@ -277,14 +286,9 @@ public class PricingService {
                     "There is no feature with the name " + featureName + " in the current pricing configuration");
         }
 
-        Map<ValueType, Object> defaultValues = new HashMap<>();
-        defaultValues.put(ValueType.BOOLEAN, false);
-        defaultValues.put(ValueType.NUMERIC, 0);
-        defaultValues.put(ValueType.TEXT, "");
-
         Feature feature = features.get(featureName);
         feature.setValueType(newType);
-        feature.setDefaultValue(defaultValues.get(newType));
+        feature.setDefaultValue(DEFAULT_VALUES.get(newType));
         feature.setExpression("");
         feature.setServerExpression("");
         features.put(featureName, feature);
@@ -393,6 +397,88 @@ public class PricingService {
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
     }
 
+    // ------------------------- USAGE LIMIT MANAGEMENT ------------------------- //
+
+    @Transactional
+    public void addUsageLimitToConfiguration(UsageLimit usageLimit){
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
+
+        Map<String, Feature> features = pricingManager.getFeatures();
+        Map<String, UsageLimit> usageLimits = pricingManager.getUsageLimits();
+
+        for (String featureName: usageLimit.getLinkedFeatures()){
+            if (!features.containsKey(featureName)){
+                throw new FeatureNotFoundException("The feature " + featureName + " to which you're trying to attach an usage limit does not exist within the pricing");
+            }
+        }
+
+        if (usageLimits.containsKey(usageLimit.getName())){
+            throw new CloneUsageLimitException("An usage limit with the name " + usageLimit.getName() + " already exists within the pricing configuration");
+        }
+
+        usageLimits.put(usageLimit.getName(), usageLimit);
+        
+        pricingManager.setUsageLimits(usageLimits);
+
+        YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
+
+    }
+
+    @Transactional
+    public void updateUsageLimitFromConfiguration(UsageLimit usageLimit){
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
+
+        Map<String, Feature> features = pricingManager.getFeatures();
+        Map<String, UsageLimit> usageLimits = pricingManager.getUsageLimits();
+
+        for (String featureName: usageLimit.getLinkedFeatures()){
+            if (!features.containsKey(featureName)){
+                throw new FeatureNotFoundException("The feature " + featureName + " to which you're trying to attach an usage limit does not exist within the pricing");
+            }
+        }
+
+        if (!usageLimits.containsKey(usageLimit.getName())){
+            throw new IllegalArgumentException("There is no usage limit with the name " + usageLimit.getName() + " in the current pricing configuration");
+        }
+
+        // Handle different valueTypes and default values
+
+        if (usageLimit.getValueType() != usageLimits.get(usageLimit.getName()).getValueType() ||
+            usageLimit.getDefaultValue() != usageLimits.get(usageLimit.getName()).getDefaultValue()){
+            if (validUsageLimitDefaultValue(usageLimit)){
+                Map<String, Plan> plans = pricingManager.getPlans();
+
+                for (Entry<String, Plan> planEntry : plans.entrySet()) {
+                    planEntry.getValue().getUsageLimits().remove(usageLimit.getName());
+                }
+            }else{
+                throw new InvalidValueTypeException("The default value of the usage limit does not match the value type");
+            }
+        }
+
+        usageLimits.put(usageLimit.getName(), usageLimit);
+        
+        pricingManager.setUsageLimits(usageLimits);
+
+        YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
+    }
+
+    @Transactional
+    public void removeUsageLimitFromConfiguration(String name){
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
+
+        Map<String, UsageLimit> usageLimits = pricingManager.getUsageLimits();
+
+        if (!usageLimits.containsKey(name)){
+            throw new IllegalArgumentException("There is no usage limit with the name " + name + " in the current pricing configuration");
+        }
+
+        usageLimits.remove(name);
+        pricingManager.setUsageLimits(usageLimits);
+
+        YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
+    }
+
     // ------------------------- EVALUATION MANAGEMENT ------------------------- //
 
     private boolean isNumeric(Object value) {
@@ -406,6 +492,22 @@ public class PricingService {
 
     private boolean isCondition(Object value) {
         return value instanceof Boolean;
+    }
+
+    private boolean validUsageLimitDefaultValue(UsageLimit usageLimit){
+        if (usageLimit.getDefaultValue() == null){
+            return false;
+        }
+
+        if (usageLimit.getValueType() == ValueType.BOOLEAN){
+            return usageLimit.getDefaultValue() instanceof Boolean;
+        } else if (usageLimit.getValueType() == ValueType.NUMERIC){
+            return usageLimit.getDefaultValue() instanceof Integer;
+        } else if (usageLimit.getValueType() == ValueType.TEXT){
+            return usageLimit.getDefaultValue() instanceof String;
+        }
+
+        return false;
     }
 
 }

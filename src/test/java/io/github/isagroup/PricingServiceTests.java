@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.exceptions.InvalidValueTypeException;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
@@ -625,11 +626,11 @@ class PricingServiceTests {
 
         newUsageLimit.setDefaultValue("test");
 
-        InvalidValueTypeException exception = assertThrows(InvalidValueTypeException.class, () -> {
+        InvalidDefaultValueException exception = assertThrows(InvalidDefaultValueException.class, () -> {
             pricingService.updateUsageLimitFromConfiguration(newUsageLimit);
         });
 
-        assertEquals("The default value of the usage limit does not match the value type",
+        assertEquals("The usage limit defaultValue must be an integer if valueType is NUMERIC",
                 exception.getMessage());
     }
 

@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.github.isagroup.exceptions.CloneUsageLimitException;
 import io.github.isagroup.exceptions.FeatureNotFoundException;
+import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.exceptions.InvalidValueTypeException;
+import io.github.isagroup.models.AddOn;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.ValueType;
 import io.github.isagroup.models.Plan;
@@ -33,7 +35,7 @@ public class PricingService {
 
     public PricingService(PricingContext pricingContext) {
         this.pricingContext = pricingContext;
-        
+
         DEFAULT_VALUES.put(ValueType.BOOLEAN, false);
         DEFAULT_VALUES.put(ValueType.NUMERIC, 0);
         DEFAULT_VALUES.put(ValueType.TEXT, "");
@@ -400,24 +402,20 @@ public class PricingService {
     // ------------------------- USAGE LIMIT MANAGEMENT ------------------------- //
 
     @Transactional
-    public void addUsageLimitToConfiguration(UsageLimit usageLimit){
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
+    public void addUsageLimitToConfiguration(UsageLimit usageLimit) {
+        PricingManager pricingManager = pricingContext.getPricingManager();
 
-        Map<String, Feature> features = pricingManager.getFeatures();
         Map<String, UsageLimit> usageLimits = pricingManager.getUsageLimits();
 
-        for (String featureName: usageLimit.getLinkedFeatures()){
-            if (!features.containsKey(featureName)){
-                throw new FeatureNotFoundException("The feature " + featureName + " to which you're trying to attach an usage limit does not exist within the pricing");
-            }
-        }
+        validateAndFormatUsageLimit(usageLimit);
 
-        if (usageLimits.containsKey(usageLimit.getName())){
-            throw new CloneUsageLimitException("An usage limit with the name " + usageLimit.getName() + " already exists within the pricing configuration");
+        if (pricingManager.getUsageLimits().containsKey(usageLimit.getName())) {
+            throw new CloneUsageLimitException(
+                    "An usage limit with the name " + usageLimit.getName() + " already exists within the pricing configuration");
         }
 
         usageLimits.put(usageLimit.getName(), usageLimit);
-        
+
         pricingManager.setUsageLimits(usageLimits);
 
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
@@ -425,56 +423,57 @@ public class PricingService {
     }
 
     @Transactional
-    public void updateUsageLimitFromConfiguration(UsageLimit usageLimit){
+    public void updateUsageLimitFromConfiguration(UsageLimit usageLimit) {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
-        Map<String, Feature> features = pricingManager.getFeatures();
         Map<String, UsageLimit> usageLimits = pricingManager.getUsageLimits();
 
-        for (String featureName: usageLimit.getLinkedFeatures()){
-            if (!features.containsKey(featureName)){
-                throw new FeatureNotFoundException("The feature " + featureName + " to which you're trying to attach an usage limit does not exist within the pricing");
-            }
-        }
-
-        if (!usageLimits.containsKey(usageLimit.getName())){
-            throw new IllegalArgumentException("There is no usage limit with the name " + usageLimit.getName() + " in the current pricing configuration");
-        }
+        validateAndFormatUsageLimit(usageLimit);
 
         // Handle different valueTypes and default values
 
         if (usageLimit.getValueType() != usageLimits.get(usageLimit.getName()).getValueType() ||
-            usageLimit.getDefaultValue() != usageLimits.get(usageLimit.getName()).getDefaultValue()){
-            if (validUsageLimitDefaultValue(usageLimit)){
-                Map<String, Plan> plans = pricingManager.getPlans();
+                usageLimit.getDefaultValue() != usageLimits.get(usageLimit.getName()).getDefaultValue()) {
+            Map<String, Plan> plans = pricingManager.getPlans();
 
-                for (Entry<String, Plan> planEntry : plans.entrySet()) {
-                    planEntry.getValue().getUsageLimits().remove(usageLimit.getName());
-                }
-            }else{
-                throw new InvalidValueTypeException("The default value of the usage limit does not match the value type");
+            for (Entry<String, Plan> planEntry : plans.entrySet()) {
+                planEntry.getValue().getUsageLimits().remove(usageLimit.getName());
             }
         }
 
         usageLimits.put(usageLimit.getName(), usageLimit);
-        
+
         pricingManager.setUsageLimits(usageLimits);
 
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
     }
 
     @Transactional
-    public void removeUsageLimitFromConfiguration(String name){
+    public void removeUsageLimitFromConfiguration(String name) {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
         Map<String, UsageLimit> usageLimits = pricingManager.getUsageLimits();
 
-        if (!usageLimits.containsKey(name)){
-            throw new IllegalArgumentException("There is no usage limit with the name " + name + " in the current pricing configuration");
+        if (!usageLimits.containsKey(name)) {
+            throw new IllegalArgumentException(
+                    "There is no usage limit with the name " + name + " in the current pricing configuration");
         }
 
         usageLimits.remove(name);
         pricingManager.setUsageLimits(usageLimits);
+
+        YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
+    }
+
+    // ------------------------- ADD ONS MANAGEMENT ------------------------- //
+
+    @Transactional
+    public void addAddOnToConfiguration(AddOn addOn) {
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
+
+        Map<String, AddOn> addOns = pricingManager.getAddOns();
+
+        pricingManager.setAddOns(addOns);
 
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
     }
@@ -494,20 +493,98 @@ public class PricingService {
         return value instanceof Boolean;
     }
 
-    private boolean validUsageLimitDefaultValue(UsageLimit usageLimit){
-        if (usageLimit.getDefaultValue() == null){
-            return false;
+    // ------------------------- VALIDATORS ------------------------- //
+
+    private void validateAndFormatUsageLimit(UsageLimit usageLimit) {
+
+        String item = "usage limit";
+
+        validateName(usageLimit.getName(), item);
+
+        if (usageLimit.getName().contains(" ")) {
+            usageLimit.setName(parseStringToCamelCase(usageLimit.getName()));
         }
 
-        if (usageLimit.getValueType() == ValueType.BOOLEAN){
-            return usageLimit.getDefaultValue() instanceof Boolean;
-        } else if (usageLimit.getValueType() == ValueType.NUMERIC){
-            return usageLimit.getDefaultValue() instanceof Integer;
-        } else if (usageLimit.getValueType() == ValueType.TEXT){
-            return usageLimit.getDefaultValue() instanceof String;
+        validateValueType(usageLimit.getValueType(), item);
+        validateDefaultValue(usageLimit.getDefaultValue(), usageLimit.getValueType(), item);
+        validateUnit(usageLimit.getUnit(), item);
+        validateAllFeaturesExist(usageLimit.getLinkedFeatures());
+
+    }
+
+    private void validateName(String name, String item) {
+
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("The " + item + " name must not be null or empty");
         }
 
-        return false;
+        if (name.length() < 3) {
+            throw new IllegalArgumentException("The " + item + " name must have at least 3 characters");
+        }
+
+        if (name.length() > 50) {
+            throw new IllegalArgumentException("The " + item + " name must have at most 50 characters");
+        }
+    }
+
+    private void validateValueType(ValueType valueType, String item) {
+        if (valueType == null) {
+            throw new InvalidValueTypeException("The " + item + " valueType must not be null");
+        }
+
+        if (valueType != ValueType.BOOLEAN && valueType != ValueType.NUMERIC && valueType != ValueType.TEXT) {
+            throw new InvalidValueTypeException("The " + item + " valueType must be either BOOLEAN, NUMERIC or TEXT");
+        }
+    }
+
+    private void validateDefaultValue(Object defaultValue, ValueType valueType, String item) {
+        if (defaultValue == null) {
+            throw new InvalidDefaultValueException("The " + item + " defaultValue must not be null");
+        }
+
+        if (valueType == ValueType.BOOLEAN && !(defaultValue instanceof Boolean)) {
+            throw new InvalidDefaultValueException(
+                    "The " + item + " defaultValue must be a boolean if valueType is BOOLEAN");
+        }
+
+        if (valueType == ValueType.NUMERIC && !(defaultValue instanceof Integer)) {
+            throw new InvalidDefaultValueException(
+                    "The " + item + " defaultValue must be an integer if valueType is NUMERIC");
+        }
+
+        if (valueType == ValueType.TEXT && !(defaultValue instanceof String)) {
+            throw new InvalidDefaultValueException("The " + item + " defaultValue must be a string if valueType is TEXT");
+        }
+    }
+
+    private void validateUnit(String unit, String item) {
+        if (unit == null || unit.length() > 50) {
+            throw new IllegalArgumentException(
+                    "The " + item + " unit must have at most 10 characters and cannot be null");
+        }
+    }
+
+    private void validateAllFeaturesExist(List<String> featureNames) {
+
+        PricingManager pricingManager = pricingContext.getPricingManager();
+
+        for (String featureName : featureNames) {
+            if (!pricingManager.getFeatures().containsKey(featureName)) {
+                throw new FeatureNotFoundException("The feature " + featureName
+                        + " to which you're trying to attach an usage limit does not exist within the pricing");
+            }
+        }
+    }
+
+    private String parseStringToCamelCase(String text) {
+        String[] words = text.split(" ");
+        String camelCase = words[0].toLowerCase();
+
+        for (int i = 1; i < words.length; i++) {
+            camelCase += words[i].substring(0, 1).toUpperCase() + words[i].substring(1).toLowerCase();
+        }
+
+        return camelCase;
     }
 
 }

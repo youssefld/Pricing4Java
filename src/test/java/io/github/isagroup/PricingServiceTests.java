@@ -58,7 +58,7 @@ class PricingServiceTests {
     private static final String TEST_TEXT_FEATURE = "supportPriority";
     private static final String TEST_NEW_ADDON_FEATURE = "haveVetSelection";
     private static final String NEW_FEATURE_NAME = "newFeature";
-    private static final String NEW_FEATURE_TEST_VALUE = "testValue";
+    private static final Integer NEW_FEATURE_TEST_VALUE = 3;
     private static final String NEW_FEATURE_TEST_EXPRESSION = "userContext['pets'] > 1";
     private static final PricingManager ORIGINAL_PRICING_MANAGER = YamlUtils
             .retrieveManagerFromYaml(PETCLINIC_CONFIG_PATH);
@@ -75,8 +75,11 @@ class PricingServiceTests {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(PETCLINIC_CONFIG_PATH);
 
+        newPlan.setName(TEST_NEW_PLAN);
         newPlan.setDescription("New plan description");
         newPlan.setMonthlyPrice(2.0);
+        newPlan.setAnnualPrice(1.0);
+        newPlan.setUnit("clinic/month");
 
         Map<String, Feature> features = pricingManager.getPlans().get(TEST_PLAN).getFeatures();
 
@@ -211,7 +214,7 @@ class PricingServiceTests {
     @Order(30)
     void givenPlanShouldAddPlanToConfigFile() {
 
-        pricingService.addPlanToConfiguration(TEST_NEW_PLAN, newPlan);
+        pricingService.addPlanToConfiguration(newPlan);
 
         // FIXME
         // READS OLD VALUE
@@ -226,8 +229,11 @@ class PricingServiceTests {
     @Order(40)
     void givenDuplicatePlanNameShouldThrowExceptionWhenAddingPlan() {
 
+        Plan newDuplicatePlan = newPlan;
+        newDuplicatePlan.setName(TEST_PLAN);
+
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.addPlanToConfiguration(TEST_PLAN, newPlan);
+            pricingService.addPlanToConfiguration(newDuplicatePlan);
         });
 
         assertEquals("The plan " + TEST_PLAN + " already exists in the current pricing configuration",
@@ -517,7 +523,7 @@ class PricingServiceTests {
         Domain newFeature = new Domain();
         newFeature.setName(NEW_FEATURE_NAME);
         newFeature.setDefaultValue(NEW_FEATURE_TEST_VALUE);
-        newFeature.setValueType(ValueType.TEXT);
+        newFeature.setValueType(ValueType.NUMERIC);
         newFeature.setExpression(NEW_FEATURE_TEST_EXPRESSION);
 
         pricingService.addFeatureToConfiguration(newFeature);
@@ -549,7 +555,7 @@ class PricingServiceTests {
         Domain newFeature = new Domain();
         newFeature.setName(NEW_FEATURE_NAME);
         newFeature.setDefaultValue(NEW_FEATURE_TEST_VALUE);
-        newFeature.setValueType(ValueType.TEXT);
+        newFeature.setValueType(ValueType.NUMERIC);
         newFeature.setExpression(NEW_FEATURE_TEST_EXPRESSION);
 
         pricingService.addFeatureToConfiguration(newFeature);

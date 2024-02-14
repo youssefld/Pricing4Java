@@ -79,24 +79,17 @@ public class PricingService {
      *                                  current pricing configuration
      */
     @Transactional
-    public void addPlanToConfiguration(String name, Plan plan) {
+    public void addPlanToConfiguration(Plan plan) {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
         Map<String, Plan> plans = pricingManager.getPlans();
 
-        if (name == null) {
-            throw new IllegalArgumentException("You have not specified a name for the plan");
-        }
-
-        // Serialization depends on the plan name, if plan.name is null serialization
-        // will fail
-        plan.setName(name);
-
-        if (plans.containsKey(name)) {
+        if (plans.containsKey(plan.getName())) {
             throw new IllegalArgumentException(
-                    "The plan " + name + " already exists in the current pricing configuration");
+                    "The plan " + plan.getName() + " already exists in the current pricing configuration");
         } else {
-            plans.put(name, plan);
+            validateAndFormatPlan(plan);
+            plans.put(plan.getName(), plan);
             pricingManager.setPlans(plans);
             YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
         }
@@ -122,6 +115,7 @@ public class PricingService {
             throw new IllegalArgumentException("The feature " + feature.getName()
                     + " does already exist in the current pricing configuration. Check the features");
         } else {
+            validateAndFormatFeature(feature);
             feature.setValue(null);
             features.put(feature.getName(), feature);
             pricingManager.setFeatures(features);

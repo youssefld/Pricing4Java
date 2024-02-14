@@ -27,7 +27,7 @@ public class Plan {
         Map<String, Object> attributes = new LinkedHashMap<>();
         attributes.put("description", description);
         attributes.put("monthlyPrice", monthlyPrice);
-        attributes.put("annualPrice", monthlyPrice);
+        attributes.put("annualPrice", annualPrice);
         attributes.put("unit", unit);
 
         Map<String, Object> features = serializeFeatures().orElse(null);

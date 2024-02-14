@@ -22,15 +22,15 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import io.github.isagroup.exceptions.FeatureNotFoundException;
 import io.github.isagroup.exceptions.InvalidDefaultValueException;
-import io.github.isagroup.exceptions.InvalidValueTypeException;
 import io.github.isagroup.models.AddOn;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
-import io.github.isagroup.models.UsageLimitType;
 import io.github.isagroup.models.ValueType;
+import io.github.isagroup.models.featuretypes.Automation;
 import io.github.isagroup.models.featuretypes.Domain;
 import io.github.isagroup.models.usagelimittypes.NonRenewable;
 import io.github.isagroup.models.usagelimittypes.Renewable;
@@ -179,7 +179,7 @@ class PricingServiceTests {
 
     @Test
     @Order(10)
-    void should_ReturnPlan_given_PlanName() {
+    void shouldReturnPlanGivenPlanName() {
 
         Plan plan = pricingService.getPlanFromName("BASIC");
 
@@ -192,7 +192,7 @@ class PricingServiceTests {
 
     @Test
     @Order(20)
-    void should_ThrowException_given_NonExistentPlan() {
+    void shouldThrowExceptionGivenNonExistentPlan() {
 
         String nonExistentPlan = "nonExistentPlan";
 
@@ -209,7 +209,7 @@ class PricingServiceTests {
 
     @Test
     @Order(30)
-    void given_plan_should_add_plan_to_config_file() {
+    void givenPlanShouldAddPlanToConfigFile() {
 
         pricingService.addPlanToConfiguration(TEST_NEW_PLAN, newPlan);
 
@@ -224,7 +224,7 @@ class PricingServiceTests {
 
     @Test
     @Order(40)
-    void given_duplicate_plan_name_should_throw_exception_when_adding_plan() {
+    void givenDuplicatePlanNameShouldThrowExceptionWhenAddingPlan() {
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             pricingService.addPlanToConfiguration(TEST_PLAN, newPlan);
@@ -239,7 +239,7 @@ class PricingServiceTests {
 
     @Test
     @Order(50)
-    void given_existing_plan_name_should_delete_plan_from_config() {
+    void givenExistingPlanNameShouldDeletePlanFromConfig() {
 
         String plan = "BASIC";
 
@@ -253,7 +253,7 @@ class PricingServiceTests {
 
     @Test
     @Order(60)
-    void given_non_existing_plan_name_should_throw_when_deleting() {
+    void givenNonExistingPlanNameShouldThrowWhenDeleting() {
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             pricingService.removePlanFromConfiguration(TEST_NEW_PLAN);
@@ -268,169 +268,251 @@ class PricingServiceTests {
 
     @Test
     @Order(70)
-    void given__existing_plan_name_and_feature_should_update_boolean_feature() {
+    void givenExistingPlanNameAndFeatureShouldUpdateBooleanFeature() {
 
-        pricingService.setPlanFeatureValue(TEST_PLAN, TEST_BOOLEAN_FEATURE,
-                true);
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
 
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+        Plan plan = pricingManager.getPlans().get(TEST_PLAN);
+
+        assertEquals(null, plan.getFeatures().get(TEST_BOOLEAN_FEATURE).getValue(),
+                "haveCalendar from plan BASIC should be false");
+
+        Feature feature = plan.getFeatures().get(TEST_BOOLEAN_FEATURE);
+
+        feature.setValue(true);
+
+        plan.getFeatures().put(TEST_BOOLEAN_FEATURE, feature);
+
+        pricingService.updatePlanFromConfiguration(TEST_PLAN, plan);
+
+        pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
 
         assertEquals(true,
                 pricingManager.getPlans().get(TEST_PLAN).getFeatures().get(TEST_BOOLEAN_FEATURE).getValue(),
-                "haveCalendar from plan BASIC should be true");
+                TEST_BOOLEAN_FEATURE + " from plan BASIC should be true");
 
     }
 
     @Test
     @Order(80)
-    void given_existing_plan_and_boolean_feature_should_throw_assigning_numeric() {
+    void givenExistingPlanAndBooleanFeatureShouldThrowAssigningNumeric() {
 
         Integer newValue = 3;
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_BOOLEAN_FEATURE,
-                    newValue);
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
+
+        Plan plan = pricingManager.getPlans().get(TEST_PLAN);
+
+        assertEquals(null, plan.getFeatures().get(TEST_BOOLEAN_FEATURE).getValue(),
+                TEST_BOOLEAN_FEATURE + " from plan BASIC should be null");
+        
+        assertEquals(ValueType.BOOLEAN, plan.getFeatures().get(TEST_BOOLEAN_FEATURE).getValueType(),
+                TEST_BOOLEAN_FEATURE + "from plan BASIC should have BOOLEAN as its value type");
+
+        Feature feature = plan.getFeatures().get(TEST_BOOLEAN_FEATURE);
+
+        feature.setValue(newValue);
+
+        plan.getFeatures().put(TEST_BOOLEAN_FEATURE, feature);
+        
+        assertThrows(IllegalArgumentException.class, () -> {
+            pricingService.updatePlanFromConfiguration(TEST_PLAN, plan);
         });
-
-        assertEquals("The value " + newValue + " is not of the type BOOLEAN", exception.getMessage());
-
     }
 
-    @Test
-    @Order(90)
-    void given_existing_plan_and_boolean_feature_should_throw_assigning_null() {
+    // FIXME: Test commented since the plan feature can have a null value, which means that defaultValue will be used
+    // The test will be removed in future updates
 
-        Boolean newValue = null;
+    // @Test
+    // @Order(90)
+    // void givenExistingPlanAndBooleanFeatureShouldThrowAssigningNull() {
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_BOOLEAN_FEATURE,
-                    newValue);
-        });
+    //     Boolean newValue = null;
 
-        assertEquals("The value " + newValue + " is not of the type BOOLEAN",
-                exception.getMessage());
+    //     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+    //         pricingService.setPlanFeatureValue(TEST_PLAN, TEST_BOOLEAN_FEATURE,
+    //                 newValue);
+    //     });
 
-    }
+    //     assertEquals("The value " + newValue + " is not of the type BOOLEAN",
+    //             exception.getMessage());
 
-    // // --------------------------- NUMERIC EDITIONS ---------------------------
+    // }
+
+     // --------------------------- NUMERIC EDITIONS ---------------------------
 
     @Test
     @Order(100)
-    void given_existing_plan_and_numeric_feature_should_update() {
+    void givenExistingPlanAndNumericFeatureShouldUpdate() {
 
         Integer newValue = 6;
 
-        pricingService.setPlanFeatureValue(TEST_PLAN, TEST_NUMERIC_FEATURE,
-                newValue);
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
 
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+        Plan plan = pricingManager.getPlans().get(TEST_PLAN);
+
+        assertEquals(null, plan.getFeatures().get(TEST_NUMERIC_FEATURE).getValue(),
+                TEST_NUMERIC_FEATURE + " value from plan BASIC should be null, as default value is used");
+
+        Feature feature = plan.getFeatures().get(TEST_NUMERIC_FEATURE);
+
+        feature.setValue(newValue);
+
+        plan.getFeatures().put(TEST_NUMERIC_FEATURE, feature);
+
+        pricingService.updatePlanFromConfiguration(TEST_PLAN, plan);
+
+        pricingManager = pricingContextTestImpl.getPricingManager();
 
         assertEquals(newValue,
-                pricingManager.getPlans().get(TEST_PLAN).getFeatures().get(TEST_NUMERIC_FEATURE).getValue());
-
+                pricingManager.getPlans().get(TEST_PLAN).getFeatures().get(TEST_NUMERIC_FEATURE).getValue(),
+                TEST_NUMERIC_FEATURE + " from plan BASIC should be " + newValue);
     }
 
     @Test
     @Order(110)
-    void given_string_should_throw_when_updating_numeric_feature() {
+    void givenStringShouldThrowWhenUpdatingNumericFeature() {
 
         String newValue = "invalidValue";
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_NUMERIC_FEATURE,
-                    newValue);
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
+
+        Plan plan = pricingManager.getPlans().get(TEST_PLAN);
+
+        assertEquals(null, plan.getFeatures().get(TEST_NUMERIC_FEATURE).getValue(),
+                TEST_NUMERIC_FEATURE + " value from plan BASIC should be null, as default value is used");
+        
+        assertEquals(ValueType.NUMERIC, plan.getFeatures().get(TEST_NUMERIC_FEATURE).getValueType(),
+                TEST_NUMERIC_FEATURE + " from plan BASIC should have NUMERIC as its value type");
+
+        Feature feature = plan.getFeatures().get(TEST_NUMERIC_FEATURE);
+
+        feature.setValue(newValue);
+
+        plan.getFeatures().put(TEST_BOOLEAN_FEATURE, feature);
+        
+        assertThrows(IllegalArgumentException.class, () -> {
+            pricingService.updatePlanFromConfiguration(TEST_PLAN, plan);
         });
-
-        assertEquals("The value " + newValue + " is not of the type NUMERIC", exception.getMessage());
-
     }
 
-    @Test
-    @Order(120)
-    void given_null_should_throw_when_updating_numeric_feature() {
+    // @Test
+    // @Order(120)
+    // void given_null_should_throw_when_updating_numeric_feature() {
 
-        Integer newValue = null;
+    //     Integer newValue = null;
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_NUMERIC_FEATURE,
-                    newValue);
-        });
+    //     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+    //         pricingService.setPlanFeatureValue(TEST_PLAN, TEST_NUMERIC_FEATURE,
+    //                 newValue);
+    //     });
 
-        assertEquals("The value " + newValue + " is not of the type NUMERIC",
-                exception.getMessage());
+    //     assertEquals("The value " + newValue + " is not of the type NUMERIC",
+    //             exception.getMessage());
 
-    }
+    // }
 
-    // // --------------------------- TEXT EDITIONS ---------------------------
+    // --------------------------- TEXT EDITIONS ---------------------------
 
     @Test
     @Order(130)
-    void given_string_should_update_text_feature() {
+    void givenStringShouldUpdateTextFeature() {
 
         String newValue = "HIGH";
 
-        pricingService.setPlanFeatureValue(TEST_PLAN, TEST_TEXT_FEATURE, newValue);
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
 
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+        Plan plan = pricingManager.getPlans().get(TEST_PLAN);
+
+        assertEquals(null, plan.getFeatures().get(TEST_TEXT_FEATURE).getValue(),
+            TEST_TEXT_FEATURE + " value from plan BASIC should be null, as default value is used");
+
+        Feature feature = plan.getFeatures().get(TEST_TEXT_FEATURE);
+
+        feature.setValue(newValue);
+
+        plan.getFeatures().put(TEST_TEXT_FEATURE, feature);
+
+        pricingService.updatePlanFromConfiguration(TEST_PLAN, plan);
+
+        pricingManager = pricingContextTestImpl.getPricingManager();
 
         assertEquals(newValue,
-                pricingManager.getPlans().get(TEST_PLAN).getFeatures().get(TEST_TEXT_FEATURE).getValue());
-
+                pricingManager.getPlans().get(TEST_PLAN).getFeatures().get(TEST_TEXT_FEATURE).getValue(),
+                TEST_TEXT_FEATURE + " from plan BASIC should be " + newValue);
     }
 
     @Test
     @Order(140)
-    void given_number_should_throw_when_updating_text_feature() {
+    void givenNumberShouldThrowWhenUpdatingTextFeature() {
 
         Integer newValue = 2;
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_TEXT_FEATURE, newValue);
-        });
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
 
-        assertEquals("The value " + newValue + " is not of the type TEXT",
-                exception.getMessage());
+        Plan plan = pricingManager.getPlans().get(TEST_PLAN);
+
+        assertEquals(null, plan.getFeatures().get(TEST_TEXT_FEATURE).getValue(),
+            TEST_TEXT_FEATURE + " from plan BASIC should be null");
+        
+        assertEquals(ValueType.TEXT, plan.getFeatures().get(TEST_TEXT_FEATURE).getValueType(),
+            TEST_TEXT_FEATURE + "from plan BASIC should have TEXT as its value type");
+
+        Feature feature = plan.getFeatures().get(TEST_TEXT_FEATURE);
+
+        feature.setValue(newValue);
+
+        plan.getFeatures().put(TEST_TEXT_FEATURE, feature);
+        
+        assertThrows(IllegalArgumentException.class, () -> {
+            pricingService.updatePlanFromConfiguration(TEST_PLAN, plan);
+        });
 
     }
 
-    @Test
-    @Order(150)
-    void given_null_should_throw_when_updating_text_feature() {
+    // @Test
+    // @Order(150)
+    // void given_null_should_throw_when_updating_text_feature() {
 
-        String newValue = null;
+    //     String newValue = null;
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, TEST_TEXT_FEATURE, newValue);
-        });
+    //     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+    //         pricingService.setPlanFeatureValue(TEST_PLAN, TEST_TEXT_FEATURE, newValue);
+    //     });
 
-        assertEquals("The value " + newValue + " is not of the type TEXT",
-                exception.getMessage());
+    //     assertEquals("The value " + newValue + " is not of the type TEXT",
+    //             exception.getMessage());
 
-    }
+    // }
 
     // ---------------EDITIONS OF NONEXISTENT ATTRIBUTES ------------
 
     @Test
     @Order(160)
-    void given_non_existent_feature_should_throw_IllegalArgumentException() {
+    void givenNonExistentFeatureShouldThrowIllegalArgumentException() {
 
-        String unexistentAttribute = "unexistentAttribute";
-        Integer newValue = 3;
+        Feature unexistentFeature = new Automation();
+        unexistentFeature.setName("unexistentFeature");
+        unexistentFeature.setDefaultValue("testValue");
+        unexistentFeature.setValueType(ValueType.TEXT);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanFeatureValue(TEST_PLAN, unexistentAttribute, newValue);
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
+
+        Plan plan = pricingManager.getPlans().get(TEST_PLAN);
+
+        plan.getFeatures().put(unexistentFeature.getName(), unexistentFeature);
+
+        assertThrows(FeatureNotFoundException.class, () -> {
+            pricingService.updatePlanFromConfiguration(TEST_PLAN, plan);
         });
-
-        assertEquals("The plan " + TEST_PLAN + " does not have the feature " +
-                unexistentAttribute, exception.getMessage());
 
     }
 
-    // // --------------------------- FEATURES ADITION ---------------------------
+//     // // --------------------------- FEATURES ADITION ---------------------------
 
     @Test
     @Order(170)
-    void given_new_feature_should_update_all_plan_values() {
+    void givenNewFeatureShouldUpdateAllPlanValues() {
 
         Domain newFeature = new Domain();
         newFeature.setName(NEW_FEATURE_NAME);
@@ -438,7 +520,7 @@ class PricingServiceTests {
         newFeature.setValueType(ValueType.TEXT);
         newFeature.setExpression(NEW_FEATURE_TEST_EXPRESSION);
 
-        pricingService.addFeatureToConfiguration(NEW_FEATURE_NAME, newFeature);
+        pricingService.addFeatureToConfiguration(newFeature);
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
 
@@ -449,30 +531,35 @@ class PricingServiceTests {
 
         assertEquals(NEW_FEATURE_TEST_EXPRESSION,
                 pricingManager.getFeatures().get(NEW_FEATURE_NAME).getExpression());
+        assertNull(pricingManager.getPlans().get("BASIC").getFeatures().get(NEW_FEATURE_NAME).getValue());
         assertEquals(NEW_FEATURE_TEST_VALUE,
-                pricingManager.getPlans().get("BASIC").getFeatures().get(NEW_FEATURE_NAME).getValue());
+                pricingManager.getPlans().get("BASIC").getFeatures().get(NEW_FEATURE_NAME).getDefaultValue());
+        assertNull(pricingManager.getPlans().get("ADVANCED").getFeatures().get(NEW_FEATURE_NAME).getValue());
         assertEquals(NEW_FEATURE_TEST_VALUE,
-                pricingManager.getPlans().get("ADVANCED").getFeatures().get(NEW_FEATURE_NAME).getValue());
+                pricingManager.getPlans().get("ADVANCED").getFeatures().get(NEW_FEATURE_NAME).getDefaultValue());
+        assertNull(pricingManager.getPlans().get("PRO").getFeatures().get(NEW_FEATURE_NAME).getValue());
         assertEquals(NEW_FEATURE_TEST_VALUE,
-                pricingManager.getPlans().get("PRO").getFeatures().get(NEW_FEATURE_NAME).getValue());
+                pricingManager.getPlans().get("PRO").getFeatures().get(NEW_FEATURE_NAME).getDefaultValue());
     }
 
     @Test
     @Order(180)
-    void given_non_existent_feature_should_throw_when_adding_feature() {
+    void givenExistentFeatureShouldThrowWhenAddingFeature() {
 
         Domain newFeature = new Domain();
+        newFeature.setName(NEW_FEATURE_NAME);
+        newFeature.setDefaultValue(NEW_FEATURE_TEST_VALUE);
+        newFeature.setValueType(ValueType.TEXT);
+        newFeature.setExpression(NEW_FEATURE_TEST_EXPRESSION);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.addFeatureToConfiguration("haveCalendar", newFeature);
+        pricingService.addFeatureToConfiguration(newFeature);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            pricingService.addFeatureToConfiguration(newFeature);
         });
-
-        assertEquals(
-                "The feature haveCalendar does already exist in the current pricing configuration. Check the features",
-                exception.getMessage());
     }
 
-    // // --------------------------- FEATURES REMOVAL ---------------------------
+    // --------------------------- FEATURES REMOVAL ---------------------------
 
     @Test
     @Order(190)
@@ -509,12 +596,17 @@ class PricingServiceTests {
 
     @Test
     @Order(210)
-    void given_feature_update_expression() {
+    void givenFeatureUpdateExpression() {
 
-        pricingService.setFeatureExpression(TEST_NUMERIC_FEATURE,
-                NEW_FEATURE_TEST_EXPRESSION);
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
 
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+        Feature feature = pricingManager.getFeatures().get(TEST_NUMERIC_FEATURE);
+
+        feature.setExpression(NEW_FEATURE_TEST_EXPRESSION);
+
+        pricingService.updateFeatureFromConfiguration(feature.getName(), feature);
+
+        pricingManager = pricingContextTestImpl.getPricingManager();
 
         assertEquals(NEW_FEATURE_TEST_EXPRESSION,
                 pricingManager.getFeatures().get(TEST_NUMERIC_FEATURE).getExpression());
@@ -522,91 +614,164 @@ class PricingServiceTests {
 
     @Test
     @Order(220)
-    void given_non_existent_feature_should_throw_when_updating_expression() {
+    void givenNonExistentFeatureShouldThrowWhenUpdatingExpression() {
 
         String nonExistentFeature = "non-existent";
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setFeatureExpression(nonExistentFeature, NEW_FEATURE_TEST_EXPRESSION);
-        });
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
 
-        assertEquals(
-                "There is no feature with the name " + nonExistentFeature + " in the current pricing configuration",
-                exception.getMessage());
+        Feature feature = pricingManager.getFeatures().get(TEST_NUMERIC_FEATURE);
+
+        feature.setExpression(NEW_FEATURE_TEST_EXPRESSION);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            pricingService.updateFeatureFromConfiguration(nonExistentFeature, feature);
+        });
     }
 
     // ------------ FEATURES' TYPES MANAGEMENT ---------------------
 
     @Test
     @Order(230)
-    void given_feature_should_update_value_type_to_text() {
+    void givenFeatureShouldUpdateValueTypeToText() {
 
-        pricingService.setFeatureValueType("maxPets", ValueType.TEXT);
+        ValueType newValueType = ValueType.TEXT;
+        String newDefaultValue = "newDefaultValue";
+        String newExpression = "";
+        String newServerExpression = "";
 
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
-        Feature feature = pricingManager.getFeatures().get("maxPets");
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
+
+        Feature feature = pricingManager.getFeatures().get(TEST_NUMERIC_FEATURE);
+
+        feature.setValueType(newValueType);
+        feature.setDefaultValue(newDefaultValue);
+        feature.setExpression(newExpression);
+        feature.setServerExpression(newServerExpression);
+
+        pricingService.updateFeatureFromConfiguration(feature.getName(), feature);
+
+        pricingManager = pricingContextTestImpl.getPricingManager();
+        feature = pricingManager.getFeatures().get(TEST_NUMERIC_FEATURE);
+        Map<String, Plan> plans = pricingManager.getPlans();
 
         assertEquals(ValueType.TEXT, feature.getValueType());
-        assertEquals("", feature.getDefaultValue());
-        assertEquals("", feature.getExpression());
-        assertEquals("", feature.getServerExpression());
+        assertEquals(newDefaultValue, feature.getDefaultValue());
+        assertEquals(newExpression, feature.getExpression());
+        assertEquals(newServerExpression, feature.getServerExpression());
+        assertNull(plans.get("BASIC").getFeatures().get(TEST_NUMERIC_FEATURE).getValue());
+        assertNull(plans.get("ADVANCED").getFeatures().get(TEST_NUMERIC_FEATURE).getValue());
+        assertNull(plans.get("PRO").getFeatures().get(TEST_NUMERIC_FEATURE).getValue());
 
     }
 
     @Test
     @Order(240)
-    void given_feature_should_update_value_type_to_boolean() {
+    void givenFeatureShouldUpdateValueTypeToBoolean() {
 
-        pricingService.setFeatureValueType("maxPets", ValueType.BOOLEAN);
+        ValueType newValueType = ValueType.BOOLEAN;
+        Boolean newDefaultValue = false;
+        String newExpression = "";
+        String newServerExpression = "";
 
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
-        Feature feature = pricingManager.getFeatures().get("maxPets");
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
+
+        Feature feature = pricingManager.getFeatures().get(TEST_NUMERIC_FEATURE);
+
+        feature.setValueType(newValueType);
+        feature.setDefaultValue(newDefaultValue);
+        feature.setExpression(newExpression);
+        feature.setServerExpression(newServerExpression);
+
+        pricingService.updateFeatureFromConfiguration(feature.getName(), feature);
+
+        pricingManager = pricingContextTestImpl.getPricingManager();
+        feature = pricingManager.getFeatures().get(TEST_NUMERIC_FEATURE);
+        Map<String, Plan> plans = pricingManager.getPlans();
 
         assertEquals(ValueType.BOOLEAN, feature.getValueType());
-        assertEquals(false, feature.getDefaultValue());
-        assertEquals("", feature.getExpression());
-        assertEquals("", feature.getServerExpression());
-
+        assertEquals(newDefaultValue, feature.getDefaultValue());
+        assertEquals(newExpression, feature.getExpression());
+        assertEquals(newServerExpression, feature.getServerExpression());
+        assertNull(plans.get("BASIC").getFeatures().get(TEST_NUMERIC_FEATURE).getValue());
+        assertNull(plans.get("ADVANCED").getFeatures().get(TEST_NUMERIC_FEATURE).getValue());
+        assertNull(plans.get("PRO").getFeatures().get(TEST_NUMERIC_FEATURE).getValue());
     }
 
     @Test
     @Order(250)
-    void given_non_existent_feature_should_throw_when_updating_value_type() {
+    void givenFeatureWithIncorrectExpressionShouldNotUpdateValueTypeToBoolean() {
 
-        String nonExistentFeature = "non-existent";
+        ValueType newValueType = ValueType.BOOLEAN;
+        Boolean newDefaultValue = false;
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setFeatureValueType(nonExistentFeature, ValueType.TEXT);
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
+
+        Feature feature = pricingManager.getFeatures().get(TEST_NUMERIC_FEATURE);
+
+        feature.setValueType(newValueType);
+        feature.setDefaultValue(newDefaultValue);
+
+        String featureName = feature.getName();
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            pricingService.updateFeatureFromConfiguration(featureName, feature);
         });
-
-        assertEquals(
-                "There is no feature with the name " + nonExistentFeature + " in the current pricing configuration",
-                exception.getMessage());
     }
+
+    // FIXME: Since the service api have changed, this test is no longer needed, the functionality
+    // has already been tested in the previous tests. This test will be removed in future updates.
+
+    // @Test
+    // @Order(250)
+    // void given_non_existent_feature_should_throw_when_updating_value_type() {
+
+    //     String nonExistentFeature = "non-existent";
+
+    //     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+    //         pricingService.setFeatureValueType(nonExistentFeature, ValueType.TEXT);
+    //     });
+
+    //     assertEquals(
+    //             "There is no feature with the name " + nonExistentFeature + " in the current pricing configuration",
+    //             exception.getMessage());
+    // }
 
     // --------------- PLANS' PRICES MANAGEMENT ----------------
 
     @Test
     @Order(260)
-    void given_price_should_update_monthly_price() {
+    void givenPriceShouldUpdateMonthlyPrice() {
 
-        pricingService.setPlanPrice(TEST_PLAN, 1000.0);
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
 
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+        Plan plan = pricingManager.getPlans().get(TEST_PLAN);
+
+        plan.setMonthlyPrice(1000.0);
+        plan.setAnnualPrice(500.0);
+
+        pricingService.updatePlanFromConfiguration(TEST_PLAN, plan);
+
+        pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
 
         assertEquals(1000.0, pricingManager.getPlans().get(TEST_PLAN).getMonthlyPrice());
+        assertEquals(500.0, pricingManager.getPlans().get(TEST_PLAN).getAnnualPrice());
     }
 
     @Test
     @Order(270)
     void negativeChangePlanPriceTest() {
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            pricingService.setPlanPrice(TEST_NEW_PLAN, 1000.0);
-        });
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
 
-        assertEquals("There is no plan with the name " + TEST_NEW_PLAN + " in the current pricing configuration",
-                exception.getMessage());
+        Plan plan = pricingManager.getPlans().get(TEST_PLAN);
+
+        plan.setMonthlyPrice(-1000.0);
+        plan.setAnnualPrice(500.0);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            pricingService.updatePlanFromConfiguration(TEST_PLAN, plan);
+        });
     }
 
     // --------------- USAGE LIMITS' MANAGEMENT ----------------
@@ -660,11 +825,13 @@ class PricingServiceTests {
 
         newUsageLimit.setDefaultValue("test");
 
+        String newUsageLimitName = newUsageLimit.getName();
+
         InvalidDefaultValueException exception = assertThrows(InvalidDefaultValueException.class, () -> {
-            pricingService.updateUsageLimitFromConfiguration(newUsageLimit.getName(), newUsageLimit);
+            pricingService.updateUsageLimitFromConfiguration(newUsageLimitName, newUsageLimit);
         });
 
-        assertEquals("The usage limit defaultValue must be an integer if valueType is NUMERIC",
+        assertEquals("The usage limit " + newUsageLimit.getName() + " defaultValue must be one of the supported numeric types if valueType is NUMERIC",
                 exception.getMessage());
     }
 

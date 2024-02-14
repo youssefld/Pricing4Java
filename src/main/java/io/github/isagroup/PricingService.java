@@ -113,196 +113,96 @@ public class PricingService {
      *                                  current pricing configuration
      */
     @Transactional
-    public void addFeatureToConfiguration(String name, Feature feature) {
+    public void addFeatureToConfiguration(Feature feature) {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
         Map<String, Feature> features = pricingManager.getFeatures();
 
-        if (features.containsKey(name)) {
-            throw new IllegalArgumentException("The feature " + name
+        if (features.containsKey(feature.getName())) {
+            throw new IllegalArgumentException("The feature " + feature.getName()
                     + " does already exist in the current pricing configuration. Check the features");
         } else {
             feature.setValue(null);
-            features.put(name, feature);
+            features.put(feature.getName(), feature);
             pricingManager.setFeatures(features);
         }
 
+        YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
+    }
+
+    @Transactional
+    public void updateFeatureFromConfiguration(String previousName, Feature feature) {
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
+
+        Map<String, Feature> features = pricingManager.getFeatures();
         Map<String, Plan> plans = pricingManager.getPlans();
 
-        for (String planName : plans.keySet()) {
+        validateAndFormatFeature(feature);
 
-            Plan plan = plans.get(planName);
-            Map<String, Feature> planFeatures = plan.getFeatures();
+        if (!features.containsKey(previousName)) {
+            throw new IllegalArgumentException(
+                    "There is no feature with the name " + previousName + " in the current pricing configuration");
+        }
 
-            if (planFeatures.containsKey(name)) {
-                throw new IllegalArgumentException("The feature " + name
-                        + " does already exist in the current pricing configuration. Check the " + planName + " plan");
-            } else {
-                Feature newFeature;
+        if (!previousName.equals(feature.getName())) {
+            features.remove(previousName);
+
+            for (Entry<String, Plan> planEntry : plans.entrySet()) {
+
+                Object currentValue = planEntry.getValue().getFeatures().get(previousName).getValue();
+
+                planEntry.getValue().getFeatures().remove(previousName);
+
                 try {
-                    newFeature = feature.getClass().newInstance();
-                    newFeature.setValue(features.get(name).getDefaultValue());
-                    newFeature.setName(name);
-
-                    planFeatures.put(name, newFeature);
-                    plan.setFeatures(planFeatures);
-                    plans.put(planName, plan);
+                    Feature newFeatureValue = feature.getClass().newInstance();
+                    newFeatureValue.setValue(currentValue);
+                    newFeatureValue.setName(feature.getName());
+                    planEntry.getValue().getFeatures().put(feature.getName(), newFeatureValue);
                 } catch (InstantiationException | IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
-
         }
 
+        if (feature.getValueType() != features.get(previousName).getValueType() ||
+                feature.getDefaultValue() != features.get(previousName).getDefaultValue()) {
+
+            for (Entry<String, Plan> planEntry : plans.entrySet()) {
+                try {
+                    planEntry.getValue().getFeatures().remove(previousName);
+                } catch (NullPointerException e) {
+                    // Do nothing
+                }
+            }
+        }
+
+        features.put(feature.getName(), feature);
+
+        pricingManager.setFeatures(features);
         pricingManager.setPlans(plans);
 
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
     }
 
-    /**
-     * Modifies a plan's feature value. In order to do that, the plan must exist in
-     * the {@link PricingContext}
-     * that is being used. A feature with the given feature name must also exist.
-     * 
-     * @param planName    name of the plan whose feature will suffer the change
-     * @param featureName name of the feature that will suffer the change
-     * @param value       the new value of the feature. It must be a supported type
-     *                    depending on the feature's {@link ValueType} attribute
-     * @throws IllegalArgumentException if the plan does not exist in the current
-     *                                  pricing configuration
-     * @throws IllegalArgumentException if the plan does not contain the feature
-     * @throws IllegalArgumentException if the value does not match a supported type
-     *                                  depending on the feature's {@link ValueType}
-     *                                  attribute
-     */
     @Transactional
-    public void setPlanFeatureValue(String planName, String featureName, Object value) {
-
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
-
-        try {
-
-            Feature selectedPlanFeature = pricingManager.getPlans().get(planName).getFeatures().get(featureName);
-
-            if (selectedPlanFeature == null) {
-                throw new IllegalArgumentException(
-                        "The plan " + planName + " does not have the feature " + featureName);
-            } else if (isNumeric(value) && selectedPlanFeature.getValueType() == ValueType.NUMERIC) {
-                selectedPlanFeature.setValue((Integer) value);
-            } else if (isText(value) && selectedPlanFeature.getValueType() == ValueType.TEXT) {
-                selectedPlanFeature.setValue((String) value);
-            } else if (isCondition(value) && selectedPlanFeature.getValueType() == ValueType.BOOLEAN) {
-                selectedPlanFeature.setValue((Boolean) value);
-            } else {
-                throw new IllegalArgumentException(
-                        "The value " + value + " is not of the type " + selectedPlanFeature.getValueType());
-            }
-
-            pricingManager.getPlans().get(planName).getFeatures().put(featureName, selectedPlanFeature);
-
-            YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
-
-        } catch (NullPointerException e) {
-            throw new IllegalArgumentException(
-                    "The plan " + planName + " does not exist in the current pricing configuration");
-        }
-
-    }
-
-    /**
-     * Modifies a plan's price. In order to do that, the plan must exist in the
-     * {@link PricingContext} that is being used.
-     * 
-     * @param planName name of the plan whose price will suffer the change
-     * @param newPrice the new price value of the plan
-     * @throws IllegalArgumentException if the plan does not exist in the current
-     *                                  pricing configuration
-     */
-    @Transactional
-    public void setPlanPrice(String planName, Double newPrice) {
-
+    public void updatePlanFromConfiguration(String previousName, Plan plan) {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
         Map<String, Plan> plans = pricingManager.getPlans();
 
-        if (!plans.containsKey(planName)) {
+        if (!plans.containsKey(previousName)) {
             throw new IllegalArgumentException(
-                    "There is no plan with the name " + planName + " in the current pricing configuration");
-        } else {
-            Plan plan = plans.get(planName);
-            plan.setMonthlyPrice(newPrice);
-            plans.put(planName, plan);
-            pricingManager.setPlans(plans);
-            YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
+                    "There is no plan with the name " + previousName + " in the current pricing configuration");
         }
 
-    }
+        validateAndFormatPlan(plan);
 
-    /**
-     * Modifies a feature's expression. In order to do that, the feature must exist
-     * in the {@link PricingContext} that is being used.
-     * 
-     * @param featureName name of the feature whose expression will suffer the
-     *                    change
-     * @param expression  the new expression to evaluate the feature
-     * @throws IllegalArgumentException if the feature does not exist in the current
-     *                                  pricing configuration
-     */
-    @Transactional
-    public void setFeatureExpression(String featureName, String expression) {
-
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
-
-        Map<String, Feature> features = pricingManager.getFeatures();
-
-        if (!features.containsKey(featureName)) {
-            throw new IllegalArgumentException(
-                    "There is no feature with the name " + featureName + " in the current pricing configuration");
-        } else {
-            Feature feature = features.get(featureName);
-            feature.setExpression(expression);
-            features.put(featureName, feature);
-            pricingManager.setFeatures(features);
-            YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
+        if (!previousName.equals(plan.getName())) {
+            plans.remove(previousName);
         }
 
-    }
+        plans.put(plan.getName(), plan);
 
-    /**
-     * Modifies a feature's type. In order to do that, the feature must exist in the
-     * {@link PricingContext} that is being used.
-     * 
-     * @param featureName name of the feature whose type will suffer the change
-     * @param newType     the new type of the feature
-     * @throws IllegalArgumentException if the feature does not exist in the current
-     *                                  pricing configuration
-     */
-    @Transactional
-    public void setFeatureValueType(String featureName, ValueType newType) {
-
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
-
-        Map<String, Feature> features = pricingManager.getFeatures();
-
-        if (!features.containsKey(featureName)) {
-            throw new IllegalArgumentException(
-                    "There is no feature with the name " + featureName + " in the current pricing configuration");
-        }
-
-        Feature feature = features.get(featureName);
-        feature.setValueType(newType);
-        feature.setDefaultValue(DEFAULT_VALUES.get(newType));
-        feature.setExpression("");
-        feature.setServerExpression("");
-        features.put(featureName, feature);
-
-        Map<String, Plan> plans = pricingManager.getPlans();
-
-        for (Entry<String, Plan> planEntry : plans.entrySet()) {
-            planEntry.getValue().getFeatures().put(featureName, feature);
-        }
-
-        pricingManager.setFeatures(features);
         pricingManager.setPlans(plans);
 
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
@@ -433,7 +333,8 @@ public class PricingService {
 
         if (!usageLimitsNames.contains(previousUsageLimitName)) {
             throw new IllegalArgumentException(
-                    "There is no usage limit with the name " + previousUsageLimitName + " in the current pricing configuration");
+                    "There is no usage limit with the name " + previousUsageLimitName
+                            + " in the current pricing configuration");
         }
 
         validateAndFormatUsageLimit(usageLimit);
@@ -488,7 +389,7 @@ public class PricingService {
 
         Map<String, AddOn> addOns = pricingManager.getAddOns();
 
-        if (addOns == null){
+        if (addOns == null) {
             addOns = new HashMap<>();
         }
 
@@ -507,19 +408,18 @@ public class PricingService {
     @Transactional
     public void updateAddOnFromConfiguration(String previousName, AddOn addOn) {
 
-        
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
         List<String> addOnsNames = pricingManager.getAddOns().keySet().stream().collect(Collectors.toList());
-        
+
         if (!addOnsNames.contains(previousName)) {
             throw new IllegalArgumentException(
-                "There is no add-on with the name " + previousName + " in the current pricing configuration");
+                    "There is no add-on with the name " + previousName + " in the current pricing configuration");
         }
-        
+
         validateAndFormatAddOn(addOn);
-        
+
         Map<String, AddOn> addOns = pricingManager.getAddOns();
-        
+
         if (!previousName.equals(addOn.getName())) {
             addOns.remove(previousName);
         }
@@ -565,9 +465,24 @@ public class PricingService {
 
     // ------------------------- VALIDATORS ------------------------- //
 
+    private void validateAndFormatFeature(Feature feature) {
+        String item = "feature " + feature.getName();
+
+        validateName(feature.getName(), item);
+        if (feature.getName().contains(" ")) {
+            feature.setName(parseStringToCamelCase(feature.getName()));
+        }
+        validateValueType(feature.getValueType(), item);
+        validateDefaultValue(feature.getDefaultValue(), feature.getValueType(), item);
+        validateValue(feature.getValue(), feature.getValueType(), item);
+        validateExpression(feature.getExpression(), item);
+        if (feature.getServerExpression() != null) validateExpression(feature.getServerExpression(), item);
+        validateValueTypeConsistency(feature.getValueType(), feature.getDefaultValue(), feature.getValue(), feature.getExpression(), feature.getServerExpression(), item);
+    }
+
     private void validateAndFormatUsageLimit(UsageLimit usageLimit) {
 
-        String item = "usage limit";
+        String item = "usage limit " + usageLimit.getName();
 
         validateName(usageLimit.getName(), item);
         if (usageLimit.getName().contains(" ")) {
@@ -580,17 +495,44 @@ public class PricingService {
 
     }
 
+    private void validateAndFormatPlan(Plan plan) {
+        String item = "plan " + plan.getName();
+
+        validateName(plan.getName(), item);
+        if (plan.getName().contains(" ")) {
+            plan.setName(parseStringToCamelCase(plan.getName()));
+        }
+
+        validatePlanPrice(plan);
+
+        validateUnit(plan.getUnit(), item);
+
+        if (plan.getFeatures() != null) {
+            validateAllFeaturesExist(plan.getFeatures().keySet().stream().collect(Collectors.toList()));
+            for (Feature feature : plan.getFeatures().values()) {
+                validateAndFormatFeature(feature);
+            }
+        }
+
+        if (plan.getUsageLimits() != null) {
+            validateAllUsageLimitsExist(plan.getUsageLimits().keySet().stream().collect(Collectors.toList()), item);
+            for (UsageLimit usageLimit : plan.getUsageLimits().values()) {
+                validateAndFormatUsageLimit(usageLimit);
+            }
+        }
+    }
+
     private void validateAndFormatAddOn(AddOn addOn) {
 
-        String item = "add-on";
+        String item = "add-on " + addOn.getName();
 
         validateName(addOn.getName(), item);
-        
+
         if (addOn.getName().contains(" ")) {
             addOn.setName(parseStringToCamelCase(addOn.getName()));
         }
 
-        validatePrice(addOn, item);
+        validateAddOnPrice(addOn, item);
         validateUnit(addOn.getUnit(), item);
         if (addOn.getFeatures() != null)
             validateAllFeaturesExist(addOn.getFeatures().keySet().stream().collect(Collectors.toList()));
@@ -617,7 +559,28 @@ public class PricingService {
         }
     }
 
-    private void validatePrice(AddOn addOn, String item) {
+    private void validatePlanPrice(Plan plan) {
+        if (plan.getMonthlyPrice() != null && !(plan.getMonthlyPrice() instanceof Double)) {
+            throw new IllegalArgumentException("The plan monthlyPrice must be a double");
+        }
+
+        if (plan.getAnnualPrice() != null && !(plan.getAnnualPrice() instanceof Double)) {
+            throw new IllegalArgumentException("The plan annualPrice must be a double");
+        }
+
+        if (plan.getMonthlyPrice() != null && plan.getAnnualPrice() == null
+                || plan.getAnnualPrice() != null && plan.getMonthlyPrice() == null) {
+            throw new IllegalArgumentException(
+                    "You must specify both a monthlyPrice and an annualPrice in a plan");
+        }
+
+        if ((Double) plan.getMonthlyPrice() < (Double) plan.getAnnualPrice()){
+            throw new IllegalArgumentException("The monthly price must be greater than the annual price (which must be specified by its monthly price)");
+        }
+    }
+
+    private void validateAddOnPrice(AddOn addOn, String item) {
+
         if (addOn.getPrice() == null && addOn.getMonthlyPrice() == null && addOn.getAnnualPrice() == null) {
             throw new IllegalArgumentException(
                     "Either an " + item + " price or a monthlyPrice/annualPrice configuration must be specified");
@@ -662,20 +625,48 @@ public class PricingService {
             throw new InvalidDefaultValueException("The " + item + " defaultValue must not be null");
         }
 
-        if (valueType == ValueType.BOOLEAN && !(defaultValue instanceof Boolean)) {
+        if (valueType == ValueType.BOOLEAN && !isCondition(defaultValue)) {
             throw new InvalidDefaultValueException(
                     "The " + item + " defaultValue must be a boolean if valueType is BOOLEAN");
         }
 
-        if (valueType == ValueType.NUMERIC && !(defaultValue instanceof Integer)) {
+        if (valueType == ValueType.NUMERIC && !isNumeric(defaultValue)) {
             throw new InvalidDefaultValueException(
-                    "The " + item + " defaultValue must be an integer if valueType is NUMERIC");
+                    "The " + item + " defaultValue must be one of the supported numeric types if valueType is NUMERIC");
         }
 
-        if (valueType == ValueType.TEXT && !(defaultValue instanceof String)) {
+        if (valueType == ValueType.TEXT && !isText(defaultValue)) {
             throw new InvalidDefaultValueException(
                     "The " + item + " defaultValue must be a string if valueType is TEXT");
         }
+    }
+
+    /**
+     * Validates the value based on the specified value type.
+     *
+     * @param value     The value to be validated.
+     * @param valueType The type of value to be validated (BOOLEAN, NUMERIC, TEXT).
+     * @param item      The name of the item being validated.
+     * @throws IllegalArgumentException If the value is not of the expected type or
+     *                                  if it is null.
+     */
+    private void validateValue(Object value, ValueType valueType, String item) {
+
+        if (value != null) {
+            if (valueType == ValueType.BOOLEAN && !isCondition(value)) {
+                throw new IllegalArgumentException("The " + item + " value must be a boolean if valueType is BOOLEAN");
+            }
+
+            if (valueType == ValueType.NUMERIC && !isNumeric(value)) {
+                throw new IllegalArgumentException(
+                        "The " + item + " value must be a one of the supported numeric types if valueType is NUMERIC");
+            }
+
+            if (valueType == ValueType.TEXT && !isText(value)) {
+                throw new IllegalArgumentException("The " + item + " value must be a string if valueType is TEXT");
+            }
+        }
+
     }
 
     private void validateUnit(String unit, String item) {
@@ -706,6 +697,77 @@ public class PricingService {
                 throw new IllegalArgumentException("The usage limit " + usageLimitName
                         + " to which you're trying to attach an " + item + " does not exist within the pricing");
             }
+        }
+    }
+
+    private void validateExpression(String expression, String item) {
+        if (!(expression instanceof String) || expression.length() > 1000) {
+            throw new IllegalArgumentException(
+                    "The " + item + " expression must have at most 1000 characters and must be a string");
+        }
+    }
+
+    private void validateValueTypeConsistency(ValueType valueType, Object defaultValue, Object value, String expression, String serverExpression, String item){
+        
+        switch (valueType) {
+            case BOOLEAN:
+                if (!isCondition(defaultValue)) {
+                    throw new InvalidDefaultValueException("The defaultValue of " + item + " must be a boolean if valueType is BOOLEAN");
+                }
+
+                if (value != null && !isCondition(value)) {
+                    throw new IllegalArgumentException("The value of " + item + " must be a boolean if valueType is BOOLEAN");
+                }
+
+                if (expression != null && expression.matches(".*[<>=].*")) {
+                    throw new IllegalArgumentException("Expression of " + item + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN");
+                }
+
+                if (serverExpression != null && serverExpression.matches(".*[<>=].*")) {
+                    throw new IllegalArgumentException("ServerExpression of " + item + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN");
+                }
+
+                break;
+            case NUMERIC:
+
+                if (!isNumeric(defaultValue)) {
+                    throw new InvalidDefaultValueException("The defaultValue of " + item + " must be a numeric type if valueType is NUMERIC");
+                }
+
+                if (value != null && !isNumeric(value)) {
+                    throw new IllegalArgumentException("The value of " + item + " must be a numeric type if valueType is NUMERIC");
+                }
+
+                if (expression != null && !expression.matches(".*[<>=].*") && !expression.equals("")) {
+                    throw new IllegalArgumentException("Expression of " + item + " should include comparison operators such as: <, > or ==, as it is NUMERIC");
+                }
+
+                if (serverExpression != null && !serverExpression.matches(".*[<>=].*") && !serverExpression.equals("")) {
+                    throw new IllegalArgumentException("ServerExpression of " + item + " should include comparison operators such as: <, > or ==, as it is NUMERIC");
+                }
+
+                break;
+            case TEXT:
+
+                if (!isText(defaultValue)) {
+                    throw new InvalidDefaultValueException("The defaultValue of " + item + " must be a string if valueType is TEXT");
+                }
+
+                if (value != null && !isText(value)) {
+                    throw new IllegalArgumentException("The value of " + item + " must be a string if valueType is TEXT");
+                }
+
+                if (expression != null && expression.matches(".*[<>&|].*")) {
+                    throw new IllegalArgumentException("Expression of " + item + " should only include == or != operators, as it is TEXT");
+                }
+
+                if (serverExpression != null && serverExpression.matches(".*[<>&|].*")) {
+                    throw new IllegalArgumentException("ServerExpression of " + item + " should only include == or != operators, as it is TEXT");
+                }
+
+                break;
+            default:
+                throw new IllegalArgumentException("The valueType must be one of the supported types (BOOLEAN, NUMERIC, TEXT)");
         }
     }
 

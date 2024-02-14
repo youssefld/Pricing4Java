@@ -4,12 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.exceptions.InvalidValueTypeException;
+import io.github.isagroup.models.AddOn;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
@@ -29,6 +32,7 @@ import io.github.isagroup.models.UsageLimit;
 import io.github.isagroup.models.UsageLimitType;
 import io.github.isagroup.models.ValueType;
 import io.github.isagroup.models.featuretypes.Domain;
+import io.github.isagroup.models.usagelimittypes.NonRenewable;
 import io.github.isagroup.models.usagelimittypes.Renewable;
 import io.github.isagroup.services.yaml.YamlUtils;
 
@@ -47,9 +51,12 @@ class PricingServiceTests {
     private static final String TEST_NEW_PLAN = "NEW_PLAN";
     private static Plan newPlan = new Plan();
     private static UsageLimit newUsageLimit = new Renewable();
+    private static AddOn newAddOn = new AddOn();
+
     private static final String TEST_BOOLEAN_FEATURE = "haveCalendar";
     private static final String TEST_NUMERIC_FEATURE = "maxPets";
     private static final String TEST_TEXT_FEATURE = "supportPriority";
+    private static final String TEST_NEW_ADDON_FEATURE = "haveVetSelection";
     private static final String NEW_FEATURE_NAME = "newFeature";
     private static final String NEW_FEATURE_TEST_VALUE = "testValue";
     private static final String NEW_FEATURE_TEST_EXPRESSION = "userContext['pets'] > 1";
@@ -86,6 +93,33 @@ class PricingServiceTests {
         features.put(TEST_TEXT_FEATURE, newTextFeature);
 
         newPlan.setFeatures(features);
+
+        // Creation of new add-on
+
+        newAddOn.setName("newAddOn");
+        newAddOn.setMonthlyPrice(5.0);
+        newAddOn.setAnnualPrice(4.0);
+        newAddOn.setUnit("owner/month");
+
+        List<String> availableFor = new ArrayList<>();
+        availableFor.add(pricingManager.getPlans().get(TEST_PLAN).getName());
+        newAddOn.setAvailableFor(availableFor);
+
+        Feature newAddOnFeature = pricingManager.getFeatures().get(TEST_NEW_ADDON_FEATURE);
+        Map<String, Feature> addOnFeatures = new HashMap<>();
+        addOnFeatures.put(TEST_NEW_ADDON_FEATURE, newAddOnFeature);
+        newAddOn.setFeatures(addOnFeatures);
+
+        UsageLimit addOnUsageLimitExtension = new NonRenewable();
+        addOnUsageLimitExtension.setName("maxPets");
+        addOnUsageLimitExtension.setDescription("Max pets extension description");
+        addOnUsageLimitExtension.setValueType(ValueType.NUMERIC);
+        addOnUsageLimitExtension.setDefaultValue(5);
+        addOnUsageLimitExtension.setUnit("pet");
+        addOnUsageLimitExtension.getLinkedFeatures().add(TEST_NUMERIC_FEATURE);
+        Map<String, UsageLimit> usageLimitsExtensions = new HashMap<>();
+        usageLimitsExtensions.put(addOnUsageLimitExtension.getName(), addOnUsageLimitExtension);
+        newAddOn.setUsageLimitsExtensions(usageLimitsExtensions);
     }
 
     @BeforeEach
@@ -604,7 +638,7 @@ class PricingServiceTests {
         newUsageLimit.setUnit("day");
         newUsageLimit.getLinkedFeatures().add(TEST_TEXT_FEATURE);
 
-        pricingService.updateUsageLimitFromConfiguration(newUsageLimit);
+        pricingService.updateUsageLimitFromConfiguration(newUsageLimit.getName(), newUsageLimit);
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
 
@@ -627,7 +661,7 @@ class PricingServiceTests {
         newUsageLimit.setDefaultValue("test");
 
         InvalidDefaultValueException exception = assertThrows(InvalidDefaultValueException.class, () -> {
-            pricingService.updateUsageLimitFromConfiguration(newUsageLimit);
+            pricingService.updateUsageLimitFromConfiguration(newUsageLimit.getName(), newUsageLimit);
         });
 
         assertEquals("The usage limit defaultValue must be an integer if valueType is NUMERIC",
@@ -645,6 +679,75 @@ class PricingServiceTests {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
 
         assertFalse(pricingManager.getUsageLimits().containsKey(newUsageLimit.getName()));
+    }
+
+    // --------------- ADD-ONS' MANAGEMENT ----------------
+
+    @Test
+    @Order(310)
+    void shouldAddAddOn(){
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+
+        assertNull(pricingManager.getAddOns());
+        
+        pricingService.addAddOnToConfiguration(newAddOn);
+
+        pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+
+        assertEquals(1, pricingManager.getAddOns().size());
+    }
+
+    @Test
+    @Order(320)
+    void shouldNotAddRepeatedAddOn(){
+
+        pricingService.addAddOnToConfiguration(newAddOn);
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+
+        assertEquals(1, pricingManager.getAddOns().size());
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            pricingService.addAddOnToConfiguration(newAddOn);
+        });
+
+        assertEquals("An add-on with the name " + newAddOn.getName() + " already exists within the pricing configuration",
+                exception.getMessage());
+    }
+
+    @Test
+    @Order(330)
+    void shouldUpdateAddOn(){
+
+        pricingService.addAddOnToConfiguration(newAddOn);
+
+        newAddOn.setMonthlyPrice(10.0);
+        newAddOn.setAnnualPrice(100.0);
+        newAddOn.setUnit("owner/year");
+
+        pricingService.updateAddOnFromConfiguration(newAddOn.getName(), newAddOn);
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+
+        AddOn updatedAddOn = pricingManager.getAddOns().get(newAddOn.getName());
+        
+        assertEquals(10.0, updatedAddOn.getMonthlyPrice());
+        assertEquals(100.0, updatedAddOn.getAnnualPrice());
+        assertEquals("owner/year", updatedAddOn.getUnit());
+    }
+
+    @Test
+    @Order(340)
+    void shouldRemoveAddOn(){
+
+        pricingService.addAddOnToConfiguration(newAddOn);
+
+        pricingService.removeAddOnFromConfiguration(newAddOn.getName());
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContextTestImpl.getConfigFilePath());
+
+        assertFalse(pricingManager.getAddOns().containsKey(newAddOn.getName()));
     }
 
     // --------------- PRICING CONFIGURATION MANAGEMENT ---------------

@@ -21,6 +21,7 @@ import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
 import io.github.isagroup.services.yaml.YamlUtils;
+import io.github.isagroup.utils.PricingValidators;
 
 /**
  * Service that provides methods to manage the pricing configuration.
@@ -31,7 +32,7 @@ public class PricingService {
     @Autowired
     private PricingContext pricingContext;
 
-    private Map<ValueType, Object> DEFAULT_VALUES = new HashMap<>();
+    private final Map<ValueType, Object> DEFAULT_VALUES = new HashMap<>();
 
     public PricingService(PricingContext pricingContext) {
         this.pricingContext = pricingContext;
@@ -411,7 +412,8 @@ public class PricingService {
 
         if (pricingManager.getUsageLimits().containsKey(usageLimit.getName())) {
             throw new CloneUsageLimitException(
-                    "An usage limit with the name " + usageLimit.getName() + " already exists within the pricing configuration");
+                    "An usage limit with the name " + usageLimit.getName()
+                            + " already exists within the pricing configuration");
         }
 
         usageLimits.put(usageLimit.getName(), usageLimit);
@@ -423,10 +425,16 @@ public class PricingService {
     }
 
     @Transactional
-    public void updateUsageLimitFromConfiguration(UsageLimit usageLimit) {
+    public void updateUsageLimitFromConfiguration(String previousUsageLimitName, UsageLimit usageLimit) {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
         Map<String, UsageLimit> usageLimits = pricingManager.getUsageLimits();
+        List<String> usageLimitsNames = usageLimits.keySet().stream().collect(Collectors.toList());
+
+        if (!usageLimitsNames.contains(previousUsageLimitName)) {
+            throw new IllegalArgumentException(
+                    "There is no usage limit with the name " + previousUsageLimitName + " in the current pricing configuration");
+        }
 
         validateAndFormatUsageLimit(usageLimit);
 
@@ -437,8 +445,12 @@ public class PricingService {
             Map<String, Plan> plans = pricingManager.getPlans();
 
             for (Entry<String, Plan> planEntry : plans.entrySet()) {
-                planEntry.getValue().getUsageLimits().remove(usageLimit.getName());
+                planEntry.getValue().getUsageLimits().remove(previousUsageLimitName);
             }
+        }
+
+        if (!previousUsageLimitName.equals(usageLimit.getName())) {
+            usageLimits.remove(previousUsageLimitName);
         }
 
         usageLimits.put(usageLimit.getName(), usageLimit);
@@ -469,10 +481,68 @@ public class PricingService {
 
     @Transactional
     public void addAddOnToConfiguration(AddOn addOn) {
+
+        validateAndFormatAddOn(addOn);
+
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
         Map<String, AddOn> addOns = pricingManager.getAddOns();
 
+        if (addOns == null){
+            addOns = new HashMap<>();
+        }
+
+        if (addOns.containsKey(addOn.getName())) {
+            throw new IllegalArgumentException(
+                    "An add-on with the name " + addOn.getName() + " already exists within the pricing configuration");
+        }
+
+        addOns.put(addOn.getName(), addOn);
+
+        pricingManager.setAddOns(addOns);
+
+        YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
+    }
+
+    @Transactional
+    public void updateAddOnFromConfiguration(String previousName, AddOn addOn) {
+
+        
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
+        List<String> addOnsNames = pricingManager.getAddOns().keySet().stream().collect(Collectors.toList());
+        
+        if (!addOnsNames.contains(previousName)) {
+            throw new IllegalArgumentException(
+                "There is no add-on with the name " + previousName + " in the current pricing configuration");
+        }
+        
+        validateAndFormatAddOn(addOn);
+        
+        Map<String, AddOn> addOns = pricingManager.getAddOns();
+        
+        if (!previousName.equals(addOn.getName())) {
+            addOns.remove(previousName);
+        }
+
+        addOns.put(addOn.getName(), addOn);
+
+        pricingManager.setAddOns(addOns);
+
+        YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
+    }
+
+    @Transactional
+    public void removeAddOnFromConfiguration(String addOnName) {
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
+
+        Map<String, AddOn> addOns = pricingManager.getAddOns();
+
+        if (!addOns.containsKey(addOnName)) {
+            throw new IllegalArgumentException(
+                    "There is no add-on with the name " + addOnName + " in the current pricing configuration");
+        }
+
+        addOns.remove(addOnName);
         pricingManager.setAddOns(addOns);
 
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
@@ -500,15 +570,35 @@ public class PricingService {
         String item = "usage limit";
 
         validateName(usageLimit.getName(), item);
-
         if (usageLimit.getName().contains(" ")) {
             usageLimit.setName(parseStringToCamelCase(usageLimit.getName()));
         }
-
         validateValueType(usageLimit.getValueType(), item);
         validateDefaultValue(usageLimit.getDefaultValue(), usageLimit.getValueType(), item);
         validateUnit(usageLimit.getUnit(), item);
         validateAllFeaturesExist(usageLimit.getLinkedFeatures());
+
+    }
+
+    private void validateAndFormatAddOn(AddOn addOn) {
+
+        String item = "add-on";
+
+        validateName(addOn.getName(), item);
+        
+        if (addOn.getName().contains(" ")) {
+            addOn.setName(parseStringToCamelCase(addOn.getName()));
+        }
+
+        validatePrice(addOn, item);
+        validateUnit(addOn.getUnit(), item);
+        if (addOn.getFeatures() != null)
+            validateAllFeaturesExist(addOn.getFeatures().keySet().stream().collect(Collectors.toList()));
+        if (addOn.getUsageLimits() != null)
+            validateAllUsageLimitsExist(addOn.getUsageLimits().keySet().stream().collect(Collectors.toList()), item);
+        if (addOn.getUsageLimitsExtensions() != null)
+            validateAllUsageLimitsExist(addOn.getUsageLimitsExtensions().keySet().stream().collect(Collectors.toList()),
+                    item);
 
     }
 
@@ -524,6 +614,36 @@ public class PricingService {
 
         if (name.length() > 50) {
             throw new IllegalArgumentException("The " + item + " name must have at most 50 characters");
+        }
+    }
+
+    private void validatePrice(AddOn addOn, String item) {
+        if (addOn.getPrice() == null && addOn.getMonthlyPrice() == null && addOn.getAnnualPrice() == null) {
+            throw new IllegalArgumentException(
+                    "Either an " + item + " price or a monthlyPrice/annualPrice configuration must be specified");
+        }
+
+        if ((addOn.getMonthlyPrice() != null || addOn.getAnnualPrice() != null) && addOn.getPrice() != null) {
+            throw new IllegalArgumentException(
+                    "You cannot specify both a price and a monthlyPrice/annualPrice configuration");
+        }
+
+        if (addOn.getPrice() != null && !(addOn.getPrice() instanceof Double)) {
+            throw new IllegalArgumentException("The " + item + " price must be a double");
+        }
+
+        if (addOn.getMonthlyPrice() != null && !(addOn.getMonthlyPrice() instanceof Double)) {
+            throw new IllegalArgumentException("The " + item + " monthlyPrice must be a double");
+        }
+
+        if (addOn.getAnnualPrice() != null && !(addOn.getAnnualPrice() instanceof Double)) {
+            throw new IllegalArgumentException("The " + item + " annualPrice must be a double");
+        }
+
+        if (addOn.getMonthlyPrice() != null && addOn.getAnnualPrice() == null
+                || addOn.getAnnualPrice() != null && addOn.getMonthlyPrice() == null) {
+            throw new IllegalArgumentException(
+                    "You must specify both a monthlyPrice and an annualPrice in a monthlyPrice/annualPrice configuration");
         }
     }
 
@@ -553,7 +673,8 @@ public class PricingService {
         }
 
         if (valueType == ValueType.TEXT && !(defaultValue instanceof String)) {
-            throw new InvalidDefaultValueException("The " + item + " defaultValue must be a string if valueType is TEXT");
+            throw new InvalidDefaultValueException(
+                    "The " + item + " defaultValue must be a string if valueType is TEXT");
         }
     }
 
@@ -572,6 +693,18 @@ public class PricingService {
             if (!pricingManager.getFeatures().containsKey(featureName)) {
                 throw new FeatureNotFoundException("The feature " + featureName
                         + " to which you're trying to attach an usage limit does not exist within the pricing");
+            }
+        }
+    }
+
+    private void validateAllUsageLimitsExist(List<String> usageLimitNames, String item) {
+
+        PricingManager pricingManager = pricingContext.getPricingManager();
+
+        for (String usageLimitName : usageLimitNames) {
+            if (!pricingManager.getUsageLimits().containsKey(usageLimitName)) {
+                throw new IllegalArgumentException("The usage limit " + usageLimitName
+                        + " to which you're trying to attach an " + item + " does not exist within the pricing");
             }
         }
     }

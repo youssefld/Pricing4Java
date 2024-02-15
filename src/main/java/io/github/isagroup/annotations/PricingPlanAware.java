@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PricingPlanAware {
-    public String featureId() default "";
+    public String featureName() default "";
 }

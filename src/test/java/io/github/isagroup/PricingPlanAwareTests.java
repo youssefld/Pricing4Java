@@ -45,7 +45,7 @@ public class PricingPlanAwareTests {
             private String configFilePath = CONFIG_FILE_PATH_TEST;
             private String jwtSecret = JWT_SECRET_TEST;
             private int jwtExpiration = JWT_EXPIRATION_TEST;
-            private int numberOfPets = 2;
+            private int numberOfPets = 10;
 
             @Override
             public String getConfigFilePath() {
@@ -141,7 +141,7 @@ public class PricingPlanAwareTests {
             }
 
             @Override
-            public String featureId() {
+            public String featureName() {
                 return featureId;
             }
         });
@@ -150,7 +150,7 @@ public class PricingPlanAwareTests {
     @Test
     void negativeSimpleAnnotationUseCaseTest() throws Throwable {
 
-        pricingContextImpl.setNumberOfPets(6);
+        pricingContextImpl.setNumberOfPets(16);
 
         Mockito.when(joinPoint.proceed()).thenReturn("Result");
 
@@ -165,7 +165,7 @@ public class PricingPlanAwareTests {
                 }
 
                 @Override
-                public String featureId() {
+                public String featureName() {
                     return featureId;
                 }
             });
@@ -191,7 +191,7 @@ public class PricingPlanAwareTests {
             }
 
             @Override
-            public String featureId() {
+            public String featureName() {
                 return featureId;
             }
         });
@@ -219,7 +219,7 @@ public class PricingPlanAwareTests {
                 }
 
                 @Override
-                public String featureId() {
+                public String featureName() {
                     return featureId;
                 }
             });
@@ -247,13 +247,13 @@ public class PricingPlanAwareTests {
                 }
 
                 @Override
-                public String featureId() {
+                public String featureName() {
                     return featureId;
                 }
             });
         });
 
-        assertEquals("Error while parsing YAML file", exception.getMessage());
+        assertEquals("The pricing context is null. Please, chech the path to the configuration file.", exception.getMessage());
 
         pricingContextImpl.setConfigFilePath(CONFIG_FILE_PATH_TEST);
     }

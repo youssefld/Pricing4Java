@@ -23,6 +23,18 @@ public class Plan {
     private Map<String, Feature> features;
     private Map<String, UsageLimit> usageLimits;
 
+    public Map<String, Object> parseToMap(){
+        Map<String, Object> planMap = new LinkedHashMap<>();
+        planMap.put("name", name);
+        planMap.put("description", description);
+        planMap.put("monthlyPrice", monthlyPrice);
+        planMap.put("annualPrice", annualPrice);
+        planMap.put("unit", unit);
+        planMap.put("features", features);
+        planMap.put("usageLimits", usageLimits);
+        return planMap;
+    }
+
     public Map<String, Object> serializePlan() {
         Map<String, Object> attributes = new LinkedHashMap<>();
         attributes.put("description", description);

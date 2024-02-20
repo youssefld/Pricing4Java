@@ -54,12 +54,6 @@ public class PricingManagerSerializerTest {
         plans.put("BASIC", plan);
         pricingManager.setPlans(plans);
 
-        Map<String, AddOn> addOns = new LinkedHashMap<>();
-        AddOn addOn = new AddOn();
-        addOn.setName("fooAddOn");
-        addOns.put("fooAddOn", addOn);
-        pricingManager.setAddOns(addOns);
-
         return pricingManager;
     }
 

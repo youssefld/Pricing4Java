@@ -12,61 +12,61 @@ public class PricingManagerParserTest {
     private static final String NEGATIVE_CASES = "parsing/negative/";
 
     @Test
-    void given_null_saasname_should_throw_parsing_exception() {
+    void givenNullSaasNameShouldThrowParsingException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "null-saasname.yml"));
     }
 
     @Test
-    void given_null_day_should_throw_parsing_exception() {
+    void givenNullDayShouldThrowParsingException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "null-day.yml"));
     }
 
     @Test
-    void given_null_month_should_throw_parsing_exception() {
+    void givenNullMonthShouldThrowParsingException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "null-month.yml"));
     }
 
     @Test
-    void given_null_year_should_throw_parsing_exception() {
+    void givenNullYearShouldThrowParsingException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "null-year.yml"));
     }
 
     @Test
-    void given_null_currency_should_throw_parsing_exception() {
+    void givenNullCurrencyShouldThrowParsingException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "null-currency.yml"));
     }
 
     @Test
-    void given_null_features_should_throw_parsing_exception() {
+    void givenNullFeaturesShouldThrowParsingException() {
         assertThrows(IllegalArgumentException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "null-features.yml"));
     }
 
     @Test
-    void given_string_in_features_hould_throw_ClassCastException() {
+    void givenStringInFeaturesShouldThrowClassCastException() {
         assertThrows(ClassCastException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "features-is-string.yml"));
     }
 
     @Test
-    void given_list_in_features_should_throw_ClassCastException() {
+    void givenListInFeaturesShouldThrowClassCastException() {
         assertThrows(ClassCastException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "features-is-list.yml"));
     }
 
     @Test
-    void given_key_value_in_features_should_throw_ClassCastException() {
+    void givenKeyValueInFeaturesShouldThrowClassCastException() {
         assertThrows(ClassCastException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "features-is-key-value.yml"));
     }
 
     @Test
-    void given_null_plans_should_pass() {
+    void givenNullPlansShouldPass() {
         YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "null-plans.yml");
     }
 

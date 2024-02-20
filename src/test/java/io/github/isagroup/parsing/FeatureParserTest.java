@@ -11,7 +11,7 @@ public class FeatureParserTest {
     private static final String TEST_CASES = "parsing/features/";
 
     @Test
-    void given_null_type_should_throw_NullPointerException() {
+    void givenNullTypeShouldThrowNullPointerException() {
 
         assertThrows(NullPointerException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(TEST_CASES + "null-type.yml"));
@@ -19,14 +19,14 @@ public class FeatureParserTest {
     }
 
     @Test
-    void given_null_value_type_should_throw_NullPointerException() {
+    void givenNullValueTypeShouldThrowNullPointerException() {
 
         assertThrows(NullPointerException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(TEST_CASES + "null-value-type.yml"));
     }
 
     @Test
-    void given_unsuported_value_type_should_throw_IllegalArgumentException() {
+    void givenUnsuportedValueTypeShouldThrowIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(TEST_CASES + "unsuported-value-type.yml"));
     }

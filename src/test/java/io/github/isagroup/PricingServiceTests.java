@@ -1,9 +1,11 @@
 package io.github.isagroup;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,6 +19,7 @@ import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -413,6 +416,110 @@ class PricingServiceTests {
     }
 
     @Test
+    void givenNonExistentFeatureShouldThrowIllegalArgumentExceptionWhenUpdatingPlan() {
+
+        assertThrows(IllegalArgumentException.class, () -> pricingService.updatePlanFromConfiguration("foo", newPlan));
+    }
+
+    @Test
+    void givenNullPlanPreviousNameShouldTrowIllegalArgumentExceptionWhenUpdatingPlan() {
+        // if plans map contains a null, string comparison will throw null pointer
+        // exception
+        assertThrows(IllegalArgumentException.class, () -> pricingService.updatePlanFromConfiguration(null, newPlan));
+    }
+
+    @Test
+    void givenNewPlanNameShouldUpdateOnlyPlanName() {
+
+        Map<String, Plan> oldPlans = YamlUtils.retrieveManagerFromYaml(TEMPORAL_CONFIG_PATH).getPlans();
+        Plan basicPlan = oldPlans.get("BASIC");
+
+        // FIXME with a copy constructor new Plan(Plan plan) is easy
+        Plan updatedPlan = new Plan();
+        updatedPlan.setName("foo");
+        updatedPlan.setAnnualPrice(basicPlan.getAnnualPrice());
+        updatedPlan.setMonthlyPrice(basicPlan.getMonthlyPrice());
+        updatedPlan.setDescription(basicPlan.getDescription());
+        updatedPlan.setUnit(basicPlan.getUnit());
+        updatedPlan.setFeatures(basicPlan.getFeatures());
+        updatedPlan.setUsageLimits(basicPlan.getUsageLimits());
+
+        pricingService.updatePlanFromConfiguration(basicPlan.getName(), updatedPlan);
+
+        Map<String, Plan> newPlans = YamlUtils.retrieveManagerFromYaml(TEMPORAL_CONFIG_PATH).getPlans();
+        assertFalse(newPlans.containsKey(basicPlan.getName()));
+        assertTrue(newPlans.containsKey(updatedPlan.getName()));
+    }
+
+    @Test
+    void givenPlanWithNullNameShouldThrowIllegalArgumentExceptionException() {
+
+        Plan planToUpdate = new Plan();
+        planToUpdate.setName(null);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> pricingService.updatePlanFromConfiguration("BASIC", planToUpdate));
+        assertEquals("The plan null name must not be null or empty", ex.getMessage());
+    }
+
+    @Test
+    void givenPlanWithEmptyStringNameShouldThrowIllegalArgumentExceptionException() {
+
+        Plan planToUpdate = new Plan();
+        planToUpdate.setName("");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> pricingService.updatePlanFromConfiguration("BASIC", planToUpdate));
+        // FIXME Weird formatting of error message, since plan name is ""
+        assertEquals("The plan  name must not be null or empty", ex.getMessage());
+    }
+
+    @Test
+    void givenPlan2CharactersStringNameShouldThrowIllegalArgumentExceptionException() {
+
+        String planName = "ab";
+        Plan planToUpdate = new Plan();
+        planToUpdate.setName(planName);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> pricingService.updatePlanFromConfiguration("BASIC", planToUpdate));
+        // FIXME Weird formatting of error message, since plan name is ""
+        assertEquals("The plan " + planName + " name must have at least 3 characters", ex.getMessage());
+    }
+
+    @Test
+    void givenPlan51CharactersStringNameShouldThrowIllegalArgumentExceptionException() {
+
+        String planName = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        Plan planToUpdate = new Plan();
+        planToUpdate.setName(planName);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> pricingService.updatePlanFromConfiguration("BASIC", planToUpdate));
+        // FIXME Weird formatting of error message, since plan name is ""
+        assertEquals("The plan " + planName + " name must have at most 50 characters", ex.getMessage());
+    }
+
+    @Test
+    @Disabled
+    void givenPlanWithThreeSpacesInNameShouldThrowIllegalArgumentExceptionException() {
+
+        // FIXME Plan name contains 3 space characters
+        Plan planToUpdate = new Plan();
+        planToUpdate.setName("   ");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> pricingService.updatePlanFromConfiguration("BASIC", planToUpdate));
+    }
+
+    @Test
+    @Disabled
+    void givenNullPlanShouldThrowIllegalArgumentExceptionException() {
+        // Check null value
+        assertThrows(IllegalArgumentException.class, () -> pricingService.updatePlanFromConfiguration("BASIC", null));
+    }
+
+    @Test
     @Order(140)
     void givenNumberShouldThrowWhenUpdatingTextFeature() {
 
@@ -707,6 +814,32 @@ class PricingServiceTests {
         assertThrows(IllegalArgumentException.class, () -> {
             pricingService.updatePlanFromConfiguration(TEST_PLAN, plan);
         });
+    }
+
+    @Disabled
+    @Test
+    @Order(270)
+    void givenNewNameToFeatureShouldUpdateOnlyName() {
+        PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
+
+        Feature originalFeature = pricingManager.getFeatures().get("maxPets");
+
+        Feature featureToUpdate = pricingManager.getFeatures().get("maxPets");
+        featureToUpdate.setName("foo");
+
+        pricingService.updateFeatureFromConfiguration(originalFeature.getName(), featureToUpdate);
+
+        PricingManager newPricingManager = YamlUtils.retrieveManagerFromYaml(TEMPORAL_CONFIG_PATH);
+        Feature newFeature = newPricingManager.getFeatures().get(featureToUpdate.getName());
+
+        assertNotEquals(originalFeature.getName(), newFeature.getName());
+        assertEquals(originalFeature.getDefaultValue(), newFeature.getDefaultValue());
+        assertEquals(originalFeature.getValue(), newFeature.getValue());
+        assertEquals(originalFeature.getDescription(), newFeature.getDescription());
+        assertEquals(originalFeature.getExpression(), newFeature.getExpression());
+        assertEquals(originalFeature.getServerExpression(), newFeature.getExpression());
+        assertEquals(originalFeature.getValueType(), newFeature.getValueType());
+
     }
 
     // --------------- USAGE LIMITS' MANAGEMENT ----------------

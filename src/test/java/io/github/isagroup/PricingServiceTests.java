@@ -1,6 +1,5 @@
 package io.github.isagroup;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -48,7 +47,6 @@ class PricingServiceTests {
     private static final String PETCLINIC_CONFIG_PATH = "pricing/petclinic.yml";
 
     private static final String TEMPORAL_CONFIG_PATH = "yaml-testing/temp.yml";
-    private boolean removeTempFile = true;
 
     private static final String TEST_PLAN = "BASIC";
     private static final String TEST_NEW_PLAN = "NEW_PLAN";
@@ -65,6 +63,14 @@ class PricingServiceTests {
     private static final String NEW_FEATURE_TEST_EXPRESSION = "userContext['pets'] > 1";
     private static final PricingManager ORIGINAL_PRICING_MANAGER = YamlUtils
             .retrieveManagerFromYaml(PETCLINIC_CONFIG_PATH);
+
+    private static final List<TempFile> PATHS = new ArrayList<>();
+
+    static {
+        PATHS.add(new TempFile(PETCLINIC_CONFIG_PATH, TEMPORAL_CONFIG_PATH));
+        PATHS.add(new TempFile("pricing/one-feature-pricing.yml", "yaml-testing/one-feature-pricing.yml"));
+    }
+    private boolean removeTempFile = true;
 
     private PricingService pricingService;
 
@@ -127,13 +133,20 @@ class PricingServiceTests {
         newAddOn.setUsageLimitsExtensions(usageLimitsExtensions);
     }
 
+    private static void initTemporalFiles() {
+        for (TempFile tempFile : PATHS) {
+            // Read file source
+            PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(tempFile.getSourcePath());
+            // Write temporal file to destination
+            YamlUtils.writeYaml(pricingManager, tempFile.getDestinationPath());
+        }
+
+    }
+
     @BeforeEach
     public void init() {
 
-        // Read petclinic
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(PETCLINIC_CONFIG_PATH);
-        // Write temporal petclinic config file
-        YamlUtils.writeYaml(pricingManager, TEMPORAL_CONFIG_PATH);
+        initTemporalFiles();
 
         Map<String, Object> userContext = new HashMap<>();
         userContext.put("username", JWT_SUBJECT_TEST);
@@ -168,11 +181,14 @@ class PricingServiceTests {
 
     @AfterEach
     void after() {
+        String prefix = "src/test/resources/";
         try {
+            for (TempFile tempFile : PATHS) {
 
-            if (this.removeTempFile) {
-                File file = new File("src/test/resources/yaml-testing/temp.yml");
-                file.delete();
+                if (this.removeTempFile) {
+                    File file = new File(prefix + tempFile.getDestinationPath());
+                    file.delete();
+                }
             }
 
         } catch (Exception e) {
@@ -564,7 +580,7 @@ class PricingServiceTests {
 
     @Test
     @Order(190)
-    void given_existent_feature_should_remove_feature() {
+    void givenExistentFeatureShouldRemoveFeature() {
 
         String featureName = "maxPets";
 
@@ -580,7 +596,7 @@ class PricingServiceTests {
 
     @Test
     @Order(200)
-    void given_non_existent_feature_should_throw_when_deleting() {
+    void givenNonExistentFeatureShouldThroWhenDeleting() {
 
         String nonExistentFeatureName = "foo";
 
@@ -591,6 +607,49 @@ class PricingServiceTests {
         assertEquals(
                 "There is no feature with the name " + nonExistentFeatureName + " in the current pricing configuration",
                 exception.getMessage());
+    }
+
+    @Test
+    @Order(200)
+    void givenNullFeatureShouldThroWhenDeleting() {
+
+        String nonExistentFeatureName = null;
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            pricingService.removeFeatureFromConfiguration(nonExistentFeatureName);
+        });
+
+        assertEquals(
+                "There is no feature with the name " + nonExistentFeatureName + " in the current pricing configuration",
+                exception.getMessage());
+    }
+
+    @Test
+    @Disabled
+    void givenNullFeatureAsKeyShouldDelete() {
+
+        String path = "parsing/features/feature-null-as-key.yml";
+        pricingContextTestImpl.setConfigFilePath(path);
+
+        String featureName = null;
+        pricingService.removeFeatureFromConfiguration(featureName);
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(path);
+        assertFalse(pricingManager.getFeatures().containsKey(featureName));
+    }
+
+    @Test
+    @Disabled
+    void givenOneFeaturePricingShouldNotDelete() {
+
+        String path = "yaml-testing/one-feature-pricing.yml";
+        pricingContextTestImpl.setConfigFilePath(path);
+
+        String featureName = "foo";
+
+        assertThrows(Exception.class, () -> pricingService.removeFeatureFromConfiguration(featureName),
+                "Remove feature does not throw when one feature is left");
+
     }
 
     // ------ FEATURES' EXPRESSIONS MANAGEMENT -------

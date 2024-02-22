@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.exceptions.InvalidValueTypeException;
 import io.github.isagroup.models.Feature;
-import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.featuretypes.Domain;
 import io.github.isagroup.services.yaml.YamlUtils;
@@ -228,4 +227,5 @@ public class PricingValidationTests {
                                                 + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN",
                                 ex.getMessage());
         }
+
 }

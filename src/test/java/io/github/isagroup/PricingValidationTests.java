@@ -9,156 +9,223 @@ import org.junit.jupiter.api.Test;
 import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.exceptions.InvalidValueTypeException;
 import io.github.isagroup.models.Feature;
+import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
+import io.github.isagroup.models.featuretypes.Domain;
 import io.github.isagroup.services.yaml.YamlUtils;
 import io.github.isagroup.utils.PricingValidators;
 
 public class PricingValidationTests {
 
-    @Test
-    @Disabled
-    void givenNullFeatureShouldThrowIllegalArgumentException() {
+        @Test
+        void givenNullFeatureNameShouldThrowIllegalArgumentExceptionException() {
 
-        Feature feature = null;
-        assertThrows(IllegalArgumentException.class, () -> PricingValidators.validateAndFormatFeature(feature));
-    }
+                Feature feature = new Domain();
+                feature.setName(null);
 
-    @Test
-    void givenNullExpressionShouldThrowIllegalArgumentException() {
-
-        String expression = null;
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
-        Feature feature = pricingManager.getFeatures().get("maxPets");
-        feature.setExpression(expression);
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> PricingValidators.validateAndFormatFeature(feature));
-
-        assertEquals(
-                "The feature " + feature.getName()
-                        + " expression must have at most 1000 characters and must be a string",
-                ex.getMessage());
-
-    }
-
-    @Test
-    void given10001CharactersExpressionShouldThrowIllegalArgumentException() {
-
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 1001; i++) {
-            sb.append("a");
+                IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
+                assertEquals("The feature null name must not be null or empty", ex.getMessage());
         }
-        String expression = sb.toString();
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
-        Feature feature = pricingManager.getFeatures().get("maxPets");
-        feature.setExpression(expression);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> PricingValidators.validateAndFormatFeature(feature));
-        assertEquals(
-                "The feature " + feature.getName()
-                        + " expression must have at most 1000 characters and must be a string",
-                ex.getMessage());
+        @Test
+        void givenFeatureNameWithEmptyStringShouldThrowIllegalArgumentExceptionException() {
 
-    }
+                String name = "";
+                Feature feature = new Domain();
+                feature.setName(name);
 
-    @Test
-    void givenNullValueTypeShouldThrowInvalidValueTypeException() {
+                IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
+                // FIXME Weird formatting of error message, since plan name is ""
+                assertEquals("The feature " + name + " name must not be null or empty", ex.getMessage());
+        }
 
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
-        Feature feature = pricingManager.getFeatures().get("maxPets");
-        feature.setValueType(null);
+        @Test
+        void givenFeatureNameWith2CharactersShouldThrowIllegalArgumentExceptionException() {
 
-        // FIXME: REMOVE VALUE TYPE CHECK
-        InvalidValueTypeException ex = assertThrows(InvalidValueTypeException.class,
-                () -> PricingValidators.validateAndFormatFeature(feature));
-        assertEquals(
-                "The feature " + feature.getName() + " valueType must not be null",
-                ex.getMessage());
+                String name = "ab";
+                Feature feature = new Domain();
+                feature.setName(name);
 
-    }
+                IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
+                assertEquals("The feature " + name + " name must have at least 3 characters", ex.getMessage());
+        }
 
-    @Test
-    void givenNullDefaultValueShouldThrowWhenValueTypeIsNumeric() {
+        @Test
+        @Disabled // FIXME: Get rid of me when refactor
+        void givenPlanWithThreeSpacesInNameShouldThrowIllegalArgumentExceptionException() {
 
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
-        Feature feature = pricingManager.getFeatures().get("maxPets");
-        feature.setDefaultValue(null);
+                // FIXME Plan name contains 3 space characters
+                Feature feature = new Domain();
+                feature.setName("   ");
 
-        InvalidDefaultValueException ex = assertThrows(InvalidDefaultValueException.class,
-                () -> PricingValidators.validateAndFormatFeature(feature));
-        assertEquals(
-                "The feature " + feature.getName()
-                        + " defaultValue must not be null",
-                ex.getMessage());
+                assertThrows(IllegalArgumentException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
+        }
 
-    }
+        @Test
+        void givenFeatureNameWith51CharactersShouldThrowIllegalArgumentExceptionException() {
 
-    @Test
-    void givenStringDefaultValueShouldThrowWhenValueTypeIsNumeric() {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < 51; i++) {
+                        sb.append("a");
+                }
+                String name = sb.toString();
+                Feature feature = new Domain();
+                feature.setName(name);
 
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
-        Feature feature = pricingManager.getFeatures().get("maxPets");
-        String defaultValue = "";
-        feature.setDefaultValue(defaultValue);
+                IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
+                assertEquals("The feature " + name + " name must have at most 50 characters",
+                                ex.getMessage());
+        }
 
-        // FIXME: REMOVE MULTIPLE VALUE TYPE CHECK
-        InvalidDefaultValueException ex = assertThrows(InvalidDefaultValueException.class,
-                () -> PricingValidators.validateAndFormatFeature(feature));
-        assertEquals(
-                "The feature " + feature.getName()
-                        + " defaultValue must be one of the supported numeric types if valueType is NUMERIC",
-                ex.getMessage());
+        @Test
+        @Disabled
+        void givenNullFeatureShouldThrowIllegalArgumentException() {
 
-    }
+                Feature feature = null;
+                assertThrows(IllegalArgumentException.class, () -> PricingValidators.validateAndFormatFeature(feature));
+        }
 
-    @Test
-    void givenStringDefaultValueShouldThrowWhenValueTypeIsBoolean() {
+        @Test
+        void givenNullExpressionShouldThrowIllegalArgumentException() {
 
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
-        Feature feature = pricingManager.getFeatures().get("haveCalendar");
-        String defaultValue = "";
-        feature.setDefaultValue(defaultValue);
+                String expression = null;
+                PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
+                Feature feature = pricingManager.getFeatures().get("maxPets");
+                feature.setExpression(expression);
+                IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
 
-        InvalidDefaultValueException ex = assertThrows(InvalidDefaultValueException.class,
-                () -> PricingValidators.validateAndFormatFeature(feature));
-        assertEquals(
-                "The feature " + feature.getName()
-                        + " defaultValue must be a boolean if valueType is BOOLEAN",
-                ex.getMessage());
+                assertEquals(
+                                "The feature " + feature.getName()
+                                                + " expression must have at most 1000 characters and must be a string",
+                                ex.getMessage());
 
-    }
+        }
 
-    @Test
-    void givenBooleanDefaultValueShouldThrowWhenValueTypeIsText() {
+        @Test
+        void given10001CharactersExpressionShouldThrowIllegalArgumentException() {
 
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
-        Feature feature = pricingManager.getFeatures().get("supportPriority");
-        Boolean defaultValue = true;
-        feature.setDefaultValue(defaultValue);
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < 1001; i++) {
+                        sb.append("a");
+                }
+                String expression = sb.toString();
+                PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
+                Feature feature = pricingManager.getFeatures().get("maxPets");
+                feature.setExpression(expression);
 
-        InvalidDefaultValueException ex = assertThrows(InvalidDefaultValueException.class,
-                () -> PricingValidators.validateAndFormatFeature(feature));
-        assertEquals(
-                "The feature " + feature.getName()
-                        + " defaultValue must be a string if valueType is TEXT",
-                ex.getMessage());
+                IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
+                assertEquals(
+                                "The feature " + feature.getName()
+                                                + " expression must have at most 1000 characters and must be a string",
+                                ex.getMessage());
 
-    }
+        }
 
-    // Remove logic from validateValueTypeConsistency
+        @Test
+        void givenNullValueTypeShouldThrowInvalidValueTypeException() {
 
-    @Test
-    void givenNumericExpressionShouldThrowIllegalArgumentExceptionWhenIsBoolean() {
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
-        Feature feature = pricingManager.getFeatures().get("haveCalendar");
-        String expression = "a < b";
-        feature.setExpression(expression);
+                PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
+                Feature feature = pricingManager.getFeatures().get("maxPets");
+                feature.setValueType(null);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> PricingValidators.validateAndFormatFeature(feature));
-        assertEquals(
-                "Expression of feature " + feature.getName()
-                        + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN",
-                ex.getMessage());
-    }
+                // FIXME: REMOVE VALUE TYPE CHECK
+                InvalidValueTypeException ex = assertThrows(InvalidValueTypeException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
+                assertEquals(
+                                "The feature " + feature.getName() + " valueType must not be null",
+                                ex.getMessage());
+
+        }
+
+        @Test
+        void givenNullDefaultValueShouldThrowWhenValueTypeIsNumeric() {
+
+                PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
+                Feature feature = pricingManager.getFeatures().get("maxPets");
+                feature.setDefaultValue(null);
+
+                InvalidDefaultValueException ex = assertThrows(InvalidDefaultValueException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
+                assertEquals(
+                                "The feature " + feature.getName()
+                                                + " defaultValue must not be null",
+                                ex.getMessage());
+
+        }
+
+        @Test
+        void givenStringDefaultValueShouldThrowWhenValueTypeIsNumeric() {
+
+                PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
+                Feature feature = pricingManager.getFeatures().get("maxPets");
+                String defaultValue = "";
+                feature.setDefaultValue(defaultValue);
+
+                // FIXME: REMOVE MULTIPLE VALUE TYPE CHECK
+                InvalidDefaultValueException ex = assertThrows(InvalidDefaultValueException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
+                assertEquals(
+                                "The feature " + feature.getName()
+                                                + " defaultValue must be one of the supported numeric types if valueType is NUMERIC",
+                                ex.getMessage());
+
+        }
+
+        @Test
+        void givenStringDefaultValueShouldThrowWhenValueTypeIsBoolean() {
+
+                PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
+                Feature feature = pricingManager.getFeatures().get("haveCalendar");
+                String defaultValue = "";
+                feature.setDefaultValue(defaultValue);
+
+                InvalidDefaultValueException ex = assertThrows(InvalidDefaultValueException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
+                assertEquals(
+                                "The feature " + feature.getName()
+                                                + " defaultValue must be a boolean if valueType is BOOLEAN",
+                                ex.getMessage());
+
+        }
+
+        @Test
+        void givenBooleanDefaultValueShouldThrowWhenValueTypeIsText() {
+
+                PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
+                Feature feature = pricingManager.getFeatures().get("supportPriority");
+                Boolean defaultValue = true;
+                feature.setDefaultValue(defaultValue);
+
+                InvalidDefaultValueException ex = assertThrows(InvalidDefaultValueException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
+                assertEquals(
+                                "The feature " + feature.getName()
+                                                + " defaultValue must be a string if valueType is TEXT",
+                                ex.getMessage());
+
+        }
+
+        // Remove logic from validateValueTypeConsistency
+
+        @Test
+        void givenNumericExpressionShouldThrowIllegalArgumentExceptionWhenIsBoolean() {
+                PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
+                Feature feature = pricingManager.getFeatures().get("haveCalendar");
+                String expression = "a < b";
+                feature.setExpression(expression);
+
+                IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                                () -> PricingValidators.validateAndFormatFeature(feature));
+                assertEquals(
+                                "Expression of feature " + feature.getName()
+                                                + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN",
+                                ex.getMessage());
+        }
 }

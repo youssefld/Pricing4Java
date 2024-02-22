@@ -418,7 +418,8 @@ class PricingServiceTests {
     @Test
     void givenNonExistentFeatureShouldThrowIllegalArgumentExceptionWhenUpdatingPlan() {
 
-        assertThrows(IllegalArgumentException.class, () -> pricingService.updatePlanFromConfiguration("foo", newPlan));
+        assertThrows(IllegalArgumentException.class,
+                () -> pricingService.updatePlanFromConfiguration("nonExistentFeature", newPlan));
     }
 
     @Test
@@ -452,70 +453,8 @@ class PricingServiceTests {
     }
 
     @Test
-    void givenPlanWithNullNameShouldThrowIllegalArgumentExceptionException() {
-
-        Plan planToUpdate = new Plan();
-        planToUpdate.setName(null);
-
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> pricingService.updatePlanFromConfiguration("BASIC", planToUpdate));
-        assertEquals("The plan null name must not be null or empty", ex.getMessage());
-    }
-
-    @Test
-    void givenPlanWithEmptyStringNameShouldThrowIllegalArgumentExceptionException() {
-
-        Plan planToUpdate = new Plan();
-        planToUpdate.setName("");
-
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> pricingService.updatePlanFromConfiguration("BASIC", planToUpdate));
-        // FIXME Weird formatting of error message, since plan name is ""
-        assertEquals("The plan  name must not be null or empty", ex.getMessage());
-    }
-
-    @Test
-    void givenPlan2CharactersStringNameShouldThrowIllegalArgumentExceptionException() {
-
-        String planName = "ab";
-        Plan planToUpdate = new Plan();
-        planToUpdate.setName(planName);
-
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> pricingService.updatePlanFromConfiguration("BASIC", planToUpdate));
-        // FIXME Weird formatting of error message, since plan name is ""
-        assertEquals("The plan " + planName + " name must have at least 3 characters", ex.getMessage());
-    }
-
-    @Test
-    void givenPlan51CharactersStringNameShouldThrowIllegalArgumentExceptionException() {
-
-        String planName = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-        Plan planToUpdate = new Plan();
-        planToUpdate.setName(planName);
-
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> pricingService.updatePlanFromConfiguration("BASIC", planToUpdate));
-        // FIXME Weird formatting of error message, since plan name is ""
-        assertEquals("The plan " + planName + " name must have at most 50 characters", ex.getMessage());
-    }
-
-    @Test
-    @Disabled
-    void givenPlanWithThreeSpacesInNameShouldThrowIllegalArgumentExceptionException() {
-
-        // FIXME Plan name contains 3 space characters
-        Plan planToUpdate = new Plan();
-        planToUpdate.setName("   ");
-
-        assertThrows(IllegalArgumentException.class,
-                () -> pricingService.updatePlanFromConfiguration("BASIC", planToUpdate));
-    }
-
-    @Test
-    @Disabled
+    @Disabled // FIXME: Get rid of annotation when refactor
     void givenNullPlanShouldThrowIllegalArgumentExceptionException() {
-        // Check null value
         assertThrows(IllegalArgumentException.class, () -> pricingService.updatePlanFromConfiguration("BASIC", null));
     }
 
@@ -816,29 +755,33 @@ class PricingServiceTests {
         });
     }
 
-    @Disabled
     @Test
     @Order(270)
+    @Disabled // FIXME: ACCESING THE PREVIOUS FEATURE THAT HAS BEEN REMOVED IN THE MAP.
+              // NULLPOINTEREXCEPTION
     void givenNewNameToFeatureShouldUpdateOnlyName() {
         PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
 
-        Feature originalFeature = pricingManager.getFeatures().get("maxPets");
+        String oldName = "maxPets";
+        Feature feature = pricingManager.getFeatures().get(oldName);
+        String newName = "newName";
+        feature.setName(newName);
 
-        Feature featureToUpdate = pricingManager.getFeatures().get("maxPets");
-        featureToUpdate.setName("foo");
+        pricingService.updateFeatureFromConfiguration(oldName, feature);
 
-        pricingService.updateFeatureFromConfiguration(originalFeature.getName(), featureToUpdate);
+        Map<String, Feature> features = YamlUtils.retrieveManagerFromYaml(TEMPORAL_CONFIG_PATH).getFeatures();
+        assertFalse(features.containsKey(oldName));
+        assertTrue(features.containsKey(newName));
 
-        PricingManager newPricingManager = YamlUtils.retrieveManagerFromYaml(TEMPORAL_CONFIG_PATH);
-        Feature newFeature = newPricingManager.getFeatures().get(featureToUpdate.getName());
+        Feature newFeature = features.get(newName);
 
-        assertNotEquals(originalFeature.getName(), newFeature.getName());
-        assertEquals(originalFeature.getDefaultValue(), newFeature.getDefaultValue());
-        assertEquals(originalFeature.getValue(), newFeature.getValue());
-        assertEquals(originalFeature.getDescription(), newFeature.getDescription());
-        assertEquals(originalFeature.getExpression(), newFeature.getExpression());
-        assertEquals(originalFeature.getServerExpression(), newFeature.getExpression());
-        assertEquals(originalFeature.getValueType(), newFeature.getValueType());
+        assertNotEquals(feature.getName(), newFeature.getName());
+        assertEquals(feature.getDefaultValue(), newFeature.getDefaultValue());
+        assertEquals(feature.getValue(), newFeature.getValue());
+        assertEquals(feature.getDescription(), newFeature.getDescription());
+        assertEquals(feature.getExpression(), newFeature.getExpression());
+        assertEquals(feature.getServerExpression(), newFeature.getExpression());
+        assertEquals(feature.getValueType(), newFeature.getValueType());
 
     }
 

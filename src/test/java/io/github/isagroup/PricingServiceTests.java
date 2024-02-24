@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+import io.github.isagroup.exceptions.CloneUsageLimitException;
 import io.github.isagroup.exceptions.FeatureNotFoundException;
 import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.models.AddOn;
@@ -34,6 +35,7 @@ import io.github.isagroup.models.UsageLimit;
 import io.github.isagroup.models.ValueType;
 import io.github.isagroup.models.featuretypes.Automation;
 import io.github.isagroup.models.featuretypes.Domain;
+import io.github.isagroup.models.featuretypes.Information;
 import io.github.isagroup.models.usagelimittypes.NonRenewable;
 import io.github.isagroup.models.usagelimittypes.Renewable;
 import io.github.isagroup.services.yaml.YamlUtils;
@@ -44,9 +46,11 @@ class PricingServiceTests {
     private static final String JWT_SECRET_TEST = "secret";
     private static final Integer JWT_EXPIRATION_TEST = 86400;
     private static final String JWT_SUBJECT_TEST = "admin1";
-    private static final String PETCLINIC_CONFIG_PATH = "pricing/petclinic.yml";
 
+    private static final String PETCLINIC_CONFIG_PATH = "pricing/petclinic.yml";
     private static final String TEMPORAL_CONFIG_PATH = "yaml-testing/temp.yml";
+    private static final String POSTMAN_CONFIG_PATH = "pricing/postman.yml";
+    private static final String POSTMAN_TEMP_CONFIG_PATH = "yaml-testing/postman.yml";
 
     private static final String TEST_PLAN = "BASIC";
     private static final String TEST_NEW_PLAN = "NEW_PLAN";
@@ -69,12 +73,17 @@ class PricingServiceTests {
     static {
         PATHS.add(new TempFile(PETCLINIC_CONFIG_PATH, TEMPORAL_CONFIG_PATH));
         PATHS.add(new TempFile("pricing/one-feature-pricing.yml", "yaml-testing/one-feature-pricing.yml"));
+        PATHS.add(new TempFile(POSTMAN_CONFIG_PATH, POSTMAN_TEMP_CONFIG_PATH));
     }
     private boolean removeTempFile = true;
 
     private PricingService pricingService;
 
     private PricingContextTestImpl pricingContextTestImpl;
+
+    private void setRemoveFlag(boolean flag) {
+        this.removeTempFile = flag;
+    }
 
     @BeforeAll
     static void setUp() {
@@ -196,6 +205,18 @@ class PricingServiceTests {
         }
     }
 
+    @Test
+    void givenPricingShouldDumpACopy() {
+
+        pricingContextTestImpl.setConfigFilePath(POSTMAN_TEMP_CONFIG_PATH);
+
+        PricingManager postman = YamlUtils.retrieveManagerFromYaml(POSTMAN_CONFIG_PATH);
+        PricingManager postmanCopy = YamlUtils.retrieveManagerFromYaml(POSTMAN_TEMP_CONFIG_PATH);
+
+        assertEquals(postman.getFeatures(), postmanCopy.getFeatures(), "Pricings are diferent");
+
+    }
+
     // --------------------------- PLAN RETRIEVAL ---------------------------
 
     @Test
@@ -234,8 +255,6 @@ class PricingServiceTests {
 
         pricingService.addPlanToConfiguration(newPlan);
 
-        // FIXME
-        // READS OLD VALUE
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(TEMPORAL_CONFIG_PATH);
 
         assertTrue(pricingManager.getPlans().containsKey(TEST_NEW_PLAN),
@@ -256,6 +275,55 @@ class PricingServiceTests {
 
         assertEquals("The plan " + TEST_PLAN + " already exists in the current pricing configuration",
                 exception.getMessage());
+
+    }
+
+    @Test
+    void givenNewFeatureShouldAppearInAllPlans() {
+
+        setRemoveFlag(false);
+
+        Information businessAnalysis = new Information();
+        String featureName = "businessAnalysis";
+        businessAnalysis.setName(featureName);
+        businessAnalysis.setDescription("In depth views for you business");
+        businessAnalysis.setValueType(ValueType.BOOLEAN);
+        businessAnalysis.setDefaultValue(false);
+        businessAnalysis.setExpression("planContext['businessAnalysis']");
+        businessAnalysis.setServerExpression("");
+
+        pricingService.addFeatureToConfiguration(businessAnalysis);
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(TEMPORAL_CONFIG_PATH);
+        Map<String, Plan> plans = pricingManager.getPlans();
+        for (Plan plan : plans.values()) {
+            assertEquals(businessAnalysis, plan.getFeatures().get(featureName));
+        }
+    }
+
+    @Test
+    void givenAFeatureRemovingItShouldNotAppearInPricing() {
+
+        String havePetsDashboard = "havePetsDashboard";
+        String maxDashboards = "maxDashboard";
+
+        pricingService.removeFeatureFromConfiguration(havePetsDashboard);
+
+        PricingManager petclinic = YamlUtils.retrieveManagerFromYaml(TEMPORAL_CONFIG_PATH);
+        Map<String, Feature> features = petclinic.getFeatures();
+        Map<String, Plan> plans = petclinic.getPlans();
+        Map<String, UsageLimit> usageLimits = petclinic.getUsageLimits();
+
+        assertFalse(features.containsKey(havePetsDashboard));
+        assertFalse(usageLimits.containsKey(maxDashboards));
+        for (UsageLimit usageLimit : usageLimits.values()) {
+            assertFalse(usageLimit.getLinkedFeatures().contains(havePetsDashboard));
+        }
+
+        for (Plan plan : plans.values()) {
+            assertFalse(plan.getFeatures().containsKey(havePetsDashboard));
+            assertFalse(plan.getUsageLimits().containsKey(maxDashboards));
+        }
 
     }
 
@@ -861,6 +929,18 @@ class PricingServiceTests {
         assertEquals(10, createdUsageLimit.getDefaultValue());
         assertEquals("appointment", createdUsageLimit.getUnit());
         assertTrue(createdUsageLimit.getLinkedFeatures().contains(TEST_BOOLEAN_FEATURE));
+    }
+
+    @Test
+    void givenExistingUsageLimitShouldThrowCloneUsageLimitException() {
+
+        String usageLimitName = "maxPets";
+        UsageLimit usageLimit = ORIGINAL_PRICING_MANAGER.getUsageLimits().get(usageLimitName);
+        CloneUsageLimitException ex = assertThrows(CloneUsageLimitException.class,
+                () -> pricingService.addUsageLimitToConfiguration(usageLimit));
+        assertEquals(
+                "An usage limit with the name " + usageLimitName + " already exists within the pricing configuration",
+                ex.getMessage(), "Duplicated usage limit has enter to usage limits");
     }
 
     @Test

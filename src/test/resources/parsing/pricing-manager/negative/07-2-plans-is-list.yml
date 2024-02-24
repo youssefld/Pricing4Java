@@ -1,4 +1,4 @@
-saasName: Null currency
+saasName: Plans is list
 day: 1
 month: 1
 year: 2000
@@ -8,4 +8,7 @@ features:
     type: DOMAIN
     valueType: TEXT
     defaultValue: baz
-plans: null
+plans:
+  - Foo
+  - Bar
+  - Baz

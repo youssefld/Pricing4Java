@@ -1,0 +1,63 @@
+saasName: Terminator pricing
+day: 1
+month: 1
+year: 2029
+currency: USD
+hasAnnualPayment: false
+features:
+  skynet:
+    description: Skynet IA
+    valueType: BOOLEAN
+    defaultValue: false
+    type: DOMAIN
+    expression: ""
+    serverExpression: ""
+usageLimits:
+  machines:
+    description: Machines to kill humans
+    valueType: NUMERIC
+    defaultValue: 0
+    unit: machine
+    type: NON_RENEWABLE
+    linkedFeatures:
+      - skynet
+plans:
+  "Sarah Connor":
+    description: Plan to kill Sarah Connor
+    monthlyPrice: 15
+    annualPrice: 10
+    unit: user/month
+    features: null
+    usageLimits: null
+  Resistance:
+    description: Plan to kill Resistance
+    monthlyPrice: 30
+    annualPrice: 20
+    unit: user/month
+    features: null
+  Skynet:
+    description: Plan to kill human kind
+    monthlyPrice: 60
+    annualPrice: 40
+    unit: user/month
+    features:
+      skynet:
+        value: true
+    usageLimits:
+      machines:
+        value: 0xFFFF
+addOns:
+  "Terminators Army":
+    availableFor:
+      - Resistance
+    price: 25000.0
+    unit: user/month
+    features:
+      skynet:
+        value: true
+    usageLimits:
+      machines:
+        value: 10_000_000
+    usageLimitsExtensions:
+      machines:
+        value: 5_000_000

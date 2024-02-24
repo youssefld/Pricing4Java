@@ -155,6 +155,7 @@ public class AddOnParser {
 
         for (String addOnUsageLimitName : addOnUsageLimitsMap.keySet()) {
 
+            // FIXME: Check if you are given a map
             Map<String, Object> addOnUsageLimitMap = (Map<String, Object>) addOnUsageLimitsMap.get(addOnUsageLimitName);
 
             if (!globalUsageLimitsMap.containsKey(addOnUsageLimitName)) {

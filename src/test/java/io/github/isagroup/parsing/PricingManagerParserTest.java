@@ -121,7 +121,7 @@ public class PricingManagerParserTest {
     }
 
     @Test
-    void given_non_null_features_in_basic_plan_should_have_default_values() {
+    void givenNonNullFeaturesInBasicPlanShouldHaveDefaultValues() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("parsing/non-null-features-basic.yml");
 
@@ -132,7 +132,7 @@ public class PricingManagerParserTest {
     }
 
     @Test
-    void given_null_features_in_basic_plan_should_have_default_values() {
+    void givenNullFeaturesInBasicPlanShouldHaveDefaultValues() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("parsing/null-features-basic.yml");
 
@@ -143,7 +143,7 @@ public class PricingManagerParserTest {
     }
 
     @Test
-    void given_null_features_should_parsed_a_list_of_default_features() {
+    void givenNullFeaturesShouldParseAListOfDefaultFeatures() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("parsing/null-features-basic.yml");
 

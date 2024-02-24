@@ -14,7 +14,7 @@ import io.github.isagroup.models.featuretypes.Domain;
 import io.github.isagroup.services.yaml.YamlUtils;
 import io.github.isagroup.utils.PricingValidators;
 
-public class PricingValidationTests {
+public class PricingValidatorTests {
 
         @Test
         void givenNullFeatureNameShouldThrowIllegalArgumentExceptionException() {
@@ -222,9 +222,8 @@ public class PricingValidationTests {
 
                 IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                                 () -> PricingValidators.validateAndFormatFeature(feature));
-                assertEquals(
-                                "Expression of feature " + feature.getName()
-                                                + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN",
+                assertEquals("Expression of feature " + feature.getName()
+                                + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN",
                                 ex.getMessage());
         }
 

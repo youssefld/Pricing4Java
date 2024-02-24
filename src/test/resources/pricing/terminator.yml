@@ -5,6 +5,13 @@ year: 2029
 currency: USD
 hasAnnualPayment: false
 features:
+  launchMissiles:
+    description: Nuclear missiles
+    valueType: BOOLEAN
+    defaultValue: false
+    type: DOMAIN
+    expression: ""
+    serverExpression: ""
   skynet:
     description: Skynet IA
     valueType: BOOLEAN
@@ -21,6 +28,14 @@ usageLimits:
     type: NON_RENEWABLE
     linkedFeatures:
       - skynet
+  maxMissiles:
+    description: Missiles to launch
+    valueType: NUMERIC
+    defaultValue: 0
+    unit: missile
+    type: NON_RENEWABLE
+    linkedFeatures:
+      - launchMissiles
 plans:
   "Sarah Connor":
     description: Plan to kill Sarah Connor
@@ -34,18 +49,27 @@ plans:
     monthlyPrice: 30
     annualPrice: 20
     unit: user/month
-    features: null
+    features:
+      launchMissiles:
+        value: true
+    usageLimits:
+      maxMissiles:
+        value: 50
   Skynet:
     description: Plan to kill human kind
     monthlyPrice: 60
     annualPrice: 40
     unit: user/month
     features:
+      launchMissiles:
+        value: true
       skynet:
         value: true
     usageLimits:
       machines:
         value: 0xFFFF
+      maxMissiles:
+        value: 1000
 addOns:
   "Terminators Army":
     availableFor:

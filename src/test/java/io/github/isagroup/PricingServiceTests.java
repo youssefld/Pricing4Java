@@ -583,6 +583,7 @@ class PricingServiceTests {
     @Test
     @Disabled // FIXME: Get rid of annotation when refactor
     void givenNullPlanShouldThrowIllegalArgumentExceptionException() {
+        // COMPROBAR EN LOS VALIDADORES QUE NO LLEGUEN VALORES NULOS
         assertThrows(IllegalArgumentException.class, () -> pricingService.updatePlanFromConfiguration("BASIC", null));
     }
 
@@ -740,7 +741,7 @@ class PricingServiceTests {
     @Disabled
     void givenNullFeatureAsKeyShouldDelete() {
 
-        String path = "parsing/features/feature-null-as-key.yml";
+        String path = "parsing/features/negative/feature-null-as-key.yml";
         pricingContextTestImpl.setConfigFilePath(path);
 
         String featureName = null;
@@ -751,10 +752,10 @@ class PricingServiceTests {
     }
 
     @Test
-    @Disabled
+    @Disabled // SE PUEDE QUITAR
     void givenOneFeaturePricingShouldNotDelete() {
 
-        String path = "yaml-testing/one-feature-pricing.yml";
+        String path = "pricing/one-feature-pricing.yml";
         pricingContextTestImpl.setConfigFilePath(path);
 
         String featureName = "foo";
@@ -928,8 +929,8 @@ class PricingServiceTests {
 
     @Test
     @Order(270)
-    @Disabled // FIXME: ACCESING THE PREVIOUS FEATURE THAT HAS BEEN REMOVED IN THE MAP.
-              // NULLPOINTEREXCEPTION
+    @Disabled // FIXME: ACCESING A PREVIOUS FEATURE THAT HAS BEEN ALREADY BEEN REMOVED IN
+              // FEATURES
     void givenNewNameToFeatureShouldUpdateOnlyName() {
         PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
 

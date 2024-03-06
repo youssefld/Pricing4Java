@@ -18,7 +18,6 @@ import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -334,18 +333,13 @@ class PricingServiceTests {
     }
 
     @Test
-    @Disabled
     void givenAFeatureShouldRemoveItFromPricing() {
 
         pricingContextTestImpl.setConfigFilePath(TERMINATOR_TEMP_CONFIG_PATH);
         String skynet = "skynet";
         String machines = "machines";
-        // FIXME: REMOVE FEATURES FROM ADDONS
         pricingService.removeFeatureFromConfiguration(skynet);
 
-        // Parser checks if the feature in the add on is in the global features
-        // But skynet was not removed from add ons
-        // Throws feature not found exception
         PricingManager terminator = YamlUtils.retrieveManagerFromYaml(TERMINATOR_TEMP_CONFIG_PATH);
         Map<String, Feature> features = terminator.getFeatures();
         Map<String, Plan> plans = terminator.getPlans();
@@ -363,11 +357,13 @@ class PricingServiceTests {
             assertFalse(plan.getUsageLimits().containsKey(machines));
         }
 
-        for (AddOn addOn : addOns.values()) {
-            assertFalse(addOn.getFeatures().containsKey(skynet));
-            assertFalse(addOn.getUsageLimits().containsKey(machines));
-            assertFalse(addOn.getUsageLimitsExtensions().containsKey(machines));
-        }
+        assertNull(addOns); // Los addOns quedan vacíos tras la eliminación
+
+        // for (AddOn addOn : addOns.values()) {
+        //     assertFalse(addOn.getFeatures().containsKey(skynet));
+        //     assertFalse(addOn.getUsageLimits().containsKey(machines));
+        //     assertFalse(addOn.getUsageLimitsExtensions().containsKey(machines));
+        // }
 
     }
 
@@ -581,9 +577,7 @@ class PricingServiceTests {
     }
 
     @Test
-    @Disabled // FIXME: Get rid of annotation when refactor
     void givenNullPlanShouldThrowIllegalArgumentExceptionException() {
-        // COMPROBAR EN LOS VALIDADORES QUE NO LLEGUEN VALORES NULOS
         assertThrows(IllegalArgumentException.class, () -> pricingService.updatePlanFromConfiguration("BASIC", null));
     }
 
@@ -737,22 +731,22 @@ class PricingServiceTests {
                 exception.getMessage());
     }
 
+    // The test have been removed as it has been moved to parsing test suite
+
+    // @Test
+    // void givenNullFeatureAsKeyShouldDelete() {
+
+    //     String path = "parsing/features/negative/feature-null-as-key.yml";
+    //     pricingContextTestImpl.setConfigFilePath(path);
+
+    //     String featureName = null;
+    //     pricingService.removeFeatureFromConfiguration(featureName);
+
+    //     PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(path);
+    //     assertFalse(pricingManager.getFeatures().containsKey(featureName));
+    // }
+
     @Test
-    @Disabled
-    void givenNullFeatureAsKeyShouldDelete() {
-
-        String path = "parsing/features/negative/feature-null-as-key.yml";
-        pricingContextTestImpl.setConfigFilePath(path);
-
-        String featureName = null;
-        pricingService.removeFeatureFromConfiguration(featureName);
-
-        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(path);
-        assertFalse(pricingManager.getFeatures().containsKey(featureName));
-    }
-
-    @Test
-    @Disabled // SE PUEDE QUITAR
     void givenOneFeaturePricingShouldNotDelete() {
 
         String path = "pricing/one-feature-pricing.yml";
@@ -760,8 +754,8 @@ class PricingServiceTests {
 
         String featureName = "foo";
 
-        assertThrows(Exception.class, () -> pricingService.removeFeatureFromConfiguration(featureName),
-                "Remove feature does not throw when one feature is left");
+        assertThrows(IllegalStateException.class, () -> pricingService.removeFeatureFromConfiguration(featureName),
+                "You cannot delete a feature from a one-feature pricing configuration");
 
     }
 
@@ -929,8 +923,6 @@ class PricingServiceTests {
 
     @Test
     @Order(270)
-    @Disabled // FIXME: ACCESING A PREVIOUS FEATURE THAT HAS BEEN ALREADY BEEN REMOVED IN
-              // FEATURES
     void givenNewNameToFeatureShouldUpdateOnlyName() {
         PricingManager pricingManager = pricingContextTestImpl.getPricingManager();
 
@@ -947,12 +939,12 @@ class PricingServiceTests {
 
         Feature newFeature = features.get(newName);
 
-        assertNotEquals(feature.getName(), newFeature.getName());
+        assertNotEquals(oldName, newFeature.getName());
         assertEquals(feature.getDefaultValue(), newFeature.getDefaultValue());
         assertEquals(feature.getValue(), newFeature.getValue());
         assertEquals(feature.getDescription(), newFeature.getDescription());
         assertEquals(feature.getExpression(), newFeature.getExpression());
-        assertEquals(feature.getServerExpression(), newFeature.getExpression());
+        assertEquals(feature.getServerExpression(), newFeature.getServerExpression());
         assertEquals(feature.getValueType(), newFeature.getValueType());
 
     }

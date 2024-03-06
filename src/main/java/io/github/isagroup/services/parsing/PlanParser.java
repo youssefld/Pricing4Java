@@ -25,6 +25,10 @@ public class PlanParser {
 
         Plan plan = new Plan();
 
+        if (planName == null) {
+            throw new PricingParsingException("A plan name cannot be null");
+        }
+        
         plan.setName(planName);
         plan.setDescription((String) map.get("description"));
         try {

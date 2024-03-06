@@ -7,6 +7,7 @@ import java.util.Map;
 import io.github.isagroup.exceptions.FeatureNotFoundException;
 import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.exceptions.InvalidPlanException;
+import io.github.isagroup.exceptions.PricingParsingException;
 import io.github.isagroup.models.AddOn;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.PricingManager;
@@ -20,6 +21,10 @@ public class AddOnParser {
 
     public static AddOn parseMapToAddOn(String addOnName, Map<String, Object> addOnMap, PricingManager pricingManager) {
         AddOn addOn = new AddOn();
+
+        if (addOnName == null) {
+            throw new PricingParsingException("An add on name cannot be null");
+        }
 
         addOn.setName(addOnName);
         setAvailableFor(addOnMap, pricingManager, addOn);

@@ -16,6 +16,11 @@ import io.github.isagroup.models.ValueType;
 public class PricingValidators {
 
     public static void validateAndFormatFeature(Feature feature) {
+        
+        if (feature == null){
+            throw new IllegalArgumentException("A null feature cannot be added to the pricing configuration");
+        }
+        
         String item = "feature " + feature.getName();
 
         validateName(feature.getName(), item);
@@ -34,6 +39,10 @@ public class PricingValidators {
 
     public static void validateAndFormatUsageLimit(PricingManager pricingManager, UsageLimit usageLimit) {
 
+        if (usageLimit == null){
+            throw new IllegalArgumentException("A null usageLimit cannot be added to the pricing configuration");
+        }
+            
         String item = "usage limit " + usageLimit.getName();
 
         validateName(usageLimit.getName(), item);
@@ -48,6 +57,11 @@ public class PricingValidators {
     }
 
     public static void validateAndFormatPlan(PricingManager pricingManager, Plan plan) {
+        
+        if (plan == null){
+            throw new IllegalArgumentException("A null plan cannot be added to the pricing configuration");
+        }
+        
         String item = "plan " + plan.getName();
 
         validateName(plan.getName(), item);
@@ -76,6 +90,10 @@ public class PricingValidators {
     }
 
     public static void validateAndFormatAddOn(PricingManager pricingManager, AddOn addOn) {
+
+        if (addOn == null){
+            throw new IllegalArgumentException("A add on cannot be added to the pricing configuration");
+        }
 
         String item = "add-on " + addOn.getName();
 

@@ -1,5 +1,6 @@
 package io.github.isagroup;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,14 @@ import io.github.isagroup.utils.PricingValidators;
 
 /**
  * Service that provides methods to manage the pricing configuration.
+ */
+/**
+ * The PricingService class is responsible for managing the pricing configuration and performing operations related to plans and features.
+ * It provides methods to retrieve, add, update, and remove plans and features from the pricing configuration.
+ */
+/**
+ * The PricingService class is responsible for managing the pricing configuration and performing operations related to plans and features.
+ * It provides methods to retrieve, add, update, and remove plans and features from the pricing configuration.
  */
 @Service
 public class PricingService {
@@ -132,7 +141,9 @@ public class PricingService {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
         Map<String, Feature> features = pricingManager.getFeatures();
+        Map<String, UsageLimit> usageLimits = pricingManager.getUsageLimits();
         Map<String, Plan> plans = pricingManager.getPlans();
+        Map<String, AddOn> addOns = pricingManager.getAddOns();
 
         PricingValidators.validateAndFormatFeature(feature);
 
@@ -141,42 +152,25 @@ public class PricingService {
                     "There is no feature with the name " + previousName + " in the current pricing configuration");
         }
 
-        if (!previousName.equals(feature.getName())) {
+        boolean nameHasChanged = !previousName.equals(feature.getName());
+        // The configuration of the feature inside a plan/addOn will be removed if default value or valueType has changed
+        boolean valueTypeConsistencyHasChanged = features.get(previousName).getValueType() != feature.getValueType() ||
+                features.get(previousName).getDefaultValue() != feature.getDefaultValue();
+
+        if (nameHasChanged) {
             features.remove(previousName);
-
-            for (Entry<String, Plan> planEntry : plans.entrySet()) {
-
-                Object currentValue = planEntry.getValue().getFeatures().get(previousName).getValue();
-
-                planEntry.getValue().getFeatures().remove(previousName);
-
-                try {
-                    Feature newFeatureValue = feature.getClass().newInstance();
-                    newFeatureValue.setValue(currentValue);
-                    newFeatureValue.setName(feature.getName());
-                    planEntry.getValue().getFeatures().put(feature.getName(), newFeatureValue);
-                } catch (InstantiationException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        if (feature.getValueType() != features.get(previousName).getValueType() ||
-                feature.getDefaultValue() != features.get(previousName).getDefaultValue()) {
-
-            for (Entry<String, Plan> planEntry : plans.entrySet()) {
-                try {
-                    planEntry.getValue().getFeatures().remove(previousName);
-                } catch (NullPointerException e) {
-                    // Do nothing
-                }
-            }
         }
 
         features.put(feature.getName(), feature);
 
+        Map<String, UsageLimit> newUsageLimits = nameHasChanged ? updateUsageLimitsWithUpdatedFeature(previousName, feature, usageLimits) : usageLimits;
+        Map<String, Plan> newPlans = nameHasChanged || valueTypeConsistencyHasChanged ? removeFeatureFromPlans(previousName, pricingManager) : plans;
+        Map<String, AddOn> newAddOns = nameHasChanged || valueTypeConsistencyHasChanged ? removeFeatureFromAddOns(previousName, pricingManager) : addOns;
+
         pricingManager.setFeatures(features);
-        pricingManager.setPlans(plans);
+        pricingManager.setUsageLimits(newUsageLimits);
+        pricingManager.setPlans(newPlans);
+        pricingManager.setAddOns(newAddOns);
 
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
     }
@@ -253,6 +247,7 @@ public class PricingService {
      */
     @Transactional
     public void removeFeatureFromConfiguration(String name) {
+
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
 
         Map<String, Feature> features = pricingManager.getFeatures();
@@ -262,37 +257,32 @@ public class PricingService {
                     "There is no feature with the name " + name + " in the current pricing configuration");
         }
 
+        if (features.keySet().size() == 1) {
+            throw new IllegalStateException("You cannot delete a feature from a one-feature pricing configuration");
+        }
+
         features.remove(name);
+
+        Map<String, UsageLimit> newUsageLimits = removeFeatureFromUsageLimits(name, pricingManager);
+        Map<String, Plan> newPlans = removeFeatureFromPlans(name, pricingManager);
+        Map<String, AddOn> newAddOns = removeFeatureFromAddOns(name, pricingManager);
+
         pricingManager.setFeatures(features);
-
-        Map<String, Plan> plans = pricingManager.getPlans();
-
-        for (String planName : plans.keySet()) {
-
-            Plan plan = plans.get(planName);
-            Map<String, Feature> planFeatures = plan.getFeatures();
-
-            if (planFeatures.containsKey(name)) {
-                planFeatures.remove(name);
-                plan.setFeatures(planFeatures);
-                plans.put(planName, plan);
-            }
-
+        if (newUsageLimits == null || newUsageLimits.isEmpty()){
+            pricingManager.setUsageLimits(null);
+        }else{
+            pricingManager.setUsageLimits(newUsageLimits);
         }
-
-        Map<String, UsageLimit> usageLimits = pricingManager.getUsageLimits();
-
-        for (UsageLimit usageLimit : usageLimits.values()) {
-            if (usageLimit.isLinkedToFeature(name)) {
-                List<String> newLinkedFeatures = usageLimit.getLinkedFeatures().stream()
-                        .filter(featureName -> !featureName.equals(name)).collect(Collectors.toList());
-                usageLimit.setLinkedFeatures(newLinkedFeatures.size() == 0 ? null : newLinkedFeatures);
-                usageLimits.put(usageLimit.getName(), usageLimit);
-            }
+        if (newPlans == null || newPlans.isEmpty()){
+            pricingManager.setPlans(null);
+        }else{
+            pricingManager.setPlans(newPlans);
         }
-
-        pricingManager.setPlans(plans);
-        pricingManager.setUsageLimits(usageLimits);
+        if (newAddOns == null || newAddOns.isEmpty()){
+            pricingManager.setAddOns(null);
+        }else{
+            pricingManager.setAddOns(newAddOns);
+        }
 
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
     }
@@ -601,4 +591,150 @@ public class PricingService {
 
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
     }
+
+    // ------------------------- PRIVATE FUNCTIONS ------------------------- //
+
+    private Map<String, UsageLimit> updateUsageLimitsWithUpdatedFeature(String previousName, Feature feature, Map<String, UsageLimit> usageLimits){
+        for (UsageLimit usageLimit : usageLimits.values()) {
+            if (usageLimit.isLinkedToFeature(previousName)) {
+                usageLimit.getLinkedFeatures().remove(previousName);
+                usageLimit.getLinkedFeatures().add(feature.getName());
+            }
+        }
+        return usageLimits;
+    }
+
+    /**
+     * Removes a feature from the usage limits of a {@link PricingManager} object.
+     * @param featureName
+     * @param pricingManager
+     * @return The new set of usage limits
+     */
+    private Map<String, UsageLimit> removeFeatureFromUsageLimits(String featureName, PricingManager pricingManager){
+        
+        Map<String, UsageLimit> usageLimits = pricingManager.getUsageLimits();
+        List<String> usageLimitsToRemove = new ArrayList<>();
+
+        if (usageLimits == null) {
+            return usageLimits;
+        }
+
+        for (UsageLimit usageLimit : usageLimits.values()) {
+            if (usageLimit.isLinkedToFeature(featureName)) {
+                List<String> newLinkedFeatures = usageLimit.getLinkedFeatures().stream()
+                        .filter(name -> !name.equals(featureName)).collect(Collectors.toList());
+                usageLimit.setLinkedFeatures(newLinkedFeatures.isEmpty() ? null : newLinkedFeatures);
+                if (usageLimit.getLinkedFeatures() == null){
+                    usageLimitsToRemove.add(usageLimit.getName());
+                }else{
+                    usageLimits.put(usageLimit.getName(), usageLimit);
+                }
+            }
+        }
+
+        usageLimitsToRemove.forEach(usageLimits::remove);
+
+        removeUsageLimitsFromPlans(usageLimitsToRemove, pricingManager);
+        removeUsageLimitsFromAddOns(usageLimitsToRemove, pricingManager);
+        
+        return usageLimits;
+    }
+
+    private Map<String, Plan> removeFeatureFromPlans(String featureName, PricingManager pricingManager){
+        
+        Map<String, Plan> plans = pricingManager.getPlans();
+        List<String> plansToRemove = new ArrayList<>();
+
+        if (plans == null) {
+            return plans;
+        }
+
+        for (String planName : plans.keySet()) {
+
+            Plan plan = plans.get(planName);
+            Map<String, Feature> planFeatures = plan.getFeatures();
+
+            if (planFeatures.containsKey(featureName)) {
+                planFeatures.remove(featureName);
+                
+                if (planFeatures.isEmpty()) {
+                    plansToRemove.add(planName);
+                } else {
+                    plan.setFeatures(planFeatures);
+                    plans.put(planName, plan);
+                }
+            }
+
+        }
+
+        plansToRemove.forEach(plans::remove);
+        
+        return plans;
+        
+
+    }
+
+    private Map<String, AddOn> removeFeatureFromAddOns(String featureName, PricingManager pricingManager){
+        
+        Map<String, AddOn> addOns = pricingManager.getAddOns();
+        List<String> addOnsToRemove = new ArrayList<>();
+
+        if (addOns == null) {
+            return addOns;
+        }
+
+        for (String addOnName : addOns.keySet()) {
+
+            AddOn addOn = addOns.get(addOnName);
+            Map<String, Feature> addOnFeatures = addOn.getFeatures();
+
+            if (addOnFeatures.containsKey(featureName)) {
+                addOnFeatures.remove(featureName);
+                if (addOnFeatures.isEmpty()) {
+                    addOnsToRemove.add(addOnName);
+                } else {
+                    addOn.setFeatures(addOnFeatures);
+                    addOns.put(addOnName, addOn);
+                }
+            }
+
+        }
+
+        addOnsToRemove.forEach(addOns::remove);
+
+        return addOns;
+    }
+
+    private void removeUsageLimitsFromPlans(List<String> usageLimitsToRemove, PricingManager pricingManager){
+        Map<String, Plan> plans = pricingManager.getPlans();
+
+        if (plans == null) {
+            return;
+        }
+
+        for (Plan plan : plans.values()) {
+            for (String usageLimitName : usageLimitsToRemove) {
+                plan.getUsageLimits().remove(usageLimitName);
+            }
+        }
+
+        pricingManager.setPlans(plans);
+    }
+
+    private void removeUsageLimitsFromAddOns(List<String> usageLimitsToRemove, PricingManager pricingManager){
+        Map<String, AddOn> addOns = pricingManager.getAddOns();
+
+        if (addOns == null) {
+            return;
+        }
+
+        for (AddOn addOn : addOns.values()) {
+            for (String usageLimitName : usageLimitsToRemove) {
+                addOn.getUsageLimits().remove(usageLimitName);
+            }
+        }
+
+        pricingManager.setAddOns(addOns);
+    }
+
 }

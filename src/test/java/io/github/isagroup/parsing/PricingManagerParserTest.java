@@ -111,6 +111,7 @@ public class PricingManagerParserTest {
     @Test
     @Disabled
     void givenListPlansShouldThrowException() {
+        
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "07-0-null-plans.yml"));
     }

@@ -35,6 +35,10 @@ public class PricingManagerSerializer {
 
         initPricingManagerMetadata();
 
+        if (pricingManager.getFeatures() == null) {
+            throw new SerializerException("Features are null. Filling the pricing with features is mandatory.");
+        }
+
         if (pricingManager.getPlans() == null && pricingManager.getAddOns() == null) {
             throw new SerializerException(
                     "Plans and AddOns are null. You have to set one of them.");

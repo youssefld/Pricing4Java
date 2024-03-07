@@ -41,7 +41,7 @@ public class PricingManagerSerializer {
 
         if (pricingManager.getPlans() == null && pricingManager.getAddOns() == null) {
             throw new SerializerException(
-                    "Plans and AddOns are null. You have to set one of them.");
+                    "Plans and AddOns are null. You have to set at least one of them.");
         }
 
         serializedPricingManager.put("features", serializeFeatures());

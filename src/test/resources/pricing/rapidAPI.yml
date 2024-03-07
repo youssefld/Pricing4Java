@@ -235,7 +235,7 @@ plans:
         value: 5
   ENTERPRISE:
     description: "Bring software to market faster (Annual billing only)"
-    monthlyPrice: null
+    monthlyPrice: Custom Pricing
     annualPrice: null
     unit: null
     features:
@@ -293,8 +293,7 @@ addOns:
   additionalTeamMembers:
     availableFor: 
       - BASIC
-    monthlyPrice: 10.00
-    annualPrice: null
+    price: 10.00
     unit: teammate/month
     features: null
     usageLimits: null

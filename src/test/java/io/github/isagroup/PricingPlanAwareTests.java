@@ -22,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import io.github.isagroup.PricingPlanAwareTests.TestConfiguration.PricingContextImpl;
 import io.github.isagroup.annotations.PricingPlanAware;
 import io.github.isagroup.annotations.PricingPlanAwareAspect;
+import io.github.isagroup.exceptions.FilepathException;
 import io.github.isagroup.exceptions.PricingPlanEvaluationException;
 import io.github.isagroup.services.jwt.JwtUtils;
 
@@ -239,7 +240,7 @@ public class PricingPlanAwareTests {
         // Obtener el valor del parámetro featureId que deseas probar
         String featureId = "nonExistentFeature";
 
-        PricingPlanEvaluationException exception = assertThrows(PricingPlanEvaluationException.class, () -> {
+        FilepathException exception = assertThrows(FilepathException.class, () -> {
             pricingPlanAwareAspect.validatePricingPlan(joinPoint, new PricingPlanAware() {
                 @Override
                 public Class<? extends java.lang.annotation.Annotation> annotationType() {
@@ -253,7 +254,7 @@ public class PricingPlanAwareTests {
             });
         });
 
-        assertEquals("The pricing context is null. Please, chech the path to the configuration file.", exception.getMessage());
+        assertEquals("Either the file path is invalid or the file does not exist.", exception.getMessage());
 
         pricingContextImpl.setConfigFilePath(CONFIG_FILE_PATH_TEST);
     }

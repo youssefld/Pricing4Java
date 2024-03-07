@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.github.isagroup.exceptions.PricingParsingException;
@@ -67,81 +66,76 @@ public class PricingManagerParserTest {
     }
 
     @Test
-    @Disabled
     void givenStringInFeaturesShouldThrowException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "06-1-features-is-string.yml"));
     }
 
     @Test
-    @Disabled
     void givenListInFeaturesShouldThrowException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "06-2-features-is-list.yml"));
     }
 
     @Test
-    @Disabled
     void givenIntegerInFeaturesShouldThrowException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "06-3-features-is-integer.yml"));
     }
 
     @Test
-    @Disabled
     void givenFloatInFeaturesShouldThrowException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "06-4-features-is-float.yml"));
     }
 
     @Test
-    @Disabled
     void givenBooleanInFeaturesShouldThrowException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "06-5-features-is-boolean.yml"));
     }
 
+    // @Test
+    // void givenNullPlansShouldThrowException() {
+    //     assertThrows(PricingParsingException.class,
+    //             () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "07-0-null-plans.yml"));
+    // }
+
     @Test
-    @Disabled
-    void givenNullPlansShouldThrowException() {
+    void givenStringPlansShouldThrowException() {
         assertThrows(PricingParsingException.class,
-                () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "07-0-null-plans.yml"));
+                () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "07-1-plans-is-string.yml"));
     }
 
     @Test
-    @Disabled
     void givenListPlansShouldThrowException() {
         
         assertThrows(PricingParsingException.class,
-                () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "07-0-null-plans.yml"));
+                () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "07-2-plans-is-list.yml"));
     }
 
     @Test
-    @Disabled
-    void givenStringPlansShouldThrowException() {
-        assertThrows(PricingParsingException.class,
-                () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "07-2-plans-is-string.yml"));
-    }
-
-    @Test
-    @Disabled
     void givenIntegerPlansShouldThrowException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "07-3-plans-is-integer.yml"));
     }
 
     @Test
-    @Disabled
     void givenFloatPlansShouldThrowException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "07-4-plans-is-float.yml"));
     }
 
     @Test
-    @Disabled
     void givenBooleanPlansShouldThrowException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "07-5-plans-is-boolean.yml"));
+    }
+
+    @Test
+    void givenNullPlansAndAddOnsShouldThrowException() {
+        assertThrows(PricingParsingException.class,
+                () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "08-null-plans-and-addons.yml"));
     }
 
 }

@@ -16,11 +16,11 @@ import io.github.isagroup.models.ValueType;
 public class PricingValidators {
 
     public static void validateAndFormatFeature(Feature feature) {
-        
-        if (feature == null){
+
+        if (feature == null) {
             throw new IllegalArgumentException("A null feature cannot be added to the pricing configuration");
         }
-        
+
         String item = "feature " + feature.getName();
 
         validateName(feature.getName(), item);
@@ -39,10 +39,10 @@ public class PricingValidators {
 
     public static void validateAndFormatUsageLimit(PricingManager pricingManager, UsageLimit usageLimit) {
 
-        if (usageLimit == null){
+        if (usageLimit == null) {
             throw new IllegalArgumentException("A null usageLimit cannot be added to the pricing configuration");
         }
-            
+
         String item = "usage limit " + usageLimit.getName();
 
         validateName(usageLimit.getName(), item);
@@ -57,11 +57,11 @@ public class PricingValidators {
     }
 
     public static void validateAndFormatPlan(PricingManager pricingManager, Plan plan) {
-        
-        if (plan == null){
+
+        if (plan == null) {
             throw new IllegalArgumentException("A null plan cannot be added to the pricing configuration");
         }
-        
+
         String item = "plan " + plan.getName();
 
         validateName(plan.getName(), item);
@@ -91,7 +91,7 @@ public class PricingValidators {
 
     public static void validateAndFormatAddOn(PricingManager pricingManager, AddOn addOn) {
 
-        if (addOn == null){
+        if (addOn == null) {
             throw new IllegalArgumentException("A add on cannot be added to the pricing configuration");
         }
 
@@ -120,38 +120,38 @@ public class PricingValidators {
 
     private static void validateName(String name, String item) {
 
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("The " + item + " name must not be null or empty");
+        if (name == null) {
+            throw new IllegalArgumentException("The " + item + " name must not be null");
         }
 
-        if (name.length() < 3) {
+        String trimmedName = name.trim();
+
+        if (trimmedName.trim().isEmpty()) {
+            throw new IllegalArgumentException("The " + item + " name must not be empty");
+        }
+
+        if (trimmedName.length() < 3) {
             throw new IllegalArgumentException("The " + item + " name must have at least 3 characters");
         }
 
-        if (name.length() > 50) {
+        if (trimmedName.length() > 50) {
             throw new IllegalArgumentException("The " + item + " name must have at most 50 characters");
         }
     }
 
     private static void validatePlanPrice(Plan plan) {
-        if (plan.getMonthlyPrice() != null && !(plan.getMonthlyPrice() instanceof Double)) {
-            throw new IllegalArgumentException("The plan monthlyPrice must be a double");
+
+        if (!(isValidPrice(plan.getMonthlyPrice()) && isValidPrice(plan.getAnnualPrice()))) {
+            throw new IllegalArgumentException("Either the monthlyPrice or the annualPrice is not a valid price");
         }
 
-        if (plan.getAnnualPrice() != null && !(plan.getAnnualPrice() instanceof Double)) {
-            throw new IllegalArgumentException("The plan annualPrice must be a double");
-        }
-
-        if (plan.getMonthlyPrice() != null && plan.getAnnualPrice() == null
-                || plan.getAnnualPrice() != null && plan.getMonthlyPrice() == null) {
+        if (plan.getMonthlyPrice() == null && plan.getAnnualPrice() == null) {
             throw new IllegalArgumentException(
-                    "You must specify both a monthlyPrice and an annualPrice in a plan");
+                    "Either a monthly price or an annual price must be specified");
         }
 
-        if ((Double) plan.getMonthlyPrice() < (Double) plan.getAnnualPrice()) {
-            throw new IllegalArgumentException(
-                    "The monthly price must be greater than the annual price (which must be specified by its monthly price)");
-        }
+        validateMonthlyPriceIsGreaterThanAnnual(plan.getMonthlyPrice(), plan.getAnnualPrice());
+
     }
 
     private static void validateAddOnPrice(AddOn addOn, String item) {
@@ -381,6 +381,39 @@ public class PricingValidators {
         }
 
         return camelCase;
+    }
+
+    private static boolean isValidPrice(Object price) {
+        return price instanceof Double || price instanceof Long || price instanceof Integer || price instanceof String
+                || price == null;
+    }
+
+    private static void validateMonthlyPriceIsGreaterThanAnnual(Object monthlyPrice, Object annualPrice) {
+
+        if (monthlyPrice instanceof Double && annualPrice instanceof Double
+                && (Double) monthlyPrice < (Double) annualPrice) {
+            throw new IllegalArgumentException(
+                    "The monthly price must be greater than the annual price (which must be specified by its monthly price)");
+        }
+
+        if (monthlyPrice instanceof Integer && annualPrice instanceof Integer
+                && (Integer) monthlyPrice < (Integer) annualPrice) {
+            throw new IllegalArgumentException(
+                    "The monthly price must be greater than the annual price (which must be specified by its monthly price)");
+        }
+
+        if (monthlyPrice instanceof Double && annualPrice instanceof Integer
+                && (Double) monthlyPrice < (Integer) annualPrice) {
+            throw new IllegalArgumentException(
+                    "The monthly price must be greater than the annual price (which must be specified by its monthly price)");
+        }
+
+        if (monthlyPrice instanceof Integer && annualPrice instanceof Double
+                && (Integer) monthlyPrice < (Double) annualPrice) {
+            throw new IllegalArgumentException(
+                    "The monthly price must be greater than the annual price (which must be specified by its monthly price)");
+        }
+
     }
 
 }

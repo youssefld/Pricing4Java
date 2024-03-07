@@ -10,6 +10,7 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
 
+import io.github.isagroup.exceptions.FilepathException;
 import io.github.isagroup.exceptions.SerializerException;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.parsing.PricingManagerParser;
@@ -40,10 +41,8 @@ public class YamlUtils {
             return PricingManagerParser.parseMapToPricingManager(test);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new FilepathException("Either the file path is invalid or the file does not exist.");
         }
-        return null;
-
     }
 
     /**
@@ -54,6 +53,11 @@ public class YamlUtils {
      * @param yamlPath       Path of the YAML file, relative to the resources folder
      */
     public static void writeYaml(PricingManager pricingManager, String yamlPath) {
+        
+        if (yamlPath == null) {
+            throw new FilepathException("Either the file path is invalid or the file does not exist.");
+        }
+        
         DumperOptions dump = new DumperOptions();
         dump.setIndent(2);
         dump.setPrettyFlow(true);
@@ -68,9 +72,9 @@ public class YamlUtils {
             yaml.dump(serializedPricingManager, writer);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new FilepathException("Either the file path is invalid or the file does not exist.");
         } catch (SerializerException e) {
-            e.printStackTrace();
+            throw new SerializerException("An error occurred while serializing the PricingManager object.");
         }
     }
 }

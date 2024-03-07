@@ -68,31 +68,14 @@ public class PricingManagerSerializerTest {
             pricingManagerSerializer.serialize();
             fail("Features are not defined");
         } catch (Exception e) {
-            String expected = "Currently you have not defined any features. You may not dump config until you define them";
+            String expected = "Features are null. Filling the pricing with features is mandatory.";
             assertEquals(expected, e.getMessage());
         }
 
     }
 
     @Test
-    public void givenNoUsageLimits_should_ThrowException() {
-
-        PricingManager pricingManager = initPricingManager();
-
-        pricingManager.setUsageLimits(null);
-        PricingManagerSerializer pricingManagerSerializer = new PricingManagerSerializer(pricingManager);
-        try {
-            pricingManagerSerializer.serialize();
-            fail("Features are not defined");
-        } catch (Exception e) {
-            String expected = "Currently you have not defined any usage limits. You may not dump a config until you define them";
-            assertEquals(expected, e.getMessage());
-        }
-
-    }
-
-    @Test
-    public void givenNoPlans_should_ThrowException() {
+    public void givenNoPlansAndAddOns_should_ThrowException() {
 
         PricingManager pricingManager = initPricingManager();
         pricingManager.setPlans(null);
@@ -100,9 +83,9 @@ public class PricingManagerSerializerTest {
         PricingManagerSerializer pricingManagerSerializer = new PricingManagerSerializer(pricingManager);
         try {
             pricingManagerSerializer.serialize();
-            fail("Features are not defined");
+            fail("Plans are not defined");
         } catch (Exception e) {
-            String expected = "Currently you have not defined any plans. You may not dump a config until you define them";
+            String expected = "Plans and AddOns are null. You have to set at least one of them.";
             assertEquals(expected, e.getMessage());
         }
 

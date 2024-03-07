@@ -420,7 +420,7 @@ plans:
         value: 14
   ENTERPRISE_ULTIMATE:
     description: ""
-    monthlyPrice: null
+    monthlyPrice: Contact Sales
     annualPrice: null
     unit: null
     features:

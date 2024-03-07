@@ -28,30 +28,31 @@ public class AddOnParser {
 
         addOn.setName(addOnName);
         setAvailableFor(addOnMap, pricingManager, addOn);
+
+        if (addOnMap.containsKey("price") && (addOnMap.containsKey("monthlyPrice") || addOnMap.containsKey("annualPrice"))) {
+            throw new PricingParsingException("The add on " + addOnName
+                    + " has both a price and monthlyPrice/annualPrice. It should have only one of them");
+        }
+
         if (addOnMap.containsKey("price")) {
-            try {
-                addOn.setPrice((Double) addOnMap.get("price"));
-            } catch (ClassCastException e) {
-                if (addOnMap.get("price") instanceof Integer) {
-                    addOn.setPrice((Integer) addOnMap.get("price"));
-                } else {
-                    addOn.setPrice((String) addOnMap.get("price"));
-                }
+            
+            if (isValidPrice(addOnMap.get("price"))){
+                addOn.setPrice(addOnMap.get("price"));
+            } else {
+                throw new PricingParsingException("The price of the add on " + addOnName + " is neither a valid number nor string");   
             }
         }
+
         if (addOnMap.containsKey("monthlyPrice") && addOnMap.containsKey("annualPrice")) {
-            try {
-                addOn.setMonthlyPrice((Double) addOnMap.get("monthlyPrice"));
-                addOn.setAnnualPrice((Double) addOnMap.get("annualPrice"));
-            } catch (ClassCastException e) {
-                if (addOnMap.get("monthlyPrice") instanceof Integer || addOnMap.get("annualPrice") instanceof Integer) {
-                    addOn.setMonthlyPrice((Integer) addOnMap.get("monthlyPrice"));
-                    addOn.setAnnualPrice((Integer) addOnMap.get("annualPrice"));
-                } else {
-                    addOn.setMonthlyPrice((String) addOnMap.get("monthlyPrice"));
-                    addOn.setAnnualPrice((String) addOnMap.get("annualPrice"));
-                }
+            
+            if (isValidPrice(addOnMap.get("monthlyPrice")) && isValidPrice(addOnMap.get("annualPrice"))){
+                addOn.setMonthlyPrice(addOnMap.get("monthlyPrice"));
+                addOn.setAnnualPrice(addOnMap.get("annualPrice"));
+            } else {
+                throw new PricingParsingException("Either the monthlyPrice or annualPrice of the add on " + addOnName
+                            + " is neither a valid number nor String");
             }
+            
         }
         addOn.setUnit((String) addOnMap.get("unit"));
 
@@ -159,9 +160,14 @@ public class AddOnParser {
         }
 
         for (String addOnUsageLimitName : addOnUsageLimitsMap.keySet()) {
+            
+            Map<String, Object> addOnUsageLimitMap = new HashMap<>();
 
-            // FIXME: Check if you are given a map
-            Map<String, Object> addOnUsageLimitMap = (Map<String, Object>) addOnUsageLimitsMap.get(addOnUsageLimitName);
+            try{
+                addOnUsageLimitMap = (Map<String, Object>) addOnUsageLimitsMap.get(addOnUsageLimitName);
+            }catch(ClassCastException e){
+                throw new PricingParsingException("The usage limit " + addOnUsageLimitName + " of the add-on " + addOnName + " is not a valid map");
+            }
 
             if (!globalUsageLimitsMap.containsKey(addOnUsageLimitName)) {
                 throw new FeatureNotFoundException(
@@ -197,6 +203,10 @@ public class AddOnParser {
         } else {
             addOn.setUsageLimits(addOnUsageLimits);
         }
+    }
+
+    private static boolean isValidPrice(Object price){
+        return price instanceof Double || price instanceof Long || price instanceof Integer || price instanceof String;
     }
 
 }

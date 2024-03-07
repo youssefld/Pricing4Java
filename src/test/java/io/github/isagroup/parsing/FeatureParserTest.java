@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.github.isagroup.exceptions.PricingParsingException;
@@ -109,7 +108,6 @@ public class FeatureParserTest {
     }
 
     @Test
-    @Disabled
     void givenKeyValueInFeaturesShouldThrowClassCastException() {
         assertThrows(PricingParsingException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "features-is-key-value.yml"));

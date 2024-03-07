@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter
 public class FeatureStatus {
 
-    private Object eval;
+    private Boolean eval;
     private Object used;
     private Object limit;
 

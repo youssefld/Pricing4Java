@@ -78,15 +78,18 @@ public abstract class PricingContext {
      */
     public final Map<String, Object> getPlanContext() {
 
-        Map<String, Feature> features = this.getPricingManager().getPlans().get(this.getUserPlan()).getFeatures();
+        Plan plan = this.getPricingManager().getPlans().get(this.getUserPlan());
+        Map<String, Object> planContext = plan.parseToMap();
 
-        return features.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getValue()));
-    };
+        Map<String, Object> planFeaturesContext = plan.getFeatures().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getValue() != null ? e.getValue().getValue() : e.getValue().getDefaultValue()));
+        planContext.put("features", planFeaturesContext);
 
-    public final Map<String, Object> getUsageLimitsContext() {
+        Map<String, Object> planUsageLimitMap = plan.getUsageLimits().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getValue() != null ? e.getValue().getValue() : e.getValue().getDefaultValue()));
+        planContext.put("usageLimits", planUsageLimitMap);
 
-        return this.getPricingManager().getPlanUsageLimits(this.getUserPlan());
+        return planContext;
     }
 
     /**

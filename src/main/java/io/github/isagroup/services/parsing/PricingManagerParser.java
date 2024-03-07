@@ -1,5 +1,6 @@
 package io.github.isagroup.services.parsing;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,6 +25,10 @@ public class PricingManagerParser {
         setUsageLimits(yamlConfigMap, pricingManager);
         setPlans(yamlConfigMap, pricingManager);
         setAddOns(yamlConfigMap, pricingManager);
+
+        if (pricingManager.getPlans() == null && pricingManager.getAddOns() == null) {
+            throw new PricingParsingException("The pricing manager does not have any plans or add ons");
+        }
 
         return pricingManager;
     }
@@ -64,16 +69,28 @@ public class PricingManagerParser {
 
     private static void setFeatures(Map<String, Object> map, PricingManager pricingManager) {
         Map<String, Feature> pricingFeatures = new LinkedHashMap<>();
-        Map<String, Object> featuresMap = (Map<String, Object>) map.get("features");
+
+        Map<String, Object> featuresMap = new HashMap<>();
+        
+        try{
+            featuresMap = (Map<String, Object>) map.get("features");
+        }catch(ClassCastException e){
+            throw new PricingParsingException("The features are not defined correctly. It should be a map of features and their options");
+        }
 
         if (featuresMap == null) {
             throw new IllegalArgumentException("The pricing manager does not have any features");
         }
 
         for (String featureName : featuresMap.keySet()) {
-            Map<String, Object> featureMap = (Map<String, Object>) featuresMap.get(featureName);
-            Feature feature = FeatureParser.parseMapToFeature(featureName, featureMap);
-            pricingFeatures.put(featureName, feature);
+
+            try{
+                Map<String, Object> featureMap = (Map<String, Object>) featuresMap.get(featureName);
+                Feature feature = FeatureParser.parseMapToFeature(featureName, featureMap);
+                pricingFeatures.put(featureName, feature);
+            }catch (ClassCastException e){
+                throw new PricingParsingException("The feature " + featureName + " is not defined correctly. All its options must be specified, and it cannot be defined as a key-value pair");
+            }
         }
 
         pricingManager.setFeatures(pricingFeatures);
@@ -98,7 +115,16 @@ public class PricingManagerParser {
     }
 
     private static void setPlans(Map<String, Object> map, PricingManager pricingManager) {
-        Map<String, Object> plansMap = (Map<String, Object>) map.get("plans");
+        
+
+        Map<String, Object> plansMap = new HashMap<>();
+
+        try{
+            plansMap = (Map<String, Object>) map.get("plans");
+        }catch(ClassCastException e){
+            throw new PricingParsingException("The plans are not defined correctly. It should be a map of plans and their options");
+        }
+
         Map<String, Plan> plans = new LinkedHashMap<>();
 
         if (plansMap == null) {

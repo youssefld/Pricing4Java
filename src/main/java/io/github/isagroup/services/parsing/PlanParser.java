@@ -25,25 +25,28 @@ public class PlanParser {
 
         Plan plan = new Plan();
 
+        if (planName == null) {
+            throw new PricingParsingException("A plan name cannot be null");
+        }
+        
         plan.setName(planName);
         plan.setDescription((String) map.get("description"));
-        try {
-            plan.setMonthlyPrice((Double) map.get("monthlyPrice"));
-            plan.setAnnualPrice((Double) map.get("annualPrice"));
-        } catch (ClassCastException e) {
-            if (map.get("monthlyPrice") instanceof Integer) {
-                plan.setMonthlyPrice(((Integer) map.get("monthlyPrice")).doubleValue());
+        
+        if (isValidPrice(map.get("monthlyPrice")) && isValidPrice("annualPrice")){
+            
+            if (map.get("monthlyPrice") == null && map.get("annualPrice") == null){
+                throw new PricingParsingException("You have to specify, at least, either a monthlyPrice or an annualPrice for the plan " + planName);
             }
+            
+            plan.setMonthlyPrice(map.get("monthlyPrice"));
+            plan.setAnnualPrice(map.get("annualPrice"));
 
-            if (map.get("annualPrice") instanceof Integer) {
-                plan.setAnnualPrice(((Integer) map.get("annualPrice")).doubleValue());
-            }
 
-            if (map.get("monthlyPrice") instanceof String && map.get("annualPrice") instanceof String) {
-                plan.setMonthlyPrice(((String) map.get("monthlyPrice")));
-                plan.setAnnualPrice(((String) map.get("annualPrice")));
-            }
+        }else{
+            throw new PricingParsingException("Either the monthlyPrice or annualPrice of the plan " + planName
+                            + " is neither a valid number nor String");
         }
+        
         plan.setUnit((String) map.get("unit"));
 
         setFeaturesToPlan(planName, map, pricingManager, plan);
@@ -214,6 +217,10 @@ public class PlanParser {
 
         feature.setValue(allowedPaymentTypes);
 
+    }
+
+    private static boolean isValidPrice(Object price){
+        return price instanceof Double || price instanceof Long || price instanceof Integer || price instanceof String || price == null;
     }
 
 }

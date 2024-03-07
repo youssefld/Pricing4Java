@@ -304,14 +304,14 @@ usageLimits:
 plans:
   CORE:
     description: "Everything you need to easily manage a global workforce in one place"
-    monthlyPrice: null
+    monthlyPrice: Contact Sales
     annualPrice: null
     unit: user/month
     features: null
     usageLimits: null
   PRO:
     description: ""
-    monthlyPrice: null
+    monthlyPrice: Contact Sales
     annualPrice: null
     unit: user/month
     features:
@@ -338,7 +338,7 @@ plans:
     usageLimits: null
   UNLIMITED:
     description: ""
-    monthlyPrice: null
+    monthlyPrice: Contact Sales
     annualPrice: null
     unit: user/month
     features:
@@ -373,7 +373,7 @@ plans:
         value: .inf
   ENTERPRISE:
     description: ""
-    monthlyPrice: null
+    monthlyPrice: Contact Sales
     annualPrice: null
     unit: user/month
     features:

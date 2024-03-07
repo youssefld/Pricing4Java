@@ -7,6 +7,7 @@ import java.util.Set;
 import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.exceptions.InvalidLinkedFeatureException;
 import io.github.isagroup.exceptions.InvalidValueTypeException;
+import io.github.isagroup.exceptions.PricingParsingException;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
 import io.github.isagroup.models.UsageLimitType;
@@ -87,6 +88,9 @@ public class UsageLimitParser {
 
     private static void loadBasicAttributes(UsageLimit limit, String limitName, Map<String, Object> map,
             Set<String> featureKeys) {
+        if (limitName == null) {
+            throw new PricingParsingException("An usageLimit name cannot be null");
+        }
         limit.setName(limitName);
         limit.setDescription((String) map.get("description"));
         try {
@@ -133,7 +137,7 @@ public class UsageLimitParser {
 
             for (String linkedFeature : linkedFeatures) {
                 if (!featureKeys.contains(linkedFeature)) {
-                    throw new InvalidLinkedFeatureException("The feature " + limitName
+                    throw new InvalidLinkedFeatureException("The usageLimit " + limitName
                             + " is linked to a nonexistent feature. Current linkedFeature: " + linkedFeature);
                 }
             }

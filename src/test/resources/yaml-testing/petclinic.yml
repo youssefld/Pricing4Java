@@ -9,8 +9,8 @@ features:
     description: maxPets description
     valueType: NUMERIC
     defaultValue: 2
-    expression: userContext['pets'] < planContext['maxPets']
-    serverExpression: userContext['pets'] <= planContext['maxPets']
+    expression: userContext['pets'] < planContext['usageLimits']['maxPets']
+    serverExpression: userContext['pets'] <= planContext['usageLimits']['maxPets']
     type: DOMAIN
   maxVisitsPerMonthAndPet:
     description: maxVisitsPerMonthAndPet description
@@ -28,25 +28,25 @@ features:
     description: haveCalendar description
     valueType: BOOLEAN
     defaultValue: false
-    expression: planContext['haveCalendar']
+    expression: planContext['features']['haveCalendar']
     type: DOMAIN
   havePetsDashboard:
     description: havePetsDashboard description
     valueType: BOOLEAN
     defaultValue: false
-    expression: planContext['havePetsDashboard']
+    expression: planContext['features']['havePetsDashboard']
     type: DOMAIN
   haveVetSelection:
     description: haveVetSelection description
     valueType: BOOLEAN
     defaultValue: false
-    expression: planContext['haveVetSelection']
+    expression: planContext['features']['haveVetSelection']
     type: DOMAIN
   haveOnlineConsultation:
     description: haveOnlineConsultation description
     valueType: BOOLEAN
     defaultValue: false
-    expression: planContext['haveOnlineConsultation']
+    expression: planContext['features']['haveOnlineConsultation']
     type: DOMAIN
 usageLimits:
   maxPets:

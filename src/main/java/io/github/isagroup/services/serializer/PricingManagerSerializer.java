@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import io.github.isagroup.exceptions.SerializerException;
 import io.github.isagroup.models.AddOn;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
@@ -30,23 +31,17 @@ public class PricingManagerSerializer {
 
     }
 
-    public Map<String, Object> serialize() throws Exception {
+    public Map<String, Object> serialize() throws SerializerException {
 
         initPricingManagerMetadata();
 
         if (pricingManager.getFeatures() == null) {
-            throw new Exception(
-                    "Currently you have not defined any features. You may not dump config until you define them");
+            throw new SerializerException("Features are null. Filling the pricing with features is mandatory.");
         }
 
-        if (pricingManager.getUsageLimits() == null) {
-            throw new Exception(
-                    "Currently you have not defined any usage limits. You may not dump a config until you define them");
-        }
-
-        if (pricingManager.getPlans() == null) {
-            throw new Exception(
-                    "Currently you have not defined any plans. You may not dump a config until you define them");
+        if (pricingManager.getPlans() == null && pricingManager.getAddOns() == null) {
+            throw new SerializerException(
+                    "Plans and AddOns are null. You have to set at least one of them.");
         }
 
         serializedPricingManager.put("features", serializeFeatures());

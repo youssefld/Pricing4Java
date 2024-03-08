@@ -31,6 +31,11 @@ public abstract class UsageLimit implements Serializable {
     private String expression;
     private String serverExpression;
 
+    /*
+     * This method returns a boolean indicating wether the feature whose name is received as a parameter is linked to this usage limit.
+     * @param featureName The name of the feature to check if it is linked to this usage limit.
+     * @return A boolean indicating wether the feature whose name is received as a parameter is linked to this usage limit.
+     */
     public boolean isLinkedToFeature(String featureName) {
         return linkedFeatures.contains(featureName);
     }

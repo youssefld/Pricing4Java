@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.github.isagroup.exceptions.CloneUsageLimitException;
+import io.github.isagroup.exceptions.FeatureNotFoundException;
 import io.github.isagroup.exceptions.InvalidDefaultValueException;
 import io.github.isagroup.exceptions.InvalidValueTypeException;
 import io.github.isagroup.models.AddOn;
@@ -82,7 +83,8 @@ public class PricingService {
      * The plan must not exist and must contain all the
      * features declared on the configuration. It is recommended to use the
      * {@link PricingContext#getFeatures()} method to get the list of features that
-     * appear in the configuration.
+     * appear in the configuration. The same to get
+     * the usageLimits {@link PricingContext#getUsageLimits()}.
      * 
      * @param name name of the plan that is going to be added
      * @param plan {@link Plan} object that includes the details of the plan that is
@@ -136,6 +138,13 @@ public class PricingService {
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
     }
 
+    /**
+     * Updates a feature in the pricing configuration.
+     * 
+     * @param previousName name of the feature previous to its update
+     * @param feature      {@link Feature} object that includes the details of the
+     *                     feature that is going to be updated
+     */
     @Transactional
     public void updateFeatureFromConfiguration(String previousName, Feature feature) {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
@@ -175,6 +184,11 @@ public class PricingService {
         YamlUtils.writeYaml(pricingManager, pricingContext.getConfigFilePath());
     }
 
+    /**
+     * Updates a plan in the pricing configuration.
+     * @param previousName name of the plan previous to its update
+     * @param plan {@link Plan} object that includes the details of the plan that is going to be updated
+     */
     @Transactional
     public void updatePlanFromConfiguration(String previousName, Plan plan) {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(pricingContext.getConfigFilePath());
@@ -290,38 +304,13 @@ public class PricingService {
     // ------------------------- USAGE LIMIT MANAGEMENT ------------------------- //
 
     /**
-     * Adds an usage limit to pricing configuration.
-     * In order to do that, it must exist in the {@link PricingContext} that is
-     * being used.
-     * The method also removes the feature from all the plans that include it.
+     * Creates a new global usageLimit within the pricing configuration and adds 
+     * it to all the plans using its default value.
      * 
      * @param usageLimit type of usage limit {@link UsageLimit} you want to add
      *                   Possible subclasses are {@link Renewable}
      *                   {@link NonRenewable} {@link TimeDriven} and
      *                   {@link ResponseDriven}
-     * @throws IllegalArgumentException     if usage limit name is null or an
-     *                                      empty String
-     * @throws IllegalArgumentException     if usage limit is less than 3 characters
-     *                                      long
-     * @throws IllegalArgumentException     if usage limit name is greater than 50
-     *                                      characters
-     * @throws InvalidValueTypeException    if usage limit {@link ValueType} is null
-     * @throws InvalidValueTypeException    if usage limit value type is not in
-     *                                      {@link ValueType}
-     * @throws InvalidDefaultValueException if default value type is null or if
-     *                                      usage limit value type and usage
-     *                                      limit default value missmatch.
-     *                                      ValueType.TEXT accepts String
-     *                                      ValueType.NUMERIC accepts
-     *                                      {@link Number},
-     *                                      ValueType.BOOLEAN accepts boolean values
-     * @throws IllegalArgumentException     if unit is null or greater than 50
-     *                                      characters
-     * @throws FeatureNotFoundException     if linked features contains a feature
-     *                                      that is not contained in
-     *                                      features section
-     * @throws CloneUsageLimitException     if usage limit already exists in the
-     *                                      configuration
      */
     @Transactional
     public void addUsageLimitToConfiguration(UsageLimit usageLimit) {
@@ -354,29 +343,6 @@ public class PricingService {
      *                               Possible subclasses are {@link Renewable}
      *                               {@link NonRenewable} {@link TimeDriven} and
      *                               {@link ResponseDriven}
-     * @throws IllegalArgumentException     if usage limit name is null or an
-     *                                      empty String
-     * @throws IllegalArgumentException     if usage limit is less than 3 characters
-     *                                      long
-     * @throws IllegalArgumentException     if usage limit name is greater than 50
-     *                                      characters
-     * @throws InvalidValueTypeException    if usage limit {@link ValueType} is null
-     * @throws InvalidValueTypeException    if usage limit value type is not in
-     *                                      {@link ValueType}
-     * @throws InvalidDefaultValueException if default value type is null or if
-     *                                      usage limit value type and usage
-     *                                      limit default value missmatch.
-     *                                      ValueType.TEXT accepts String
-     *                                      ValueType.NUMERIC accepts
-     *                                      {@link Number},
-     *                                      ValueType.BOOLEAN accepts boolean values
-     * @throws IllegalArgumentException     if unit is null or greater than 50
-     *                                      characters
-     * @throws FeatureNotFoundException     if linked features contains a feature
-     *                                      that is not contained in
-     *                                      features section
-     * @throws IllegalArgumentException     if previousUsageLimitName is not
-     *                                      contained is the usage limit section
      */
     @Transactional
     public void updateUsageLimitFromConfiguration(String previousUsageLimitName, UsageLimit usageLimit) {
@@ -443,40 +409,15 @@ public class PricingService {
     // ------------------------- ADD ONS MANAGEMENT ------------------------- //
 
     /**
-     * Adds a new add on to the pricing configuration.
+     * Adds a new add on to the current pricing configuration. The add on must not 
+     * exist and must contain all the features declared on the configuration. 
+     * It is recommended to use the {@link PricingContext#getFeatures()} method to get 
+     * the list of features that appear in the configuration. The same to get
+     * the usageLimits ({@link PricingContext#getUsageLimits()}).
      * 
      * @param addOn AddOn object to add
      * 
-     * @throws IllegalArgumentException if add on name is null or an
-     *                                  empty String
-     * @throws IllegalArgumentException if add on name is less than 3 characters
-     *                                  long
-     * @throws IllegalArgumentException if add on name is greater than 50
-     *                                  characters long
-     * @throws IllegalArgumentException if price or monthlyPrice/annualPrice is
-     *                                  null. e.g. price = null and
-     *                                  (monthlyPrice=null && annualPrice==
-     *                                  null)
-     * @throws IllegalArgumentException if price is not null and monthlyPrice is
-     *                                  not null or annualPrice is not null
-     *                                  null. e.g. price = 10 and monthlyPrice =
-     *                                  10
-     * @throws IllegalArgumentException if price or annualPrice or monthlyPrice
-     *                                  is not {@link Double}
-     * @throws IllegalArgumentException if annual price is defined but monthly
-     *                                  price is not and viceversa in a
-     *                                  annualPrice/monthlyPrice configuration
-     * @throws IllegalArgumentException if unit is null or greater than 50
-     *                                  characters
-     * @throws FeatureNotFoundException if a feature in add on features is not
-     *                                  contained in features section
-     * @throws IllegalArgumentException if an usage limit in add on usage limits
-     *                                  is not contained in usage limits
-     *                                  section
-     * @throws IllegalArgumentException if a usage limit in add on usage limits
-     *                                  extensions is not contained in usage limits
-     *                                  section
-     * @throws IllegalArgumentException if add on already exists whithin the pricing
+     * @throws IllegalArgumentException if the add on already exists whithin the pricing
      *                                  configuration
      */
     @Transactional
@@ -504,42 +445,11 @@ public class PricingService {
     }
 
     /**
-     * Updates an add on in the pricing configuration.
+     * Updates an add on of the pricing configuration.
      * 
      * @param previousName name of the add on previous to the update
      * @param addOn        AddOn object to add
      * 
-     * @throws IllegalArgumentException if add on name is null or an
-     *                                  empty String
-     * @throws IllegalArgumentException if add on name is less than 3 characters
-     *                                  long
-     * @throws IllegalArgumentException if add on name is greater than 50
-     *                                  characters long
-     * @throws IllegalArgumentException if price or monthlyPrice/annualPrice is
-     *                                  null. e.g. price = null and
-     *                                  (monthlyPrice=null && annualPrice==
-     *                                  null)
-     * @throws IllegalArgumentException if price is not null and monthlyPrice is
-     *                                  not null or annualPrice is not null
-     *                                  null. e.g. price = 10 and monthlyPrice =
-     *                                  10
-     * @throws IllegalArgumentException if price or annualPrice or monthlyPrice
-     *                                  is not {@link Double}
-     * @throws IllegalArgumentException if annual price is defined but monthly
-     *                                  price is not and viceversa in a
-     *                                  annualPrice/monthlyPrice configuration
-     * @throws IllegalArgumentException if unit is null or greater than 50
-     *                                  characters
-     * @throws FeatureNotFoundException if a feature in add on features is not
-     *                                  contained in features section
-     * @throws IllegalArgumentException if an usage limit in add on usage limits
-     *                                  is not contained in usage limits
-     *                                  section
-     * @throws IllegalArgumentException if a usage limit in add on usage limits
-     *                                  extensions is not contained in usage limits
-     *                                  section
-     * @throws IllegalArgumentException if add on already exists whithin the pricing
-     *                                  configuration
      */
     @Transactional
     public void updateAddOnFromConfiguration(String previousName, AddOn addOn) {
@@ -568,7 +478,7 @@ public class PricingService {
     }
 
     /**
-     * Deletes and add on from the configuration.
+     * Deletes an add on from the configuration.
      * 
      * @param addOnName name of the add on to delete
      * 

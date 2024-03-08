@@ -22,18 +22,20 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import io.github.isagroup.PricingPlanAwareTests.TestConfiguration.PricingContextImpl;
 import io.github.isagroup.annotations.PricingPlanAware;
 import io.github.isagroup.annotations.PricingPlanAwareAspect;
+import io.github.isagroup.exceptions.FilepathException;
 import io.github.isagroup.exceptions.PricingPlanEvaluationException;
 import io.github.isagroup.services.jwt.JwtUtils;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@Import({ io.github.isagroup.annotations.PricingPlanAwareAspect.class, io.github.isagroup.PricingEvaluatorUtil.class, io.github.isagroup.services.jwt.JwtUtils.class })
+@Import({ io.github.isagroup.annotations.PricingPlanAwareAspect.class, io.github.isagroup.PricingEvaluatorUtil.class,
+        io.github.isagroup.services.jwt.JwtUtils.class })
 public class PricingPlanAwareTests {
 
     private static final String JWT_SECRET_TEST = "secret";
     private static final Integer JWT_EXPIRATION_TEST = 86400;
     private static final String JWT_SUBJECT_TEST = "admin1";
-    private static final String CONFIG_FILE_PATH_TEST = "pricing/models.yml";
+    private static final String CONFIG_FILE_PATH_TEST = "yaml-testing/petclinic.yml";
 
     @Configuration
     public static class TestConfiguration {
@@ -44,7 +46,7 @@ public class PricingPlanAwareTests {
             private String configFilePath = CONFIG_FILE_PATH_TEST;
             private String jwtSecret = JWT_SECRET_TEST;
             private int jwtExpiration = JWT_EXPIRATION_TEST;
-            private int numberOfPets = 2;
+            private int numberOfPets = 10;
 
             @Override
             public String getConfigFilePath() {
@@ -117,7 +119,7 @@ public class PricingPlanAwareTests {
     private PricingContextImpl pricingContextImpl;
 
     @Autowired
-    private PricingEvaluatorUtil pricingEvaluatorUtil;    
+    private PricingEvaluatorUtil pricingEvaluatorUtil;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -140,7 +142,7 @@ public class PricingPlanAwareTests {
             }
 
             @Override
-            public String featureId() {
+            public String featureName() {
                 return featureId;
             }
         });
@@ -149,7 +151,7 @@ public class PricingPlanAwareTests {
     @Test
     void negativeSimpleAnnotationUseCaseTest() throws Throwable {
 
-        pricingContextImpl.setNumberOfPets(6);
+        pricingContextImpl.setNumberOfPets(16);
 
         Mockito.when(joinPoint.proceed()).thenReturn("Result");
 
@@ -157,17 +159,17 @@ public class PricingPlanAwareTests {
         String featureId = "maxPets";
 
         PricingPlanEvaluationException exception = assertThrows(PricingPlanEvaluationException.class, () -> {
-             pricingPlanAwareAspect.validatePricingPlan(joinPoint, new PricingPlanAware() {
-            @Override
-            public Class<? extends java.lang.annotation.Annotation> annotationType() {
-                return PricingPlanAware.class;
-            }
+            pricingPlanAwareAspect.validatePricingPlan(joinPoint, new PricingPlanAware() {
+                @Override
+                public Class<? extends java.lang.annotation.Annotation> annotationType() {
+                    return PricingPlanAware.class;
+                }
 
-            @Override
-            public String featureId() {
-                return featureId;
-            }
-        });
+                @Override
+                public String featureName() {
+                    return featureId;
+                }
+            });
         });
 
         assertEquals("You have reached the limit of the feature: " + featureId, exception.getMessage());
@@ -190,7 +192,7 @@ public class PricingPlanAwareTests {
             }
 
             @Override
-            public String featureId() {
+            public String featureName() {
                 return featureId;
             }
         });
@@ -218,13 +220,14 @@ public class PricingPlanAwareTests {
                 }
 
                 @Override
-                public String featureId() {
+                public String featureName() {
                     return featureId;
                 }
             });
         });
 
-        assertEquals("The feature " + featureId + " does not exist in the current pricing configuration", exception.getMessage());
+        assertEquals("The feature " + featureId + " does not exist in the current pricing configuration",
+                exception.getMessage());
     }
 
     @Test
@@ -237,7 +240,7 @@ public class PricingPlanAwareTests {
         // Obtener el valor del parámetro featureId que deseas probar
         String featureId = "nonExistentFeature";
 
-        PricingPlanEvaluationException exception = assertThrows(PricingPlanEvaluationException.class, () -> {
+        FilepathException exception = assertThrows(FilepathException.class, () -> {
             pricingPlanAwareAspect.validatePricingPlan(joinPoint, new PricingPlanAware() {
                 @Override
                 public Class<? extends java.lang.annotation.Annotation> annotationType() {
@@ -245,13 +248,13 @@ public class PricingPlanAwareTests {
                 }
 
                 @Override
-                public String featureId() {
+                public String featureName() {
                     return featureId;
                 }
             });
         });
 
-        assertEquals("Error while parsing YAML file", exception.getMessage());
+        assertEquals("Either the file path is invalid or the file does not exist.", exception.getMessage());
 
         pricingContextImpl.setConfigFilePath(CONFIG_FILE_PATH_TEST);
     }

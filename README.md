@@ -14,9 +14,19 @@ In addition to these components, the package can also manage the JWTs that conta
 - [Getting Started](#started)
 - [Yaml4SaaS](#yaml4saas)
   - [Configuring feature evaluation](#feature-evaluation)
-  - [YamlUtils](#yaml-utils)
+  - [Yaml4SaaS Validator](#yaml-validator)
+- [Java objects to manage pricing](#java-objects-to-manage-pricing)
+  - [PricingManager](#pricingManager)
+  - [Feature](#feature)
+  - [UsageLimit](#usageLimit)
+  - [Plan](#plan)
+  - [AddOn](#addOn)
+- [YamlUtils](#yaml-utils)
 - [PricingContext](#pricingContext)
-- [@PricingPlanAware](#pricingPlanAware)
+- [Pricing4Java components](#pricing4java-components)
+  - [PricingEvaluatorUtil](#pricingEvaluatorUtil)
+  - [PricingService](#pricingService)
+  - [PricingPlanAware Annotation](#pricingPlanAware)
 
 ## Installation
 
@@ -392,9 +402,9 @@ feature1:
   # ...
 ```
 
-### YamlUtils
+### Yaml4SaaS Validator
 
-<a id="#yaml-utils"></a>
+<a id="#yaml-validator"></a>
 
 Pricing4Java includes a validator of the Yaml4SaaS syntax that can be easily run by creating a test inside the `saasYamlParsingTest.java` file following the next structure:
 
@@ -409,8 +419,10 @@ void parsePostmanYamlToClassTest() {
 The test will fail if the YAML file does not correctly follow the Yaml4SaaS syntax, and will throw an exception explaining the problem.
 
 ## Java objects to manage pricing
+<a id="#java-objects-to-manage-pricing"></a>
 
 ### PricingManager
+<a id="#pricingManager"></a>
 
 This class is the main object of the package. It contains all the information about the pricing configuration and can be used to evaluate the context of an user and generate a JWT with the results.
 
@@ -436,6 +448,7 @@ pricingManager.getPlans().get("BASIC").getPrice();
 ```
 
 ### Feature
+<a id="#feature"></a>
 
 This abstract class models the information of a feature.
 
@@ -471,6 +484,7 @@ Each feature type supported by Yaml4SaaS is represented by a class that extends 
 Each of these objects contains the specific attributes of the feature type, such as `integrationType` in the **Integration** feature class, `automationType` in the **Automation** class, etc.
 
 ### UsageLimit
+<a id="#usageLimit"></a>
 
 This abstract class models the information of an usageLimit.
 
@@ -505,6 +519,7 @@ Besides, each usage limit type supported by Yaml4SaaS is represented by a class 
 - **TimeDriven**
 
 ### Plan
+<a id="#plan"></a>
 
 This class models the information of a plan.
 
@@ -523,6 +538,7 @@ public class Plan {
 ```
 
 ### AddOn
+<a id="#addOn"></a>
 
 This class models the information of an addOn.
 
@@ -627,10 +643,12 @@ The class also provides a set of methods that can be used to retrieve informatio
 - **getPricingManager**: Maps the information of the YAML configuration file to a PricingManager object to easily operate with pricing properties.
 
 ## Pricing4Java components
+<a id="#pricing4java-components"></a>
 
 Once the [PricingContext](#pricingContext) has been defined, all the components of Pricing4Java can be injected anywhere within the app to perform operations with the pricing using **PricingManager**.
 
 ### PricingEvaluatorUtil
+<a id="#pricingEvaluatorUtil"></a>
 
 It can be used to evaluate the context of an user compared to his plan and generate a JWT with the results, using a single java method. This class consumes the information of the configured PricingContext to perform its operations.
 
@@ -698,6 +716,7 @@ Considering just two NUMERIC features, this function could have generated a JWT 
 ```
 
 ### PricingService
+<a id="#pricingService"></a>
 
 This class offers a set of methods that can be used to manage the pricing configuration without manually modifying the YAML file. It can be used to retrieve, add, remove or modify plans and features.
 
@@ -720,6 +739,7 @@ This class offers a set of methods that can be used to manage the pricing config
 As any other spring service, to use this class it must be injected in any bean using @Autowired. Once declared, the methods can be used to manage the pricing configuration.
 
 ### PricingPlanAware Annotation
+<a id="#pricingPlanAware"></a>
 
 The library also provides an method level annotation called @PricingPlanAware that receives a string called `featureId` as paramater. This feature must exist inside the pricing configuration.
 By combining the use of this annotation with the spring's @Transactional, it is possible to automate feature checking on the service layer of the application.

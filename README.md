@@ -312,13 +312,13 @@ Starting with the top-level placeholder, we can describe basic information about
 - SUPPORT
 - PAYMENT
 
-detailing each feature's `description`, `valueType` (BOOLEAN, TEXT), and `defaultValue`, whose data type has to be aligned with the `valueType` defined:
+detailing each feature's `description`, `valueType` (BOOLEAN, NUMERIC TEXT), and `defaultValue`, whose data type has to be aligned with the `valueType` defined:
 
 - If the `type` is `CONDITION`, the `defaultValue` must be a Boolean.
 - If the `type` is `NUMERIC`, the `defaultValue` must be Integer or Double
 - If the `type` is `TEXT`, the `defaultValue` must be a String.
 
-Notably, features do not handle NUMERIC values, which are reserved for limits.
+<!-- Notably, features do not handle NUMERIC values, which are reserved for limits. -->
 
 In addition, depending on each type of feature, the syntax extends expressiveness for each feature type with additional fields:
 

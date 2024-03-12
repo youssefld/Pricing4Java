@@ -48,8 +48,16 @@ public class PricingEvaluatorUtil {
     public String generateUserToken() {
 
         PlanContextManager planContextManager = new PlanContextManager();
-        planContextManager.setUserContext(pricingContext.getUserContext());
-        planContextManager.setPlanContext(pricingContext.getPlanContext());
+        try{
+            planContextManager.setUserContext(pricingContext.getUserContext());
+        }catch (Exception e){
+            throw new PricingPlanEvaluationException("Error while retrieving user context! Please check your PricingContext.getUserContext() method");
+        }
+        try{
+            planContextManager.setPlanContext(pricingContext.getPlanContext());
+        }catch (NullPointerException e){
+            throw new PricingPlanEvaluationException("Error while retrieving plan context! Please check your configuration file or add a plan with the given name");
+        }
 
         Map<String, Feature> features = pricingContext.getFeatures();
 
@@ -86,6 +94,7 @@ public class PricingEvaluatorUtil {
         for (String featureName : features.keySet()) {
 
             FeatureStatus featureStatus = new FeatureStatus();
+            Feature feature = features.get(featureName);
 
             String expression = features.get(featureName).getExpression();
             Boolean eval = FeatureStatus.computeFeatureEvaluation(expression, planContextManager)
@@ -99,7 +108,12 @@ public class PricingEvaluatorUtil {
                 featureStatus.setLimit(null);
             } else {
                 featureStatus.setUsed(planContextManager.getUserContext().get(userContextKey.get()));
-                featureStatus.setLimit(planContextManager.getPlanContext().get(featureName));
+                if(feature.getExpression().contains("usageLimits")){
+                    String usageLimitName = feature.getExpression().split("usageLimits")[1].split("[',\"]")[2];
+                    featureStatus.setLimit(((Map<String, Object>)planContextManager.getPlanContext().get("usageLimits")).get(usageLimitName));
+                }else{
+                    featureStatus.setLimit(((Map<String, Object>)planContextManager.getPlanContext().get("features")).get(featureName));
+                }
 
             }
 

@@ -628,6 +628,18 @@ public class PricingConfiguration extends PricingContext {
         // With this information, the library will be able to build the Plan object of the user from the configuration.
     }
 
+    // OPTIONALLY OVERRIDE THE FOLLOWING METHODS TO ADD CUSTOM FUNCTIONALITY
+
+    @Override
+    public int getJwtExpiration() {
+        return 86400000; // Configures a custom expiration time of the JWT in milliseconds
+    }
+
+    @Override
+    public Boolean userAffectedByPricing(){
+        return true; // A condition that determines wether an user should be affected by the pricing or not
+    }
+
 }
 
 ```
@@ -638,7 +650,9 @@ The class also provides a set of methods that can be used to retrieve informatio
 
 - **getPlanContext**: Returns a Map<String, Plan> that represents the plan context that is going to be evaluated.
 
-- **getFeatures**: Returns the features declared on the pricing configuration.
+- **getFeatures**: Returns a Map<String, Feature>that represents the features declared on the pricing configuration.
+
+- **getUsageLimits**: Returns a Map<String, UsageLimit> that represents the usage limits declared on the pricing configuration.
 
 - **getPricingManager**: Maps the information of the YAML configuration file to a PricingManager object to easily operate with pricing properties.
 

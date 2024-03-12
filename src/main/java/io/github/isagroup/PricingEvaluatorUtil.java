@@ -47,6 +47,28 @@ public class PricingEvaluatorUtil {
      */
     public String generateUserToken() {
 
+        Map<String, Object> claims = new HashMap<>();
+        
+        claims.put("authorities", pricingContext.getUserAuthorities());
+
+        String subject = "Default";
+
+        if (pricingContext.getUserContext().containsKey("username")) {
+            subject = (String) pricingContext.getUserContext().get("username");
+        } else if (pricingContext.getUserContext().containsKey("user")) {
+            subject = (String) pricingContext.getUserContext().get("user");
+        }
+
+        if (!pricingContext.userAffectedByPricing()) {
+            return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + pricingContext.getJwtExpiration()))
+                .signWith(SignatureAlgorithm.HS512, pricingContext.getJwtSecret())
+                .compact();
+        }
+
         PlanContextManager planContextManager = new PlanContextManager();
         try{
             planContextManager.setUserContext(pricingContext.getUserContext());
@@ -63,19 +85,9 @@ public class PricingEvaluatorUtil {
 
         Map<String, FeatureStatus> featureStatuses = computeFeatureStatuses(planContextManager, features);
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("authorities", pricingContext.getUserAuthorities());
         claims.put("features", featureStatuses);
         claims.put("userContext", planContextManager.getUserContext());
         claims.put("planContext", planContextManager.getPlanContext());
-
-        String subject = "Default";
-
-        if (pricingContext.getUserContext().containsKey("username")) {
-            subject = (String) pricingContext.getUserContext().get("username");
-        } else if (pricingContext.getUserContext().containsKey("user")) {
-            subject = (String) pricingContext.getUserContext().get("user");
-        }
 
         return Jwts.builder()
                 .setClaims(claims)

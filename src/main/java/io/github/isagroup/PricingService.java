@@ -12,9 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.github.isagroup.exceptions.CloneUsageLimitException;
-import io.github.isagroup.exceptions.FeatureNotFoundException;
-import io.github.isagroup.exceptions.InvalidDefaultValueException;
-import io.github.isagroup.exceptions.InvalidValueTypeException;
 import io.github.isagroup.models.AddOn;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
@@ -86,7 +83,6 @@ public class PricingService {
      * appear in the configuration. The same to get
      * the usageLimits {@link PricingContext#getUsageLimits()}.
      * 
-     * @param name name of the plan that is going to be added
      * @param plan {@link Plan} object that includes the details of the plan that is
      *             going to be added
      * @throws IllegalArgumentException if the plan does already exist in the
@@ -113,7 +109,6 @@ public class PricingService {
      * Creates a new global feature in the pricing configuration and adds it to all
      * the plans using its default value.
      * 
-     * @param name    name of the feature that is going to be added
      * @param feature {@link Feature} object that includes the details of the
      *                feature that is going to be added
      * @throws IllegalArgumentException if the feature does already exist in the

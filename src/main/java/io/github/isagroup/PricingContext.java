@@ -9,6 +9,7 @@ import org.yaml.snakeyaml.error.YAMLException;
 import io.github.isagroup.exceptions.PricingPlanEvaluationException;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.PricingManager;
+import io.github.isagroup.models.UsageLimit;
 import io.github.isagroup.services.yaml.YamlUtils;
 import io.github.isagroup.models.Plan;
 
@@ -78,11 +79,19 @@ public abstract class PricingContext {
      */
     public final Map<String, Object> getPlanContext() {
 
-        Map<String, Feature> features = this.getPricingManager().getPlans().get(this.getUserPlan()).getFeatures();
+        Plan plan = this.getPricingManager().getPlans().get(this.getUserPlan());
+        Map<String, Object> planContext = plan.parseToMap();
 
-        return features.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getValue()));
-    };
+        Map<String, Object> planFeaturesContext = plan.getFeatures().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getValue() != null ? e.getValue().getValue() : e.getValue().getDefaultValue()));
+        planContext.put("features", planFeaturesContext);
+
+        Map<String, Object> planUsageLimitMap = plan.getUsageLimits().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getValue() != null ? e.getValue().getValue() : e.getValue().getDefaultValue()));
+        planContext.put("usageLimits", planUsageLimitMap);
+
+        return planContext;
+    }
 
     /**
      * This method returns the features declared on the pricing configuration.
@@ -91,6 +100,15 @@ public abstract class PricingContext {
      */
     public final Map<String, Feature> getFeatures() {
         return this.getPricingManager().getFeatures();
+    }
+
+    /**
+     * This method returns the usage limits declared on the pricing configuration.
+     * 
+     * @return Map with the usage limits
+     */
+    public final Map<String, UsageLimit> getUsageLimits() {
+        return this.getPricingManager().getUsageLimits();
     }
 
     /**

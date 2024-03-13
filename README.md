@@ -648,11 +648,7 @@ By creating this component inside your project, spring will be able to use this 
 
 The class also provides a set of methods that can be used to retrieve information about the pricing configuration anywhere in the app. By injecting the component in any class, the following methods can be used:
 
-- **getPlanContext**: Returns a Map<String, Plan> that represents the plan context that is going to be evaluated.
-
-- **getFeatures**: Returns a Map<String, Feature>that represents the features declared on the pricing configuration.
-
-- **getUsageLimits**: Returns a Map<String, UsageLimit> that represents the usage limits declared on the pricing configuration.
+- **getPlanContext**: Returns a Map<String, Object> that represents the plan context that is going to be evaluated.
 
 - **getPricingManager**: Maps the information of the YAML configuration file to a PricingManager object to easily operate with pricing properties.
 
@@ -736,6 +732,10 @@ This class offers a set of methods that can be used to manage the pricing config
 
 | **Method**                                                                                   | **Description**                                                                                                                                                                                        |
 | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Map<String, Feature> getPricingFeatures()                                                        | Returns the features defined in the pricing configuration.                                                                                                                                      |
+| Map<String, UsageLimit> getPricingUsageLimits()                                                        | Returns the usage limits defined in the pricing configuration.                                                                                                                                      |
+| Map<String, Plan> getPricingPlans()                                                        | Returns the plans defined in the pricing configuration.                                                                                                                                      |
+| Map<String, AddOn> getPricingAddOns()                                                        | Returns the add-ons defined in the pricing configuration.                                                                                                                                      |
 | Plan getPlanFromName(String planName)                                                        | Returns the plan of the configuration that matchs the given name.                                                                                                                                      |
 | void addFeatureToConfiguration(String name, Feature feature)                                 | Creates a new global feature in the pricing configuration and adds it to all the plans using its default value.                                                                                        |
 | void addUsageLimitToConfiguration(UsageLimit usageLimit)                                     | Creates a new global usageLimit in the pricing configuration and adds it to all the plans using its default value.                                                                                     |

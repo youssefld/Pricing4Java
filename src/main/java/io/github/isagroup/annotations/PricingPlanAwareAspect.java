@@ -18,6 +18,7 @@ import io.github.isagroup.exceptions.PricingPlanEvaluationException;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.FeatureStatus;
 import io.github.isagroup.models.PlanContextManager;
+import io.github.isagroup.models.PricingManager;
 
 @Aspect
 @Component
@@ -60,7 +61,9 @@ public class PricingPlanAwareAspect {
             throw new PricingPlanEvaluationException("The pricing context is null. Please, chech the path to the configuration file.");
         }
 
-        Map<String, Feature> features = pricingContext.getFeatures();
+        PricingManager pricingManager = pricingContext.getPricingManager();
+
+        Map<String, Feature> features = pricingManager.getFeatures();
         Feature feature = features.get(featureName);
 
         if (feature == null) {

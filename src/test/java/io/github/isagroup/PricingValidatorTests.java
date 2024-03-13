@@ -209,18 +209,18 @@ public class PricingValidatorTests {
 
   // Remove logic from validateValueTypeConsistency
 
-  @Test
-  void givenNumericExpressionShouldThrowIllegalArgumentExceptionWhenIsBoolean() {
-    PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
-    Feature feature = pricingManager.getFeatures().get("haveCalendar");
-    String expression = "a < b";
-    feature.setExpression(expression);
+  // @Test
+  // void givenNumericExpressionShouldThrowIllegalArgumentExceptionWhenIsBoolean() {
+  //   PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/petclinic.yml");
+  //   Feature feature = pricingManager.getFeatures().get("haveCalendar");
+  //   String expression = "a < b";
+  //   feature.setExpression(expression);
 
-    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-        () -> PricingValidators.validateAndFormatFeature(feature));
-    assertEquals("Expression of feature " + feature.getName()
-        + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN",
-        ex.getMessage());
-  }
+  //   IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+  //       () -> PricingValidators.validateAndFormatFeature(feature));
+  //   assertEquals("Expression of feature " + feature.getName()
+  //       + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN",
+  //       ex.getMessage());
+  // }
 
 }

@@ -109,24 +109,6 @@ public abstract class PricingContext {
     }
 
     /**
-     * This method returns the features declared on the pricing configuration.
-     * 
-     * @return Map with the features
-     */
-    public final Map<String, Feature> getFeatures() {
-        return this.getPricingManager().getFeatures();
-    }
-
-    /**
-     * This method returns the usage limits declared on the pricing configuration.
-     * 
-     * @return Map with the usage limits
-     */
-    public final Map<String, UsageLimit> getUsageLimits() {
-        return this.getPricingManager().getUsageLimits();
-    }
-
-    /**
      * This method returns the {@link PricingManager} object that is being used to
      * evaluate the pricing plan.
      * 

@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.beans.factory.annotation.Value;
 
+import io.github.isagroup.PricingContext;
 import io.github.isagroup.PricingEvaluatorUtil;
 import io.github.isagroup.services.jwt.JwtUtils;
 
@@ -26,6 +27,9 @@ public class RenewTokenFilter extends OncePerRequestFilter {
 	@Autowired
 	private PricingEvaluatorUtil pricingEvaluatorUtil;
 
+	@Autowired
+	private PricingContext pricingContext;
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -33,7 +37,7 @@ public class RenewTokenFilter extends OncePerRequestFilter {
 		try {
 			String jwt = parseJwt(request);
 
-			if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+			if (jwt != null && jwtUtils.validateJwtToken(jwt) && pricingContext.userAffectedByPricing()) {
 				
 				String newToken = pricingEvaluatorUtil.generateUserToken();
 

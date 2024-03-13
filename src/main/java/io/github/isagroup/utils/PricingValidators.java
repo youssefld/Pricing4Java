@@ -295,15 +295,15 @@ public class PricingValidators {
                             "The value of " + item + " must be a boolean if valueType is BOOLEAN");
                 }
 
-                if (expression != null && expression.matches(".*[<>=].*")) {
-                    throw new IllegalArgumentException("Expression of " + item
-                            + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN");
-                }
+                // if (expression != null && expression.matches(".*[<>=].*")) {
+                //     throw new IllegalArgumentException("Expression of " + item
+                //             + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN");
+                // }
 
-                if (serverExpression != null && serverExpression.matches(".*[<>=].*")) {
-                    throw new IllegalArgumentException("ServerExpression of " + item
-                            + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN");
-                }
+                // if (serverExpression != null && serverExpression.matches(".*[<>=].*")) {
+                //     throw new IllegalArgumentException("ServerExpression of " + item
+                //             + " should only include the feature value/defaultValue and the operators '&&', '||' and '!', as it is BOOLEAN");
+                // }
 
                 break;
             case NUMERIC:

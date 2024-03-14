@@ -39,11 +39,11 @@ The package have been build to be used with maven. To install it, just add the f
 
     ...
 
-    <!-- PRICINGPLANS-4J -->
+    <!-- Pricing4Java -->
 
     <dependency>
         <groupId>io.github.isa-group</groupId>
-        <artifactId>pricingplans-4j</artifactId>
+        <artifactId>Pricing4Java</artifactId>
         <version>{version}</version>
     </dependency>
 

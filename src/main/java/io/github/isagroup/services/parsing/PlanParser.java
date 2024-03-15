@@ -179,7 +179,7 @@ public class PlanParser {
                         }
                         break;
                     case BOOLEAN:
-                        usageLimit.setValue((boolean) planUsageLimitMap.get("value"));
+                        usageLimit.setValue((Boolean) planUsageLimitMap.get("value"));
                         break;
                     case TEXT:
                         usageLimit.setValue((String) planUsageLimitMap.get("value"));

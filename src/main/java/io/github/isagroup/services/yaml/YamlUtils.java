@@ -21,7 +21,7 @@ import io.github.isagroup.services.serializer.PricingManagerSerializer;
  */
 public class YamlUtils {
 
-    private static final String DEFAULT_YAML_WRITE_PATH = "src/test/resources/";
+    private static final String DEFAULT_YAML_WRITE_PATH = "src/main/resources/";
 
     /**
      * This method maps the content of the YAML file located in {@code yamlPath}
@@ -57,7 +57,7 @@ public class YamlUtils {
         if (yamlPath == null) {
             throw new FilepathException("Either the file path is invalid or the file does not exist.");
         }
-        
+
         DumperOptions dump = new DumperOptions();
         dump.setIndent(2);
         dump.setPrettyFlow(true);

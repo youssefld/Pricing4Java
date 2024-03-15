@@ -52,6 +52,44 @@ public class PricingService {
         DEFAULT_VALUES.put(ValueType.TEXT, "");
     }
 
+    /**
+     * Returns the features defined in the current pricing configuration.
+     * @return the features defined 
+     * in the current pricing configuration
+     */
+    public Map<String, Feature> getPricingFeatures() {
+        PricingManager pricingManager = pricingContext.getPricingManager();
+        return pricingManager.getFeatures();
+    }
+
+    /**
+     * Returns the usage limits defined in the current pricing configuration.
+     * @return the usage limits defined 
+     * in the current pricing configuration
+     */
+    public Map<String, UsageLimit> getPricingUsageLimits() {
+        PricingManager pricingManager = pricingContext.getPricingManager();
+        return pricingManager.getUsageLimits();
+    }
+    /**
+     * Returns the plans defined in the current pricing configuration.
+     * @return the plans defined 
+     * in the current pricing configuration
+     */
+    public Map<String, Plan> getPricingPlans() {
+        PricingManager pricingManager = pricingContext.getPricingManager();
+        return pricingManager.getPlans();
+    }
+    /**
+     * Returns the add-ons defined in the current pricing configuration.
+     * @return the add-ons defined 
+     * in the current pricing configuration
+     */
+    public Map<String, AddOn> getPricingAddOns() {
+        PricingManager pricingManager = pricingContext.getPricingManager();
+        return pricingManager.getAddOns();
+    }
+
     // ------------------------- PLAN MANAGEMENT ------------------------- //
 
     /**
@@ -79,9 +117,9 @@ public class PricingService {
      * Adds a new plan to the current pricing configuration.
      * The plan must not exist and must contain all the
      * features declared on the configuration. It is recommended to use the
-     * {@link PricingContext#getFeatures()} method to get the list of features that
+     * {@link PricingManager} to get the list of features that
      * appear in the configuration. The same to get
-     * the usageLimits {@link PricingContext#getUsageLimits()}.
+     * the usageLimits.
      * 
      * @param plan {@link Plan} object that includes the details of the plan that is
      *             going to be added
@@ -406,9 +444,9 @@ public class PricingService {
     /**
      * Adds a new add on to the current pricing configuration. The add on must not 
      * exist and must contain all the features declared on the configuration. 
-     * It is recommended to use the {@link PricingContext#getFeatures()} method to get 
+     * It is recommended to use the {@link PricingManager} to get 
      * the list of features that appear in the configuration. The same to get
-     * the usageLimits ({@link PricingContext#getUsageLimits()}).
+     * the usageLimits.
      * 
      * @param addOn AddOn object to add
      * 

@@ -7,12 +7,14 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.stereotype.Component;
 
 import io.github.isagroup.exceptions.PricingPlanEvaluationException;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.FeatureStatus;
 import io.github.isagroup.models.PlanContextManager;
+import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.jwt.JwtUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -47,19 +49,9 @@ public class PricingEvaluatorUtil {
      */
     public String generateUserToken() {
 
-        PlanContextManager planContextManager = new PlanContextManager();
-        planContextManager.setUserContext(pricingContext.getUserContext());
-        planContextManager.setPlanContext(pricingContext.getPlanContext());
-
-        Map<String, Feature> features = pricingContext.getFeatures();
-
-        Map<String, FeatureStatus> featureStatuses = computeFeatureStatuses(planContextManager, features);
-
         Map<String, Object> claims = new HashMap<>();
+        
         claims.put("authorities", pricingContext.getUserAuthorities());
-        claims.put("features", featureStatuses);
-        claims.put("userContext", planContextManager.getUserContext());
-        claims.put("planContext", planContextManager.getPlanContext());
 
         String subject = "Default";
 
@@ -68,6 +60,39 @@ public class PricingEvaluatorUtil {
         } else if (pricingContext.getUserContext().containsKey("user")) {
             subject = (String) pricingContext.getUserContext().get("user");
         }
+
+        PlanContextManager planContextManager = new PlanContextManager();
+        try{
+            planContextManager.setUserContext(pricingContext.getUserContext());
+            claims.put("userContext", planContextManager.getUserContext());
+        }catch (Exception e){
+            throw new PricingPlanEvaluationException("Error while retrieving user context! Please check your PricingContext.getUserContext() method");
+        }
+
+        if (!pricingContext.userAffectedByPricing()) {
+            return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + pricingContext.getJwtExpiration()))
+                .signWith(SignatureAlgorithm.HS512, pricingContext.getJwtSecret())
+                .compact();
+        }
+
+        try{
+            planContextManager.setPlanContext(pricingContext.getPlanContext());
+        }catch (NullPointerException e){
+            throw new PricingPlanEvaluationException("Error while retrieving plan context! Please check your configuration file or add a plan with the given name");
+        }
+
+        PricingManager pricingManager = pricingContext.getPricingManager();
+
+        Map<String, Feature> features = pricingManager.getFeatures();
+
+        Map<String, FeatureStatus> featureStatuses = computeFeatureStatuses(planContextManager, features);
+
+        claims.put("features", featureStatuses);
+        claims.put("planContext", planContextManager.getPlanContext());
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -86,11 +111,16 @@ public class PricingEvaluatorUtil {
         for (String featureName : features.keySet()) {
 
             FeatureStatus featureStatus = new FeatureStatus();
+            Feature feature = features.get(featureName);
 
             String expression = features.get(featureName).getExpression();
-            Boolean eval = FeatureStatus.computeFeatureEvaluation(expression, planContextManager)
-                    .orElseThrow(() -> new PricingPlanEvaluationException("Evaluation was null"));
-            featureStatus.setEval(eval);
+            try{
+                Boolean eval = FeatureStatus.computeFeatureEvaluation(expression, planContextManager)
+                .orElseThrow(() -> new PricingPlanEvaluationException("Evaluation was null"));
+                featureStatus.setEval(eval);
+            }catch(SpelEvaluationException e){
+                throw new PricingPlanEvaluationException("Error while evaluating the expression of the feature " + featureName + "! Please check the expression");
+            }
 
             Optional<String> userContextKey = FeatureStatus.computeUserContextVariable(expression);
 
@@ -99,7 +129,12 @@ public class PricingEvaluatorUtil {
                 featureStatus.setLimit(null);
             } else {
                 featureStatus.setUsed(planContextManager.getUserContext().get(userContextKey.get()));
-                featureStatus.setLimit(planContextManager.getPlanContext().get(featureName));
+                if(feature.getExpression().contains("usageLimits")){
+                    String usageLimitName = feature.getExpression().split("usageLimits")[1].split("[',\"]")[2];
+                    featureStatus.setLimit(((Map<String, Object>)planContextManager.getPlanContext().get("usageLimits")).get(usageLimitName));
+                }else{
+                    featureStatus.setLimit(((Map<String, Object>)planContextManager.getPlanContext().get("features")).get(featureName));
+                }
 
             }
 

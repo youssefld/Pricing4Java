@@ -42,7 +42,22 @@ public abstract class PricingContext {
      */
     public int getJwtExpiration() {
         return 86400000;
-    };
+    }
+
+    /**
+     * This method can be used to determine which users are affected 
+     * by the pricing, so a pricing-driven JWT will be only generated 
+     * for them.
+     * 
+     * @return A {@link Boolean} indicating the condition to include, or not,
+     * the pricing evaluation context in the JWT.
+     * 
+     * @see PricingEvaluatorUtil#generateUserToken
+     * 
+     */
+    public Boolean userAffectedByPricing(){
+        return true;
+    }
 
     /**
      * This method should return the user context that will be used to evaluate the
@@ -91,24 +106,6 @@ public abstract class PricingContext {
         planContext.put("usageLimits", planUsageLimitMap);
 
         return planContext;
-    }
-
-    /**
-     * This method returns the features declared on the pricing configuration.
-     * 
-     * @return Map with the features
-     */
-    public final Map<String, Feature> getFeatures() {
-        return this.getPricingManager().getFeatures();
-    }
-
-    /**
-     * This method returns the usage limits declared on the pricing configuration.
-     * 
-     * @return Map with the usage limits
-     */
-    public final Map<String, UsageLimit> getUsageLimits() {
-        return this.getPricingManager().getUsageLimits();
     }
 
     /**

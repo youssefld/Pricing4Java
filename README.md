@@ -39,11 +39,11 @@ The package have been build to be used with maven. To install it, just add the f
 
     ...
 
-    <!-- PRICINGPLANS-4J -->
+    <!-- Pricing4Java -->
 
     <dependency>
         <groupId>io.github.isa-group</groupId>
-        <artifactId>pricingplans-4j</artifactId>
+        <artifactId>Pricing4Java</artifactId>
         <version>{version}</version>
     </dependency>
 
@@ -628,6 +628,18 @@ public class PricingConfiguration extends PricingContext {
         // With this information, the library will be able to build the Plan object of the user from the configuration.
     }
 
+    // OPTIONALLY OVERRIDE THE FOLLOWING METHODS TO ADD CUSTOM FUNCTIONALITY
+
+    @Override
+    public int getJwtExpiration() {
+        return 86400000; // Configures a custom expiration time of the JWT in milliseconds
+    }
+
+    @Override
+    public Boolean userAffectedByPricing(){
+        return true; // A condition that determines wether an user should be affected by the pricing or not
+    }
+
 }
 
 ```
@@ -636,9 +648,7 @@ By creating this component inside your project, spring will be able to use this 
 
 The class also provides a set of methods that can be used to retrieve information about the pricing configuration anywhere in the app. By injecting the component in any class, the following methods can be used:
 
-- **getPlanContext**: Returns a Map<String, Plan> that represents the plan context that is going to be evaluated.
-
-- **getFeatures**: Returns the features declared on the pricing configuration.
+- **getPlanContext**: Returns a Map<String, Object> that represents the plan context that is going to be evaluated.
 
 - **getPricingManager**: Maps the information of the YAML configuration file to a PricingManager object to easily operate with pricing properties.
 
@@ -722,6 +732,10 @@ This class offers a set of methods that can be used to manage the pricing config
 
 | **Method**                                                                                   | **Description**                                                                                                                                                                                        |
 | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Map<String, Feature> getPricingFeatures()                                                        | Returns the features defined in the pricing configuration.                                                                                                                                      |
+| Map<String, UsageLimit> getPricingUsageLimits()                                                        | Returns the usage limits defined in the pricing configuration.                                                                                                                                      |
+| Map<String, Plan> getPricingPlans()                                                        | Returns the plans defined in the pricing configuration.                                                                                                                                      |
+| Map<String, AddOn> getPricingAddOns()                                                        | Returns the add-ons defined in the pricing configuration.                                                                                                                                      |
 | Plan getPlanFromName(String planName)                                                        | Returns the plan of the configuration that matchs the given name.                                                                                                                                      |
 | void addFeatureToConfiguration(String name, Feature feature)                                 | Creates a new global feature in the pricing configuration and adds it to all the plans using its default value.                                                                                        |
 | void addUsageLimitToConfiguration(UsageLimit usageLimit)                                     | Creates a new global usageLimit in the pricing configuration and adds it to all the plans using its default value.                                                                                     |

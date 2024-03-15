@@ -1,6 +1,7 @@
 package io.github.isagroup.models;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import lombok.EqualsAndHashCode;
@@ -24,6 +25,10 @@ public class PricingManager {
     private Map<String, UsageLimit> usageLimits;
     private Map<String, Plan> plans;
     private Map<String, AddOn> addOns;
+
+    public List<String> getPlanNames() {
+        return List.copyOf(this.plans.keySet());
+    }
 
     public Map<String, Object> getPlanUsageLimits(String planName) {
         Map<String, Object> usageLimitsContext = new LinkedHashMap<>();

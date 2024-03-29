@@ -1,5 +1,7 @@
 # Pricing4Java
 
+![Maven Central Version](https://img.shields.io/maven-central/v/io.github.isa-group/Pricing4Java)
+
 Pricing4Java is a Java-based toolkit designed to enhance the server-side functionality of a pricing-driven SaaS by enabling the seamless integration of pricing plans into the application logic. The package provides a suite of components that are predicated on the Yaml4SaaS syntax, a specification that facilitates the definition of system's pricing and its features alongside their respective evaluation expressions, grouping them within plans and add-ons, as well as establishing usage limits.
 
 Pricing4Java has been designed to be used with [Pricing4React](https://github.com/isa-group/Pricing4React), a frontend library that consumes the generated JWT and toggles on and off features based on the user pricing plan.

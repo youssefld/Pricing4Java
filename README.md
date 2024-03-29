@@ -23,10 +23,6 @@ Pricing4Java is built to be used with Maven. To install, simply add the followin
 </dependencies>
 ```
 
-## Getting Started
-
-To begin using Pricing4Java, you will need to declare a pricing configuration file in YAML format using the Yaml4SaaS syntax and configure the pricing context in your application. These initial steps are designed to be quick and straightforward, following our step-by-step guides in the [documentation website](https://pricing4saas-docs.vercel.app).
-
 ## Contributions
 
 This project is part of the research activities of the [ISA Group](https://www.isa.us.es/3.0/). It is still under development and should be used with caution. We are not responsible for any damage caused by the use of this software. If you find any bugs or have any suggestions, please let us know by opening an issue in the [GitHub repository](https://github.com/isa-group/Pricing4Java/issues).

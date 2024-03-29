@@ -1,8 +1,8 @@
 # Pricing4Java
 
-Pricing4Java is a Java-based toolkit designed to enhance server-side functionality for pricing-driven SaaS applications, facilitating seamless integration of pricing plans into the application logic. This package offers a suite of components based on the Yaml4SaaS syntax, making it easy to define system pricing, features along with their evaluation expressions, grouping them within plans and add-ons, and setting usage limits.
+Pricing4Java is a Java-based toolkit designed to enhance the server-side functionality of a pricing-driven SaaS by enabling the seamless integration of pricing plans into the application logic. The package provides a suite of components that are predicated on the Yaml4SaaS syntax, a specification that facilitates the definition of system's pricing and its features alongside their respective evaluation expressions, grouping them within plans and add-ons, as well as establishing usage limits.
 
-This toolkit is intended for use with [Pricing4React](https://github.com/isa-group/Pricing4React.git), a frontend library that consumes the generated JWT to toggle features on and off based on the user's pricing plan.
+Pricing4Java has been designed to be used with [Pricing4React](https://github.com/isa-group/Pricing4React), a frontend library that consumes the generated JWT and toggles on and off features based on the user pricing plan.
 
 For detailed information on how to get started with Pricing4Java, advanced configurations, and integration guides, please visit our [official documentation website](https://pricing4saas-docs.vercel.app).
 

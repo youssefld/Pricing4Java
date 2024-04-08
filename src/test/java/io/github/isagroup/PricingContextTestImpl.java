@@ -61,12 +61,6 @@ public class PricingContextTestImpl extends PricingContext {
         this.userPlan = userPlan;
     }
 
-    @Override
-    public Object getUserAuthorities() {
-
-        return this.userAuthorities;
-    }
-
     public void setUserAuthorities(Map<String, Object> userAuthorities) {
         this.userAuthorities = userAuthorities;
     }

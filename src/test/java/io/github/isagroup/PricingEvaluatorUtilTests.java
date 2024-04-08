@@ -10,7 +10,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.github.isagroup.services.jwt.JwtUtils;
+import io.github.isagroup.services.jwt.PricingJwtUtils;
 
 public class PricingEvaluatorUtilTests {
 
@@ -26,7 +26,7 @@ public class PricingEvaluatorUtilTests {
 
         private PricingEvaluatorUtil pricingEvaluatorUtil;
 
-        private JwtUtils jwtUtils;
+        private PricingJwtUtils jwtUtils;
 
         @BeforeEach
         public void setUp() {
@@ -51,7 +51,7 @@ public class PricingEvaluatorUtilTests {
 
                 this.pricingContext = pricingContext;
                 this.pricingEvaluatorUtil = new PricingEvaluatorUtil(pricingContext);
-                this.jwtUtils = new JwtUtils(pricingContext);
+                this.jwtUtils = new PricingJwtUtils(pricingContext);
         }
 
         @Test

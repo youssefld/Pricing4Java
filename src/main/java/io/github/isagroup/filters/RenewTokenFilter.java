@@ -14,14 +14,14 @@ import org.springframework.beans.factory.annotation.Value;
 
 import io.github.isagroup.PricingContext;
 import io.github.isagroup.PricingEvaluatorUtil;
-import io.github.isagroup.services.jwt.JwtUtils;
+import io.github.isagroup.services.jwt.PricingJwtUtils;
 
 import java.util.Map;
 
 public class RenewTokenFilter extends OncePerRequestFilter {
 
 	@Autowired
-	private JwtUtils jwtUtils;
+	private PricingJwtUtils jwtUtils;
 
 	@Value("${petclinic.app.jwtSecret}")
 	private String jwtSecret;

@@ -24,12 +24,12 @@ import io.github.isagroup.annotations.PricingPlanAware;
 import io.github.isagroup.annotations.PricingPlanAwareAspect;
 import io.github.isagroup.exceptions.FilepathException;
 import io.github.isagroup.exceptions.PricingPlanEvaluationException;
-import io.github.isagroup.services.jwt.JwtUtils;
+import io.github.isagroup.services.jwt.PricingJwtUtils;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Import({ io.github.isagroup.annotations.PricingPlanAwareAspect.class, io.github.isagroup.PricingEvaluatorUtil.class,
-        io.github.isagroup.services.jwt.JwtUtils.class })
+        io.github.isagroup.services.jwt.PricingJwtUtils.class })
 public class PricingPlanAwareTests {
 
     private static final String JWT_SECRET_TEST = "secret";
@@ -122,7 +122,7 @@ public class PricingPlanAwareTests {
     private PricingEvaluatorUtil pricingEvaluatorUtil;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private PricingJwtUtils jwtUtils;
 
     @Mock
     private ProceedingJoinPoint joinPoint;

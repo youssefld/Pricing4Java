@@ -22,16 +22,16 @@ import io.jsonwebtoken.UnsupportedJwtException;
  * Utility class that provides methods to generate and manage JWT.
  */
 @Component
-public class JwtUtils {
+public class PricingJwtUtils {
 
 	@Autowired
 	private PricingContext pricingContext;
 
-	public JwtUtils(PricingContext pricingContext) {
+	public PricingJwtUtils(PricingContext pricingContext) {
 		this.pricingContext = pricingContext;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
+	private static final Logger logger = LoggerFactory.getLogger(PricingJwtUtils.class);
 
 	/**
 	 * Extracts the subject from the given JWT.

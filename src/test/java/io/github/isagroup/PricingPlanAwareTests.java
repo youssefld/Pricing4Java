@@ -98,16 +98,6 @@ public class PricingPlanAwareTests {
                 return "BASIC";
             }
 
-            @Override
-            public Object getUserAuthorities() {
-                Map<String, String> userAuthorities = new HashMap<>();
-                userAuthorities.put("role", "admin");
-                userAuthorities.put("username", "admin1");
-                userAuthorities.put("password", "4dm1n");
-
-                return userAuthorities;
-            }
-
         }
 
     }

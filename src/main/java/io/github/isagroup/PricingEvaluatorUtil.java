@@ -50,8 +50,6 @@ public class PricingEvaluatorUtil {
     public String generateUserToken() {
 
         Map<String, Object> claims = new HashMap<>();
-        
-        claims.put("authorities", pricingContext.getUserAuthorities());
 
         String subject = "Default";
 
@@ -176,7 +174,6 @@ public class PricingEvaluatorUtil {
 
         Map<String, Object> claims = new HashMap<>();
 
-        claims.put("authorities", pricingContext.getUserAuthorities());
         claims.put("features", features);
         claims.put("userContext", pricingContext.getUserContext());
         claims.put("planContext", pricingContext.getPlanContext());

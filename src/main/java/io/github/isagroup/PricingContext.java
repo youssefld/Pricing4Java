@@ -79,14 +79,6 @@ public abstract class PricingContext {
     public abstract String getUserPlan();
 
     /**
-     * This method should return the object used inside the application to determine
-     * the authority of the user inside the JWT.
-     * 
-     * @return Current user's authorities object
-     */
-    public abstract Object getUserAuthorities();
-
-    /**
      * This method returns the plan context of the current user, represented by a
      * {@link Map}. It's used to evaluate the pricing plan.
      * 

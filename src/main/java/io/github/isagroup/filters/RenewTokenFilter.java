@@ -16,6 +16,8 @@ import io.github.isagroup.PricingContext;
 import io.github.isagroup.PricingEvaluatorUtil;
 import io.github.isagroup.services.jwt.PricingJwtUtils;
 
+import java.util.Map;
+
 public class RenewTokenFilter extends OncePerRequestFilter {
 
 	@Autowired
@@ -34,29 +36,38 @@ public class RenewTokenFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		try {
-			String jwt = parseJwt(request);
+		String pricingJwt = parsePricingJwt(request);
+		String authJwt = parseAuthJwt(request);
 
-			if (jwt != null && jwtUtils.validateJwtToken(jwt) && pricingContext.userAffectedByPricing()) {
-				
-				String newToken = pricingEvaluatorUtil.generateUserToken();
+		if (authJwt != null && jwtUtils.validateJwtToken(authJwt) && pricingContext.userAffectedByPricing()) {
+			
+			String newToken = pricingEvaluatorUtil.generateUserToken();
 
-				String newTokenFeatures = jwtUtils.getFeaturesFromJwtToken(newToken).toString();
-				String jwtFeatures = jwtUtils.getFeaturesFromJwtToken(jwt).toString();
-
-				if (!newTokenFeatures.equals(jwtFeatures)) {
-					response.addHeader("New-Token", newToken);
-				}
+			String newTokenFeatures = jwtUtils.getFeaturesFromJwtToken(newToken).toString();
+			String jwtFeatures = "";
+			
+			if (pricingJwt != null && !pricingJwt.equals("null")) jwtFeatures = jwtUtils.getFeaturesFromJwtToken(pricingJwt).toString();
+			
+			if (!newTokenFeatures.equals(jwtFeatures)) {
+				response.addHeader("Pricing-Token", newToken);
 			}
-		} catch (Exception e) {
-			logger.error("Cannot set user authentication: {}", e);
-			logger.info("Anonymous user logged");
+			
 		}
 
 		filterChain.doFilter(request, response);
 	}
 
-	private String parseJwt(HttpServletRequest request) {
+	private String parsePricingJwt(HttpServletRequest request) {
+		String headerPricing = request.getHeader("Pricing-Token");
+
+		if (StringUtils.hasText(headerPricing)) {
+			return headerPricing;
+		}
+
+		return null;
+	}
+
+	private String parseAuthJwt(HttpServletRequest request) {
 		String headerAuth = request.getHeader("Authorization");
 
 		if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {

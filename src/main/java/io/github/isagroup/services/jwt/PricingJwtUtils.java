@@ -52,7 +52,6 @@ public class PricingJwtUtils {
 	 */
 	public String generateTokenFromUsername(String username) {
 		Map<String, Object> claims = new HashMap<>();
-		claims.put("authorities", pricingContext.getUserAuthorities());
 		return Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(new Date())
 				.setExpiration(new Date((new Date()).getTime() + pricingContext.getJwtExpiration()))
 				.signWith(SignatureAlgorithm.HS512, pricingContext.getJwtSecret()).compact();

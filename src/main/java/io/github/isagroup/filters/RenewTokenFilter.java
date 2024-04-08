@@ -36,31 +36,22 @@ public class RenewTokenFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		try {
-			String pricingJwt = parsePricingJwt(request);
-			String authJwt = parseAuthJwt(request);
+		String pricingJwt = parsePricingJwt(request);
+		String authJwt = parseAuthJwt(request);
 
-			if (authJwt != null && jwtUtils.validateJwtToken(authJwt) && pricingContext.userAffectedByPricing()) {
-				
-				String newToken = pricingEvaluatorUtil.generateUserToken();
+		if (authJwt != null && jwtUtils.validateJwtToken(authJwt) && pricingContext.userAffectedByPricing()) {
+			
+			String newToken = pricingEvaluatorUtil.generateUserToken();
 
-				Map<String, Map<String, Object>> newTokenFeatures = jwtUtils.getFeaturesFromJwtToken(newToken);
-				Map<String, Map<String, Object>> jwtFeatures = jwtUtils.getFeaturesFromJwtToken(pricingJwt);
-
-				String newTokenFeaturesString = "";
-				String jwtFeaturesString = "";
-
-				if (newTokenFeatures != null) newTokenFeaturesString = newTokenFeatures.toString();
-				
-				if (jwtFeatures != null) jwtFeaturesString = jwtFeatures.toString();
-				
-				if (!newTokenFeaturesString.equals(jwtFeaturesString)) {
-					response.addHeader("Pricing-Token", newToken);
-				}
+			String newTokenFeatures = jwtUtils.getFeaturesFromJwtToken(newToken).toString();
+			String jwtFeatures = "";
+			
+			if (pricingJwt != null && !pricingJwt.equals("null")) jwtFeatures = jwtUtils.getFeaturesFromJwtToken(pricingJwt).toString();
+			
+			if (!newTokenFeatures.equals(jwtFeatures)) {
+				response.addHeader("Pricing-Token", newToken);
 			}
-		} catch (Exception e) {
-			logger.error("Cannot set user authentication: {}", e);
-			logger.info("Anonymous user logged");
+			
 		}
 
 		filterChain.doFilter(request, response);

@@ -2,10 +2,10 @@ package io.github.isagroup.filters;
 
 import java.io.IOException;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -14,14 +14,14 @@ import org.springframework.beans.factory.annotation.Value;
 
 import io.github.isagroup.PricingContext;
 import io.github.isagroup.PricingEvaluatorUtil;
-import io.github.isagroup.services.jwt.JwtUtils;
+import io.github.isagroup.services.jwt.PricingJwtUtils;
 
 import java.util.Map;
 
 public class RenewTokenFilter extends OncePerRequestFilter {
 
 	@Autowired
-	private JwtUtils jwtUtils;
+	private PricingJwtUtils jwtUtils;
 
 	@Value("${petclinic.app.jwtSecret}")
 	private String jwtSecret;

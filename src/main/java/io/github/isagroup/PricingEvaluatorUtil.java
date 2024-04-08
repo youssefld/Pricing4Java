@@ -15,7 +15,7 @@ import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.FeatureStatus;
 import io.github.isagroup.models.PlanContextManager;
 import io.github.isagroup.models.PricingManager;
-import io.github.isagroup.services.jwt.JwtUtils;
+import io.github.isagroup.services.jwt.PricingJwtUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -27,14 +27,14 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class PricingEvaluatorUtil {
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private PricingJwtUtils jwtUtils;
 
     @Autowired
     private PricingContext pricingContext;
 
     public PricingEvaluatorUtil(PricingContext pricingContext) {
         this.pricingContext = pricingContext;
-        this.jwtUtils = new JwtUtils(pricingContext);
+        this.jwtUtils = new PricingJwtUtils(pricingContext);
     }
 
     Logger logger = Logger.getLogger(PricingEvaluatorUtil.class.getName());

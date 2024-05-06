@@ -121,7 +121,7 @@ public class PricingJwtUtils {
 	 */
 	public boolean validateJwtToken(String authToken) {
 		try {
-			Jwts.parser().setSigningKey(pricingContext.getJwtSecret()).parseClaimsJws(authToken);
+			Jwts.parser().setSigningKey(pricingContext.getAuthJwtSecret()).parseClaimsJws(authToken);
 			return true;
 		} catch (SignatureException e) {
 			logger.error("Invalid JWT signature: {}", e.getMessage());

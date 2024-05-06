@@ -30,10 +30,18 @@ public abstract class PricingContext {
     public abstract String getConfigFilePath();
 
     /**
-     * Returns the secret used to encode the JWT.
+     * Returns the secret used to encode the pricing JWT.
      * * @return JWT secret String
      */
     public abstract String getJwtSecret();
+
+    /**
+     * Returns the secret used to encode the authorization JWT.
+     * * @return JWT secret String
+     */
+    public String getAuthJwtSecret(){
+        return this.getJwtSecret();
+    }
 
     /**
      * Returns the expiration time of the JWT in milliseconds

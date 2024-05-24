@@ -28,12 +28,12 @@ public class PricingConfigExpirationTest {
 
     @BeforeEach
     void setup() {
-        this.pricingContext = new ShortJwtConfig();
+        this.pricingContext = new ShortExpirationConfig();
         this.pricingEvaluatorUtil = new PricingEvaluatorUtil(pricingContext);
         this.pricingJwtUtils = new PricingJwtUtils(pricingContext);
     }
 
-    private class ShortJwtConfig extends PricingContext {
+    private class ShortExpirationConfig extends PricingContext {
 
         @Override
         public String getConfigFilePath() {

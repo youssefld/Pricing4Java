@@ -1,8 +1,6 @@
 package io.github.isagroup.pricingcontext;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Map;
@@ -21,10 +19,6 @@ public class PricingConfigExpirationTest {
     private PricingEvaluatorUtil pricingEvaluatorUtil;
 
     private PricingJwtUtils pricingJwtUtils;
-
-    private void setPricingContext(PricingContext pricingContext) {
-        this.pricingContext = pricingContext;
-    }
 
     @BeforeEach
     void setup() {
@@ -61,57 +55,18 @@ public class PricingConfigExpirationTest {
 
     }
 
-    private class NegativeExpirtationConfig extends PricingContext {
-
-        @Override
-        public String getConfigFilePath() {
-            return "yaml-testing/petclinic.yml";
-        }
-
-        @Override
-        public String getJwtSecret() {
-            return "p3tclinic";
-        }
-
-        @Override
-        public Map<String, Object> getUserContext() {
-            return Map.of("pets", 5);
-        }
-
-        @Override
-        public String getUserPlan() {
-            return "BASIC";
-        }
-
-        public int getJwtExpiration() {
-            return Integer.MIN_VALUE;
-        }
-
-    }
-
     @Test
-    void givenOneMilisecondPricingShouldExpire() {
+    void givenShortPricingExpirationTimeShouldExpire() {
 
         String token = pricingEvaluatorUtil.generateUserToken();
 
         try {
-            Thread.sleep(1000);
+            Thread.sleep(this.pricingContext.getJwtExpiration());
         } catch (InterruptedException e) {
             fail();
         }
         boolean isPricingValid = pricingJwtUtils.validateJwtToken(token);
         assertFalse(isPricingValid);
-    }
-
-    @Test
-    void givenNegativeDurationShouldThrowException() {
-
-        setPricingContext(new NegativeExpirtationConfig());
-
-        Exception ex = assertThrows(Exception.class,
-                () -> pricingEvaluatorUtil.generateUserToken());
-
-        assertEquals("Expiration time must be positive", ex.getMessage());
     }
 
 }

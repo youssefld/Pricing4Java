@@ -356,4 +356,85 @@ public class YamlParsingTests {
 
         assertEquals("Quip", pricingManager.getSaasName(), "The saasName should be Quip");
     }
+
+    @Test
+    @Order(330)
+    void parseUserGuiding2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/userguiding.yml");
+
+        assertEquals("UserGuiding", pricingManager.getSaasName(), "The saasName should be UserGuiding");
+    }
+
+    @Test
+    @Order(340)
+    void parseUserGuiding2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/userguiding.yml");
+
+        assertEquals("UserGuiding", pricingManager.getSaasName(), "The saasName should be UserGuiding");
+    }
+
+    @Test
+    @Order(350)
+    void parseUserGuiding2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/userguiding.yml");
+
+        assertEquals("UserGuiding", pricingManager.getSaasName(), "The saasName should be UserGuiding");
+    }
+
+    @Test
+    @Order(360)
+    void parseUserGuiding2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/userguiding.yml");
+
+        assertEquals("UserGuiding", pricingManager.getSaasName(), "The saasName should be UserGuiding");
+    }
+
+    @Test
+    @Order(370)
+    void parseDatabox2020ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2020/databox.yml");
+
+        assertEquals("Databox", pricingManager.getSaasName(), "The saasName should be Databox");
+    }
+
+    @Test
+    @Order(380)
+    void parseDatabox2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/databox.yml");
+
+        assertEquals("Databox", pricingManager.getSaasName(), "The saasName should be Databox");
+    }
+
+    @Test
+    @Order(390)
+    void parseDatabox2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/databox.yml");
+
+        assertEquals("Databox", pricingManager.getSaasName(), "The saasName should be Databox");
+    }
+
+    @Test
+    @Order(400)
+    void parseDatabox2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/databox.yml");
+
+        assertEquals("Databox", pricingManager.getSaasName(), "The saasName should be Databox");
+    }
+
+    @Test
+    @Order(410)
+    void parseDatabox2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/databox.yml");
+
+        assertEquals("Databox", pricingManager.getSaasName(), "The saasName should be Databox");
+    }
 }

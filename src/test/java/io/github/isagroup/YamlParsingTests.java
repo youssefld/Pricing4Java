@@ -249,4 +249,111 @@ public class YamlParsingTests {
         assertEquals("ClickUp", pricingManager.getSaasName(), "The saasName should be ClickUp");
     }
 
+    @Test
+    @Order(220)
+    void parseUserGuiding2020ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2020/userguiding.yml");
+
+        assertEquals("UserGuiding", pricingManager.getSaasName(), "The saasName should be UserGuiding");
+    }
+
+    @Test
+    @Order(230)
+    void parseHyperContext2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/hypercontext.yml");
+
+        assertEquals("HyperContext", pricingManager.getSaasName(), "The saasName should be HyperContext");
+    }
+
+    @Test
+    @Order(240)
+    void parseTableau2020ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2020/tableau.yml");
+
+        assertEquals("Tableau", pricingManager.getSaasName(), "The saasName should be Tableau");
+    }
+
+    @Test
+    @Order(250)
+    void parseTableau2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/tableau.yml");
+
+        assertEquals("Tableau", pricingManager.getSaasName(), "The saasName should be Tableau");
+    }
+
+    @Test
+    @Order(260)
+    void parseTableau2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/tableau.yml");
+
+        assertEquals("Tableau", pricingManager.getSaasName(), "The saasName should be Tableau");
+    }
+
+    @Test
+    @Order(270)
+    void parseTableau2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/tableau.yml");
+
+        assertEquals("Tableau", pricingManager.getSaasName(), "The saasName should be Tableau");
+    }
+
+    @Test
+    @Order(270)
+    void parseTableau2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/tableau.yml");
+
+        assertEquals("Tableau", pricingManager.getSaasName(), "The saasName should be Tableau");
+    }
+
+    @Test
+    @Order(280)
+    void parseQuip2020ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2020/quip.yml");
+
+        assertEquals("Quip", pricingManager.getSaasName(), "The saasName should be Quip");
+    }
+
+    @Test
+    @Order(290)
+    void parseQuip2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/quip.yml");
+
+        assertEquals("Quip", pricingManager.getSaasName(), "The saasName should be Quip");
+    }
+
+    @Test
+    @Order(300)
+    void parseQuip2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/quip.yml");
+
+        assertEquals("Quip", pricingManager.getSaasName(), "The saasName should be Quip");
+    }
+
+    @Test
+    @Order(310)
+    void parseQuip2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/quip.yml");
+
+        assertEquals("Quip", pricingManager.getSaasName(), "The saasName should be Quip");
+    }
+
+    @Test
+    @Order(320)
+    void parseQuip2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/quip.yml");
+
+        assertEquals("Quip", pricingManager.getSaasName(), "The saasName should be Quip");
+    }
 }

@@ -437,4 +437,31 @@ public class YamlParsingTests {
 
         assertEquals("Databox", pricingManager.getSaasName(), "The saasName should be Databox");
     }
+
+    @Test
+    @Order(420)
+    void parseEvernote2020ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2020/evernote.yml");
+
+        assertEquals("Evernote", pricingManager.getSaasName(), "The saasName should be Evernote");
+    }
+
+    @Test
+    @Order(430)
+    void parseEvernote2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/evernote.yml");
+
+        assertEquals("Evernote", pricingManager.getSaasName(), "The saasName should be Evernote");
+    }
+
+    @Test
+    @Order(440)
+    void parseEvernote2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/evernote.yml");
+
+        assertEquals("Evernote", pricingManager.getSaasName(), "The saasName should be Evernote");
+    }
 }

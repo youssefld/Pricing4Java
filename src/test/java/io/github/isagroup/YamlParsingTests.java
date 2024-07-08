@@ -461,7 +461,70 @@ public class YamlParsingTests {
     void parseEvernote2022ToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/evernote.yml");
-
+        System.out.println(pricingManager.getFeatures());
         assertEquals("Evernote", pricingManager.getSaasName(), "The saasName should be Evernote");
+    }
+
+    @Test
+    @Order(450)
+    void parseEvernote2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/evernote.yml");
+        System.out.println(pricingManager.getFeatures());
+        assertEquals("Evernote", pricingManager.getSaasName(), "The saasName should be Evernote");
+    }
+
+    @Test
+    @Order(460)
+    void parseEvernote2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/evernote.yml");
+        System.out.println(pricingManager.getFeatures());
+        assertEquals("Evernote", pricingManager.getSaasName(), "The saasName should be Evernote");
+    }
+
+    @Test
+    @Order(470)
+    void parseCanva2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/canva.yml");
+        System.out.println(pricingManager.getFeatures());
+        assertEquals("Canva", pricingManager.getSaasName(), "The saasName should be Canva");
+    }
+
+    @Test
+    @Order(480)
+    void parseCanva2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/canva.yml");
+        System.out.println(pricingManager.getFeatures());
+        assertEquals("Canva", pricingManager.getSaasName(), "The saasName should be Canva");
+    }
+
+    @Test
+    @Order(480)
+    void parseCanva2020ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2020/canva.yml");
+        System.out.println(pricingManager.getFeatures());
+        assertEquals("Canva", pricingManager.getSaasName(), "The saasName should be Canva");
+    }
+
+    @Test
+    @Order(490)
+    void parseCanva2019ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2019/canva.yml");
+        System.out.println(pricingManager.getFeatures());
+        assertEquals("Canva", pricingManager.getSaasName(), "The saasName should be Canva");
+    }
+
+    @Test
+    @Order(500)
+    void parseCanva2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/canva.yml");
+        System.out.println(pricingManager.getFeatures());
+        assertEquals("Canva", pricingManager.getSaasName(), "The saasName should be Canva");
     }
 }

@@ -921,6 +921,33 @@ public class YamlParsingTests {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/mailchimp.yml");
         
-        assertEquals("MailChimp", pricingManager.getSaasName(), "The saasName should be MailChimp");
+        assertEquals("MailChimp - Marketing", pricingManager.getSaasName(), "The saasName should be MailChimp");
+    }
+
+    @Test
+    @Order(920)
+    void parseMailchimp2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/mailchimp.yml");
+        
+        assertEquals("MailChimp - Marketing", pricingManager.getSaasName(), "The saasName should be MailChimp");
+    }
+
+    @Test
+    @Order(930)
+    void parseMailchimp2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/mailchimp.yml");
+        
+        assertEquals("MailChimp - Marketing", pricingManager.getSaasName(), "The saasName should be MailChimp");
+    }
+
+    @Test
+    @Order(940)
+    void parseMailchimp2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/mailchimp.yml");
+        
+        assertEquals("MailChimp - Marketing", pricingManager.getSaasName(), "The saasName should be MailChimp");
     }
 }

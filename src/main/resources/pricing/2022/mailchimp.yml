@@ -1,20 +1,10 @@
-saasName: MailChimp - Marketing
-day: 30
-month: 11
-year: 2021
+saasName: MailChimp 
+day: 1
+month: 12
+year: 2022
 currency: USD
 hasAnnualPayment: false
 features:
-  contacts:
-    description: ""
-    valueType: BOOLEAN
-    defaultValue: true
-    type: DOMAIN
-  audiences:
-    description: ""
-    valueType: BOOLEAN
-    defaultValue: true
-    type: DOMAIN
   ownerRole:
     description: ""
     valueType: BOOLEAN
@@ -40,23 +30,12 @@ features:
     valueType: BOOLEAN
     defaultValue: false
     type: MANAGEMENT
-  contractProfiles:
+  contacts:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
     type: DOMAIN
-  tags:
-    description: ""
-    valueType: BOOLEAN
-    defaultValue: true
-    type: DOMAIN
-  mailchipMobileApp:
-    description: ""
-    valueType: BOOLEAN
-    defaultValue: true
-    type: INTEGRATION
-    integrationType: EXTERNAL_DEVICE
-  inbox:
+  audiences:
     description: ""
     valueType: BOOLEAN
     defaultValue: true
@@ -71,6 +50,27 @@ features:
     valueType: BOOLEAN
     defaultValue: false
     type: DOMAIN
+  contractProfiles:
+    description: ""
+    valueType: BOOLEAN
+    defaultValue: true
+    type: DOMAIN
+  tags:
+    description: ""
+    valueType: BOOLEAN
+    defaultValue: true
+    type: DOMAIN
+  inbox:
+    description: ""
+    valueType: BOOLEAN
+    defaultValue: true
+    type: DOMAIN
+  mailchipMobileApp:
+    description: ""
+    valueType: BOOLEAN
+    defaultValue: true
+    type: INTEGRATION
+    integrationType: EXTERNAL_DEVICE
   audienceDashboard:
     description: ""
     valueType: BOOLEAN
@@ -93,11 +93,6 @@ features:
     defaultValue: false
     type: DOMAIN
   purchaseLikelihood:
-    description: ""
-    valueType: BOOLEAN
-    defaultValue: false
-    type: DOMAIN
-  lookalikeAudienceFinder:
     description: ""
     valueType: BOOLEAN
     defaultValue: false
@@ -480,7 +475,7 @@ usageLimits:
   contactsLimit:
     description: ""
     valueType: NUMERIC
-    defaultValue: 2000
+    defaultValue: 500
     unit: contact
     type: NON_RENEWABLE
     linkedFeatures:
@@ -511,8 +506,16 @@ usageLimits:
   monthlyEmailSends:
     description: ""
     valueType: NUMERIC
-    defaultValue: 10000
-    unit: email
+    defaultValue: 2500
+    unit: email/month
+    type: RENEWABLE
+    linkedFeatures:
+      - emailMarketing
+  dailyEmailSends:
+    description: ""
+    valueType: NUMERIC
+    defaultValue: 500
+    unit: email/day
     type: RENEWABLE
     linkedFeatures:
       - emailMarketing
@@ -553,6 +556,8 @@ plans:
         value: 3
       monthlyEmailSends:
         value: 500000
+      dailyEmailSends:
+        value: .inf
   STANDARD:
     description: "Better insights for growing businesses that want more customers."
     monthlyPrice: 14.99
@@ -570,13 +575,13 @@ plans:
         value: true
       purchaseLikelihood:
         value: true
-      lookalikeAudienceFinder:
-        value: true
       addressFinder:
         value: true
       pageViewsWebsiteEngagement:
         value: true
       prebuiltTemplates:
+        value: true
+      customCodedTemplates:
         value: true
       removeMailchimpFooter:
         value: true
@@ -644,13 +649,13 @@ plans:
         value: true
       purchaseLikelihood:
         value: true
-      lookalikeAudienceFinder:
-        value: true
       addressFinder:
         value: true
       pageViewsWebsiteEngagement:
         value: true
       prebuiltTemplates:
+        value: true
+      customCodedTemplates:
         value: true
       removeMailchimpFooter:
         value: true
@@ -694,7 +699,7 @@ plans:
         value: true
     usageLimits:
       contactsLimit:
-        value: 200000
+        value: .inf
       audiencesLimit:
         value: .inf
       appEngagementThreshold:
@@ -702,7 +707,7 @@ plans:
       seatsLimit:
         value: .inf
       monthlyEmailSends:
-        value: 3000000
+        value: .inf
 addOns:
   customDomainAddOn:
     availableFor:

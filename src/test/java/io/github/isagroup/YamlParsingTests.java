@@ -761,4 +761,49 @@ public class YamlParsingTests {
         
         assertEquals("Zapier", pricingManager.getSaasName(), "The saasName should be Zapier");
     }
+
+    @Test
+    @Order(760)
+    void parseTrustmary2020ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2020/trustmary.yml");
+        
+        assertEquals("Trustmary", pricingManager.getSaasName(), "The saasName should be Trustmary");
+    }
+
+    @Test
+    @Order(770)
+    void parseTrustmary2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/trustmary.yml");
+        
+        assertEquals("Trustmary - Full Suite", pricingManager.getSaasName(), "The saasName should be Trustmary");
+    }
+
+    @Test
+    @Order(780)
+    void parseTrustmary2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/trustmary.yml");
+        
+        assertEquals("Trustmary", pricingManager.getSaasName(), "The saasName should be Trustmary");
+    }
+
+    @Test
+    @Order(790)
+    void parseTrustmary2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/trustmary.yml");
+        
+        assertEquals("Trustmary - Collect", pricingManager.getSaasName(), "The saasName should be Trustmary");
+    }
+
+    @Test
+    @Order(800)
+    void parseTrustmary2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/trustmary.yml");
+        
+        assertEquals("Trustmary - Collect", pricingManager.getSaasName(), "The saasName should be Trustmary");
+    }
 }

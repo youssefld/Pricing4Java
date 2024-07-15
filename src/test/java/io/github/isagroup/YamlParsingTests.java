@@ -152,11 +152,11 @@ public class YamlParsingTests {
 
     @Test
     @Order(120)
-    void parseOverleafToClassTest() {
+    void parseOverleaf2023ToClassTest() {
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/overleaf.yml");
 
-        assertEquals("Overleaf", pricingManager.getSaasName(), "The saasName should be Overleaf");
+        assertEquals("Overleaf - Individual", pricingManager.getSaasName(), "The saasName should be Overleaf");
     }
 
     @Test
@@ -805,5 +805,122 @@ public class YamlParsingTests {
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/trustmary.yml");
         
         assertEquals("Trustmary - Collect", pricingManager.getSaasName(), "The saasName should be Trustmary");
+    }
+
+    @Test
+    @Order(810)
+    void parseOverleaf2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/overleaf.yml");
+        
+        assertEquals("Overleaf", pricingManager.getSaasName(), "The saasName should be Overleaf");
+    }
+
+    @Test
+    @Order(820)
+    void parseOverleaf2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/overleaf.yml");
+        
+        assertEquals("Overleaf", pricingManager.getSaasName(), "The saasName should be Overleaf");
+    }
+
+    @Test
+    @Order(830)
+    void parseOverleaf2020ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2020/overleaf.yml");
+        
+        assertEquals("Overleaf", pricingManager.getSaasName(), "The saasName should be Overleaf");
+    }
+
+    @Test
+    @Order(840)
+    void parseOverleaf2019ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2019/overleaf.yml");
+        
+        assertEquals("Overleaf", pricingManager.getSaasName(), "The saasName should be Overleaf");
+    }
+
+    @Test
+    @Order(850)
+    void parseOverleaf2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/overleaf.yml");
+        
+        assertEquals("Overleaf - Individual", pricingManager.getSaasName(), "The saasName should be Overleaf");
+    }
+
+    @Test
+    @Order(850)
+    void parseCrowdcast2020ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2020/crowdcast.yml");
+        
+        assertEquals("Crowdcast", pricingManager.getSaasName(), "The saasName should be Crowdcast");
+    }
+
+    @Test
+    @Order(860)
+    void parseCrowdcast2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/crowdcast.yml");
+        
+        assertEquals("Crowdcast", pricingManager.getSaasName(), "The saasName should be Crowdcast");
+    }
+
+    @Test
+    @Order(870)
+    void parseCrowdcast2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/crowdcast.yml");
+        
+        assertEquals("Crowdcast", pricingManager.getSaasName(), "The saasName should be Crowdcast");
+    }
+
+    @Test
+    @Order(880)
+    void parseCrowdcast2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/crowdcast.yml");
+        
+        assertEquals("Crowdcast", pricingManager.getSaasName(), "The saasName should be Crowdcast");
+    }
+
+    @Test
+    @Order(890)
+    void parseCrowdcast2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/crowdcast.yml");
+        
+        assertEquals("Crowdcast", pricingManager.getSaasName(), "The saasName should be Crowdcast");
+    }
+
+    @Test
+    @Order(900)
+    void parseMailchimp2019ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2019/mailchimp.yml");
+        
+        assertEquals("MailChimp", pricingManager.getSaasName(), "The saasName should be MailChimp");
+    }
+
+    @Test
+    @Order(910)
+    void parseMailchimp2020ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2020/mailchimp.yml");
+        
+        assertEquals("MailChimp", pricingManager.getSaasName(), "The saasName should be MailChimp");
+    }
+
+    @Test
+    @Order(910)
+    void parseMailchimp2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/mailchimp.yml");
+        
+        assertEquals("MailChimp", pricingManager.getSaasName(), "The saasName should be MailChimp");
     }
 }

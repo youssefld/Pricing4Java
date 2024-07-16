@@ -950,4 +950,139 @@ public class YamlParsingTests {
         
         assertEquals("MailChimp - Marketing", pricingManager.getSaasName(), "The saasName should be MailChimp");
     }
+
+    @Test
+    @Order(950)
+    void parseDeskera2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/deskera.yml");
+        
+        assertEquals("Deskera", pricingManager.getSaasName(), "The saasName should be Deskera");
+    }
+
+    @Test
+    @Order(960)
+    void parseDeskera2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/deskera.yml");
+        
+        assertEquals("Deskera", pricingManager.getSaasName(), "The saasName should be Deskera");
+    }
+
+    @Test
+    @Order(970)
+    void parseDeskera2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/deskera.yml");
+        
+        assertEquals("Deskera", pricingManager.getSaasName(), "The saasName should be Deskera");
+    }
+
+    @Test
+    @Order(960)
+    void parseDeskera2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/deskera.yml");
+        
+        assertEquals("Deskera", pricingManager.getSaasName(), "The saasName should be Deskera");
+    }
+
+    @Test
+    @Order(970)
+    void parseSalesforce2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/salesforce.yml");
+        
+        assertEquals("Salesforce - SalesCloud", pricingManager.getSaasName(), "The saasName should be Salesforce");
+    }
+
+    @Test
+    @Order(970)
+    void parseSalesforce2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/salesforce.yml");
+        
+        assertEquals("Salesforce - SalesCloud", pricingManager.getSaasName(), "The saasName should be Salesforce");
+    }
+
+    @Test
+    @Order(980)
+    void parseSalesforce2020ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2020/salesforce.yml");
+        
+        assertEquals("Salesforce - SalesCloud", pricingManager.getSaasName(), "The saasName should be Salesforce");
+    }
+
+    @Test
+    @Order(990)
+    void parseSalesforce2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/salesforce.yml");
+        
+        assertEquals("Salesforce - SalesCloud", pricingManager.getSaasName(), "The saasName should be Salesforce");
+    }
+
+    @Test
+    @Order(1000)
+    void parseHyperContext2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/hypercontext.yml");
+        
+        assertEquals("HyperContext", pricingManager.getSaasName(), "The saasName should be HyperContext");
+    }
+
+    @Test
+    @Order(1110)
+    void parseHyperContext2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/hypercontext.yml");
+        
+        assertEquals("HyperContext", pricingManager.getSaasName(), "The saasName should be HyperContext");
+    }
+
+    @Test
+    @Order(1120)
+    void parseHyperContext2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/hypercontext.yml");
+        
+        assertEquals("HyperContext", pricingManager.getSaasName(), "The saasName should be HyperContext");
+    }
+
+    @Test
+    @Order(1130)
+    void parseDropbox2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/dropbox.yml");
+        
+        assertEquals("Dropbox", pricingManager.getSaasName(), "The saasName should be Dropbox");
+    }
+
+    @Test
+    @Order(1140)
+    void parseDropbox2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/dropbox.yml");
+        
+        assertEquals("Dropbox", pricingManager.getSaasName(), "The saasName should be Dropbox");
+    }
+
+    @Test
+    @Order(1150)
+    void parseDropbox2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/dropbox.yml");
+        
+        assertEquals("Dropbox", pricingManager.getSaasName(), "The saasName should be Dropbox");
+    }
+
+    @Test
+    @Order(1160)
+    void parseDropbox2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/dropbox.yml");
+        
+        assertEquals("Dropbox", pricingManager.getSaasName(), "The saasName should be Dropbox");
+    }
 }

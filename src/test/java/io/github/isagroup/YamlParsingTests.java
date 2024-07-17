@@ -1139,4 +1139,67 @@ public class YamlParsingTests {
         
         assertEquals("Box", pricingManager.getSaasName(), "The saasName should be Box");
     }
+
+    @Test
+    @Order(1230)
+    void parseOpenPhone2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/openphone.yml");
+        
+        assertEquals("OpenPhone", pricingManager.getSaasName(), "The saasName should be OpenPhone");
+    }
+
+    @Test
+    @Order(1240)
+    void parseOpenPhone2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/openphone.yml");
+        
+        assertEquals("OpenPhone", pricingManager.getSaasName(), "The saasName should be OpenPhone");
+    }
+
+    @Test
+    @Order(1250)
+    void parseOpenPhone2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/openphone.yml");
+        
+        assertEquals("OpenPhone", pricingManager.getSaasName(), "The saasName should be OpenPhone");
+    }
+
+    @Test
+    @Order(1260)
+    void parseNotion2021ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2021/notion.yml");
+        
+        assertEquals("Notion", pricingManager.getSaasName(), "The saasName should be Notion");
+    }
+
+    @Test
+    @Order(1270)
+    void parseNotion2022ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2022/notion.yml");
+        
+        assertEquals("Notion", pricingManager.getSaasName(), "The saasName should be Notion");
+    }
+
+    @Test
+    @Order(1280)
+    void parseNotion2023ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2023/notion.yml");
+        
+        assertEquals("Notion", pricingManager.getSaasName(), "The saasName should be Notion");
+    }
+
+    @Test
+    @Order(1290)
+    void parseNotion2024ToClassTest() {
+
+        PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml("pricing/2024/notion.yml");
+        
+        assertEquals("Notion", pricingManager.getSaasName(), "The saasName should be Notion");
+    }
 }

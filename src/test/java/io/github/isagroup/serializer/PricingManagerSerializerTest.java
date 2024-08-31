@@ -3,6 +3,7 @@ package io.github.isagroup.serializer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -34,6 +35,8 @@ public class PricingManagerSerializerTest {
     private PricingManager initPricingManager() {
         PricingManager pricingManager = new PricingManager();
 
+        pricingManager.setCreatedAt(LocalDate.now());
+
         Domain domain = new Domain();
         domain.setName("domain");
         domain.setDefaultValue("Bar");
@@ -58,7 +61,7 @@ public class PricingManagerSerializerTest {
     }
 
     @Test
-    public void givenNoFeatures_should_ThrowException() {
+    public void givenNoFeaturesShouldThrowException() {
 
         PricingManager pricingManager = initPricingManager();
 
@@ -75,7 +78,7 @@ public class PricingManagerSerializerTest {
     }
 
     @Test
-    public void givenNoPlansAndAddOns_should_ThrowException() {
+    public void givenNoPlansAndAddOnsShouldThrowException() {
 
         PricingManager pricingManager = initPricingManager();
         pricingManager.setPlans(null);
@@ -92,7 +95,7 @@ public class PricingManagerSerializerTest {
     }
 
     @Test
-    public void givenNoAddOns_should_SerializeNullAddOns() {
+    public void givenNoAddOnsShouldSerializeNullAddOns() {
 
         PricingManager pricingManager = initPricingManager();
 

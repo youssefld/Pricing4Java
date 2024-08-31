@@ -103,8 +103,9 @@ public class FeatureParserTest {
     }
 
     @Test
-    void givenFeatureWithNullNameShouldThrowException(){
-        assertThrows(PricingParsingException.class, () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "feature-null-as-key.yml"));
+    void givenFeatureWithNullNameShouldThrowException() {
+        assertThrows(PricingParsingException.class,
+                () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "feature-null-as-key.yml"));
     }
 
     @Test

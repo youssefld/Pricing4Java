@@ -23,9 +23,9 @@ public class PricingManagerSerializer {
 
     private void initPricingManagerMetadata() {
         serializedPricingManager.put("saasName", pricingManager.getSaasName());
-        serializedPricingManager.put("day", pricingManager.getDay());
-        serializedPricingManager.put("month", pricingManager.getMonth());
-        serializedPricingManager.put("year", pricingManager.getYear());
+        serializedPricingManager.put("day", pricingManager.getCreatedAt().getDayOfMonth());
+        serializedPricingManager.put("month", pricingManager.getCreatedAt().getMonthValue());
+        serializedPricingManager.put("year", pricingManager.getCreatedAt().getYear());
         serializedPricingManager.put("currency", pricingManager.getCurrency());
         serializedPricingManager.put("hasAnnualPayment", pricingManager.getHasAnnualPayment());
 

@@ -37,7 +37,7 @@ public class PricingManagerParserTest {
     }
 
     @Test
-    void givenPricingWithoutVersionShouldDefaultToOneDotZero() {
+    void givenNoVersionShouldDefaultToVersionOneDotZero() {
 
         Yaml yaml = new Yaml();
 
@@ -72,7 +72,7 @@ public class PricingManagerParserTest {
     }
 
     @Test
-    void givenPricingVersionOneDotZeroShouldBeOk() {
+    void givenOneDotZeroVersionInFileShouldBeOk() {
 
         Yaml yaml = new Yaml();
 
@@ -177,7 +177,7 @@ public class PricingManagerParserTest {
     }
 
     @Test
-    void givenAVersionNumberAndOldSyntaxShouldThrow() {
+    void givenOneDotOneAndDayMonthYearSyntaxShouldThrow() {
 
         Yaml yaml = new Yaml();
 
@@ -214,7 +214,7 @@ public class PricingManagerParserTest {
     }
 
     @Test
-    void givenVersionOneDotOneShouldNewSyntax() {
+    void givenOneDotOneShouldDectectNewSyntax() {
 
         Yaml yaml = new Yaml();
 
@@ -284,7 +284,7 @@ public class PricingManagerParserTest {
     }
 
     @Test
-    void givenVersionOneDotOneOtherThanStringInCreatedAtShouldThrow() {
+    void givenBooleanInCreatedAtInOneDotOneVersionShouldThrow() {
 
         Yaml yaml = new Yaml();
 
@@ -316,7 +316,7 @@ public class PricingManagerParserTest {
     }
 
     @Test
-    void givenVersionOneDotInvalidDateFormatInCreatedAtShouldThrow() {
+    void givenInvalidDateFormatInFieldCreatedAtVersionOneDotShouldThrow() {
 
         Yaml yaml = new Yaml();
 
@@ -348,7 +348,7 @@ public class PricingManagerParserTest {
     }
 
     @Test
-    void givenVersionOneDotInvalidTimestampInStartsShouldThrow() {
+    void givenInvalidTimestampInStartsFieldAtVersionOneDotShouldThrow() {
 
         Yaml yaml = new Yaml();
 
@@ -382,7 +382,7 @@ public class PricingManagerParserTest {
     }
 
     @Test
-    void givenVersionOneDotInvalidTimestampInEndsShouldThrow() {
+    void givenInvalidTimestampInEndsFieldAtVersionOneDotShouldThrow() {
 
         Yaml yaml = new Yaml();
 

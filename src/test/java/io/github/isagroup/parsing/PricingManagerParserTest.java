@@ -1,7 +1,6 @@
 package io.github.isagroup.parsing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -41,151 +40,47 @@ public class PricingManagerParserTest {
 
   }
 
-  @Test
-  void givenNoVersionShouldDefaultToVersionOneDotZero() {
+  @ParameterizedTest
+  @CsvSource({ "null-version-defaults-to-1.0", "version-1.0-as-string", "version-1.0-as-float" })
+  void givenDifferentFormatsShouldEqualToOneDotZero(String input) {
 
     Yaml yaml = new Yaml();
-
-    String file = """
-        saasName: Pricing Without Version Should Default to 1.0
-        currency: EUR
-        hasAnnualPayment: false
-        day: 31
-        month: 8
-        year: 2024
-        features:
-          foo:
-            type: DOMAIN
-            valueType: TEXT
-            defaultValue: baz
-        plans:
-          BASIC:
-            description: Basic plan
-            monthlyPrice: 0.0
-            annualPrice: 0.0
-            unit: user/month
-            features: null
-            usageLimits: null
-        """;
-
-    Map<String, Object> configFile = yaml.load(file);
-
-    PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
-
-    assertEquals(pricingManager.getVersion(), new Version(1, 0));
-
+    String path = String.format("src/test/resources/parsing/%s.yml", input);
+    try {
+      Map<String, Object> configFile = yaml
+          .load(new FileInputStream(path));
+      PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
+      assertEquals(new Version(1, 0), pricingManager.getVersion());
+    } catch (FileNotFoundException e) {
+      fail(String.format("The file with location '%s' was not found", path));
+    } catch (PricingParsingException e) {
+      fail("Pricing could not be parsed correctly check the yaml file.");
+    }
   }
 
   @Test
-  void givenOneDotZeroVersionInFileShouldBeOk() {
+  void givenOneDotOneShouldDectectOneDotOneSyntax() {
 
     Yaml yaml = new Yaml();
+    String path = "src/test/resources/parsing/version-1.1.yml";
+    try {
+      Map<String, Object> configFile = yaml
+          .load(new FileInputStream(path));
+      PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
 
-    String file = """
-        version: "1.0"
-        saasName: Pricing Without Version Should Default to 1.0
-        currency: EUR
-        hasAnnualPayment: false
-        day: 31
-        month: 8
-        year: 2024
-        features:
-          foo:
-            type: DOMAIN
-            valueType: TEXT
-            defaultValue: baz
-        plans:
-          BASIC:
-            description: Basic plan
-            monthlyPrice: 0.0
-            annualPrice: 0.0
-            unit: user/month
-            features: null
-            usageLimits: null
-        """;
+      assertEquals(new Version(1, 1), pricingManager.getVersion());
+      assertEquals(LocalDate.of(2024, 8, 30), pricingManager.getCreatedAt());
 
-    Map<String, Object> configFile = yaml.load(file);
+      // 1704110400000 milliseconds => 2024-01-01 12:00:00
+      assertEquals(new Date(1704110400000L), pricingManager.getStarts());
 
-    PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
-
-    assertEquals(pricingManager.getVersion(), new Version(1, 0));
-
-  }
-
-  @Test
-  // Cammbiar
-  void givenPricingVersionOneDotZeroAsFloatShouldThrow() {
-
-    Yaml yaml = new Yaml();
-
-    String file = """
-        version: 1.0
-        saasName: Pricing Without Version Should Default to 1.0
-        currency: EUR
-        hasAnnualPayment: false
-        day: 31
-        month: 8
-        year: 2024
-        features:
-          foo:
-            type: DOMAIN
-            valueType: TEXT
-            defaultValue: baz
-        plans:
-          BASIC:
-            description: Basic plan
-            monthlyPrice: 0.0
-            annualPrice: 0.0
-            unit: user/month
-            features: null
-            usageLimits: null
-        """;
-
-    Map<String, Object> configFile = yaml.load(file);
-
-    assertThrows(PricingParsingException.class,
-        () -> PricingManagerParser.parseMapToPricingManager(configFile));
-
-  }
-
-  @Test
-  // Cambiar date a localdate
-  void givenOneDotOneShouldDectectNewSyntax() {
-
-    Yaml yaml = new Yaml();
-
-    String file = """
-        version: "1.1"
-        saasName: Version and old syntax missmatch
-        currency: EUR
-        hasAnnualPayment: false
-        createdAt: "2024-08-30"
-        starts: 2024-01-01 12:00:00
-        ends: 2025-01-01 12:00:00
-        features:
-          foo:
-            type: DOMAIN
-            valueType: TEXT
-            defaultValue: baz
-        plans:
-          BASIC:
-            description: Basic plan
-            monthlyPrice: 0.0
-            annualPrice: 0.0
-            unit: user/month
-            features: null
-            usageLimits: null
-        """;
-
-    Map<String, Object> configFile = yaml.load(file);
-
-    PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
-
-    assertEquals(pricingManager.getCreatedAt(), LocalDate.of(2024, 8, 30));
-    // 1704110400000 milliseconds => 2024-01-01 12:00:00
-    assertEquals(pricingManager.getStarts(), new Date(1704110400000L));
-    // 1735732800000 milliseconds => 2025-01-01 12:00:00
-    assertEquals(pricingManager.getEnds(), new Date(1735732800000L));
+      // 1735732800000 milliseconds => 2025-01-01 12:00:00
+      assertEquals(new Date(1735732800000L), pricingManager.getEnds());
+    } catch (FileNotFoundException e) {
+      fail(String.format("The file with location '%s' was not found", path));
+    } catch (PricingParsingException e) {
+      fail("Pricing could not be parsed correctly check the yaml file.");
+    }
   }
 
   @ParameterizedTest
@@ -216,12 +111,13 @@ public class PricingManagerParserTest {
       "invalid-version,version 'This is an invalid version :(' is invalid",
       "version-1.1-mix-version-1.0,'You have specified version 1.1 of the config but old configuration fields were encountered from version 1.0 (day, month, year). Please use createdAt and remove day, month and year or remove the version field.'",
       "null-createdAt-version-1.1,'createdAt' is mandatory. Check your config file.",
+      "boolean-in-version,version has to be a string or a float formmated like <major.minor>.",
       "boolean-createdAt-version-1.1,'createdAt is not a string or a date, change that field.'",
       "invalid-string-createdAt-version-1.1,date Invalid date format :( is invalid. Use the following format to specify a date yyyy-MM-dd.",
       "invalid-timestamp-starts,starts is expected to be a timestamp. Check your config file.",
       "invalid-timestamp-ends,ends is expected to be a timestamp. Check your config file."
   })
-  void givenIncorrectTypeInSaaSNameShouldThrow(String input, String expectedErrorMessage) {
+  void givenCSVOfYamlShouldThrowParsingExceptions(String input, String expectedErrorMessage) {
 
     Yaml yaml = new Yaml();
     String path = String.format("src/test/resources/parsing/%s.yml", input);
@@ -233,11 +129,8 @@ public class PricingManagerParserTest {
     } catch (FileNotFoundException e) {
       fail(String.format("The file with location '%s' was not found", path));
     } catch (PricingParsingException e) {
-
       assertEquals(expectedErrorMessage, e.getMessage());
-
     }
-
   }
 
 }

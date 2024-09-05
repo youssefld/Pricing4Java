@@ -42,21 +42,31 @@ public class PricingManagerParser {
     private static void setBasicAttributes(Map<String, Object> yamlConfigMap, PricingManager pricingManager)
             throws PricingParsingException {
 
+        Version version = null;
+
         if (yamlConfigMap.get("version") == null) {
-            pricingManager.setVersion(new Version(1, 0));
-        } else if (yamlConfigMap.get("version") != null && !(yamlConfigMap.get("version") instanceof String)) {
-            throw new PricingParsingException(
-                    "'version' is not a string, check the specification." +
-                            "Version has to be formmated like <major.minor>.");
-        } else {
+            version = new Version(1, 0);
+        } else if (yamlConfigMap.get("version") instanceof Double) {
+            Double versionAsDouble = (Double) yamlConfigMap.get("version");
+            String versionAsString = String.valueOf(versionAsDouble);
+            Optional<Version> someVersion = Version.valueOf(versionAsString);
+            if (someVersion.isEmpty()) {
+                throw new PricingParsingException(String.format("version '%s' is invalid", versionAsString));
+            }
+            version = someVersion.get();
+        } else if (yamlConfigMap.get("version") instanceof String) {
             String versionToCheck = (String) yamlConfigMap.get("version");
-            Optional<Version> version = Version.valueOf(versionToCheck);
-            if (version.isEmpty()) {
+            Optional<Version> someVersion = Version.valueOf(versionToCheck);
+            if (someVersion.isEmpty()) {
                 throw new PricingParsingException(String.format("version '%s' is invalid", versionToCheck));
             }
-
-            pricingManager.setVersion(version.get());
+            version = someVersion.get();
+        } else {
+            throw new PricingParsingException(
+                    "version has to be a string or a float formmated like <major.minor>.");
         }
+
+        pricingManager.setVersion(version);
 
         if (yamlConfigMap.get("saasName") == null) {
             throw new PricingParsingException("SaasName was not defined");

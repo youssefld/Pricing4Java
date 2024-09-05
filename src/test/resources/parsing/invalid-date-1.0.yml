@@ -1,0 +1,6 @@
+saasName: Invalid date 31/13/2024 given default version syntax of 1.0, day,month,year
+currency: EUR
+hasAnnualPayment: false
+day: 31
+month: 13
+year: 2024

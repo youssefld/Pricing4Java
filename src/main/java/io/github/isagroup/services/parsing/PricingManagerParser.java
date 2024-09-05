@@ -49,9 +49,10 @@ public class PricingManagerParser {
                     "'version' is not a string, check the specification." +
                             "Version has to be formmated like <major.minor>.");
         } else {
-            Optional<Version> version = Version.valueOf((String) yamlConfigMap.get("version"));
+            String versionToCheck = (String) yamlConfigMap.get("version");
+            Optional<Version> version = Version.valueOf(versionToCheck);
             if (version.isEmpty()) {
-                throw new PricingParsingException("Version is invalid");
+                throw new PricingParsingException(String.format("version '%s' is invalid", versionToCheck));
             }
 
             pricingManager.setVersion(version.get());
@@ -72,7 +73,7 @@ public class PricingManagerParser {
         }
 
         if (!(yamlConfigMap.get("currency") instanceof String)) {
-            throw new PricingParsingException("Currency has to be a string");
+            throw new PricingParsingException("'currency' has to be a string");
         }
 
         pricingManager.setCurrency((String) yamlConfigMap.get("currency"));
@@ -106,14 +107,17 @@ public class PricingManagerParser {
                 throw new PricingParsingException("'year' is expected to be an integer");
             }
 
+            int day = (int) yamlConfigMap.get("day");
+            int month = (int) yamlConfigMap.get("month");
+            int year = (int) yamlConfigMap.get("year");
+
             try {
-                pricingManager.setCreatedAt(
-                        LocalDate.of((int) yamlConfigMap.get("year"),
-                                (int) yamlConfigMap.get("month"),
-                                (int) yamlConfigMap.get("day")));
+                pricingManager.setCreatedAt(LocalDate.of(year, month, day));
 
             } catch (DateTimeException err) {
-                throw new PricingParsingException(err.toString());
+                throw new PricingParsingException(String.format(
+                        "Cannot convert %d-%d-%d to a LocalDate. Check that day, month and year are valid.", year,
+                        month, day));
             }
 
         } else if (pricingManager.getVersion().equals(new Version(1, 1))) {
@@ -122,32 +126,35 @@ public class PricingManagerParser {
                     || yamlConfigMap.get("month") != null
                     || yamlConfigMap.get("year") != null) {
                 throw new PricingParsingException(
-                        "You have specified 'version' 1.1 of the config but old configuration fields were encountered from version 1.0 (day, month, year).\n"
-                                + "Please use the config field 'createdAt', remove the 'version' field or specify 'version' 1.0.");
+                        "You have specified version 1.1 of the config but old configuration fields were encountered from version 1.0 (day, month, year). Please use createdAt and remove day, month and year or remove the version field.");
             }
 
             if (yamlConfigMap.get("createdAt") == null) {
                 throw new PricingParsingException("'createdAt' is mandatory. Check your config file.");
             }
 
-            if (!(yamlConfigMap.get("createdAt") instanceof String)) {
-                throw new PricingParsingException(
-                        "'createdAt' is expected to be an string. You may have forgot to double quotes the date, if that is not the case check your config file.");
-            }
+            if (yamlConfigMap.get("createdAt") instanceof Date) {
 
-            try {
-                pricingManager.setCreatedAt(LocalDate.parse((String) yamlConfigMap.get("createdAt")));
+            } else if (yamlConfigMap.get("createdAt") instanceof String) {
+                try {
+                    pricingManager.setCreatedAt(LocalDate.parse((String) yamlConfigMap.get("createdAt")));
 
-            } catch (DateTimeParseException err) {
-                throw new PricingParsingException(err.toString());
+                } catch (DateTimeParseException err) {
+                    throw new PricingParsingException(
+                            String.format("date %s is invalid. Use the following format to specify a date yyyy-MM-dd.",
+                                    yamlConfigMap.get("createdAt")));
+                }
+
+            } else {
+                throw new PricingParsingException("createdAt is not a string or a date, change that field.");
             }
 
             if (yamlConfigMap.get("starts") != null && !(yamlConfigMap.get("starts") instanceof Date)) {
-                throw new PricingParsingException("'start' is expected to be a timestamp. Check your config file.");
+                throw new PricingParsingException("starts is expected to be a timestamp. Check your config file.");
             }
 
             if (yamlConfigMap.get("ends") != null && !(yamlConfigMap.get("ends") instanceof Date)) {
-                throw new PricingParsingException("'ends' is expected to be a timestamp. Check your config file.");
+                throw new PricingParsingException("ends is expected to be a timestamp. Check your config file.");
             }
 
             pricingManager.setStarts((Date) yamlConfigMap.get("starts"));
@@ -171,7 +178,7 @@ public class PricingManagerParser {
             featuresMap = (Map<String, Object>) map.get("features");
         } catch (ClassCastException e) {
             throw new PricingParsingException(
-                    "The features are not defined correctly. It should be a map of features and their options");
+                    "The features are not defined correctly. It should be a map of features and their options.");
         }
 
         for (String featureName : featuresMap.keySet()) {

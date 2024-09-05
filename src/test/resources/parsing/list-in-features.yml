@@ -1,0 +1,10 @@
+saasName: features is a list
+currency: EUR
+hasAnnualPayment: false
+day: 31
+month: 8
+year: 2024
+features:
+  - foo
+  - bar
+  - baz

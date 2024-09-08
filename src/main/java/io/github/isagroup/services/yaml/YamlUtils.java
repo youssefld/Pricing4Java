@@ -14,7 +14,9 @@ import io.github.isagroup.exceptions.FilepathException;
 import io.github.isagroup.exceptions.SerializerException;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.parsing.PricingManagerParser;
+import io.github.isagroup.services.serializer.OneDotZeroSerializer;
 import io.github.isagroup.services.serializer.PricingManagerSerializer;
+import io.github.isagroup.services.serializer.Serializable;
 
 /**
  * Utility class to handle YAML files
@@ -53,7 +55,7 @@ public class YamlUtils {
      * @param yamlPath       Path of the YAML file, relative to the resources folder
      */
     public static void writeYaml(PricingManager pricingManager, String yamlPath) {
-        
+
         if (yamlPath == null) {
             throw new FilepathException("Either the file path is invalid or the file does not exist.");
         }
@@ -65,9 +67,9 @@ public class YamlUtils {
 
         Representer representer = new SkipNullRepresenter();
 
-        PricingManagerSerializer pricingManagerSerializer = new PricingManagerSerializer(pricingManager);
+        Serializable pricingManagerSerializer = new OneDotZeroSerializer(new PricingManagerSerializer());
         try (FileWriter writer = new FileWriter(DEFAULT_YAML_WRITE_PATH + yamlPath);) {
-            Map<String, Object> serializedPricingManager = pricingManagerSerializer.serialize();
+            Map<String, Object> serializedPricingManager = pricingManagerSerializer.serialize(pricingManager);
             Yaml yaml = new Yaml(representer, dump);
             yaml.dump(serializedPricingManager, writer);
 

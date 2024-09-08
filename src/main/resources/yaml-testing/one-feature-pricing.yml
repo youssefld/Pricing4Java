@@ -1,7 +1,4 @@
 saasName: One feature pricing
-day: 1
-month: 1
-year: 2024
 currency: EUR
 hasAnnualPayment: false
 features:
@@ -30,3 +27,7 @@ plans:
     features: null
     usageLimits: null
 addOns: null
+version: null
+day: 1
+month: 1
+year: 2024

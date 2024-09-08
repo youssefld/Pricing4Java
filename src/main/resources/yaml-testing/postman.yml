@@ -1,7 +1,4 @@
 saasName: Postman
-day: 5
-month: 11
-year: 2023
 currency: USD
 hasAnnualPayment: true
 features:
@@ -632,3 +629,7 @@ addOns:
         value: true
     usageLimits: null
     usageLimitExtensions: null
+version: null
+day: 5
+month: 11
+year: 2023

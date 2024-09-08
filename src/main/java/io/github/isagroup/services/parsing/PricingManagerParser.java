@@ -2,6 +2,7 @@ package io.github.isagroup.services.parsing;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.HashMap;
@@ -144,6 +145,8 @@ public class PricingManagerParser {
             }
 
             if (yamlConfigMap.get("createdAt") instanceof Date) {
+                Date createdAt = (Date) yamlConfigMap.get("createdAt");
+                pricingManager.setCreatedAt(createdAt.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 
             } else if (yamlConfigMap.get("createdAt") instanceof String) {
                 try {

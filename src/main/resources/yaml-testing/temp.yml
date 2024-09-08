@@ -1,7 +1,4 @@
 saasName: petclinic
-day: 15
-month: 1
-year: 2024
 currency: EUR
 hasAnnualPayment: false
 features:
@@ -108,3 +105,7 @@ plans:
         value: true
     usageLimits: null
 addOns: null
+version: null
+day: 15
+month: 1
+year: 2024

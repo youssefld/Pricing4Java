@@ -1,7 +1,4 @@
 saasName: Terminator pricing
-day: 1
-month: 1
-year: 2029
 currency: USD
 hasAnnualPayment: false
 features:
@@ -85,3 +82,7 @@ addOns:
     usageLimitExtensions:
       machines:
         value: 10000000
+version: null
+day: 1
+month: 1
+year: 2029

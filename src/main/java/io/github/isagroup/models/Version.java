@@ -60,7 +60,7 @@ public class Version {
         }
 
         if (!isValid(major, minor)) {
-            Optional.empty();
+            return Optional.empty();
         }
 
         return Optional.of(new Version(major, minor));

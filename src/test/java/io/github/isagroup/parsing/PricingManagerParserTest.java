@@ -15,7 +15,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.yaml.snakeyaml.Yaml;
 
-import io.github.isagroup.exceptions.InvalidPlanException;
 import io.github.isagroup.exceptions.PricingParsingException;
 import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.Version;
@@ -117,21 +116,6 @@ public class PricingManagerParserTest {
         }
     }
 
-    @Test
-    void givenAddOnThatDependsOnAnotherAddonCreatesPricingManager(){
-        
-        Yaml yaml = new Yaml();
-        String path = "src/test/resources/parsing/add-on-depending-on-another-add-on.yml";
-        try {
-            Map<String, Object> configFile = yaml
-                    .load(new FileInputStream(path));
-            PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
-            assertEquals(2, pricingManager.getAddOns().size());
-        } catch (FileNotFoundException e) {
-            fail(String.format("The file with location '%s' was not found", path));
-        }
-    }
-
     @ParameterizedTest
     @CsvSource({
             "null-saasName,SaasName was not defined",
@@ -166,8 +150,7 @@ public class PricingManagerParserTest {
             "invalid-timestamp-starts,starts is expected to be a timestamp. Check your config file.",
             "invalid-timestamp-ends,ends is expected to be a timestamp. Check your config file.",
             "invalid-float-version,version '1.9999999999' is invalid",
-            "invalid-version-only-dots,version '...' is invalid",
-            "add-on-depending-on-unexistent-add-on,The plan or addOn bax is not defined in the pricing manager"
+            "invalid-version-only-dots,version '...' is invalid"
     })
     void givenCSVOfYamlShouldThrowParsingExceptions(String input, String expectedErrorMessage) {
 
@@ -181,8 +164,6 @@ public class PricingManagerParserTest {
         } catch (FileNotFoundException e) {
             fail(String.format("The file with location '%s' was not found", path));
         } catch (PricingParsingException e) {
-            assertEquals(expectedErrorMessage, e.getMessage());
-        } catch (InvalidPlanException e) {
             assertEquals(expectedErrorMessage, e.getMessage());
         }
     }

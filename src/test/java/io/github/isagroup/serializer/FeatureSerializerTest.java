@@ -1,16 +1,22 @@
 package io.github.isagroup.serializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
+import io.github.isagroup.models.ValueType;
 import io.github.isagroup.models.featuretypes.Automation;
 import io.github.isagroup.models.featuretypes.AutomationType;
 import io.github.isagroup.models.featuretypes.Domain;
@@ -33,29 +39,35 @@ public class FeatureSerializerTest {
         this.yaml = new Yaml(options);
     }
 
-    @Test
-    public void given_AutomationFeature_should_SerializeToMap() {
+    @ParameterizedTest(name = "[{index}] {arguments}")
+    @CsvSource(useHeadersInDisplayName = true, textBlock = """
+            DESCRIPTION, VALUE_TYPE, DEFAULT_VALUE, AUTOMATION_TYPE, EXPRESSION, SERVER_EXPRESSION,PATH
+            Testing bot,TEXT,Bar,BOT,1==1,1==1,automation-bot-feature
+            Testing filtering,TEXT,Bar,FILTERING,1==1,1==1,automation-filtering-feature
+            Testing tracking,TEXT,Bar,TRACKING,1==1,1==1,automation-tracking-feature
+            Testing task automation,TEXT,Bar,TASK_AUTOMATION,1==1,1==1,automation-task-automation-feature
+            """)
+    void givenDifferentAutomationTypesShouldSerializeToMap(String description, ValueType valueType,
+            String defaultValue, AutomationType automationType, String expression, String serverExpression,
+            String path) {
 
         Automation automation = new Automation();
-        automation.setDescription("Foo");
-        automation.setDefaultValue("Bar");
-        automation.setAutomationType(AutomationType.BOT);
-        automation.setExpression("Baz");
-        automation.setServerExpression("John");
+        automation.setDescription(description);
+        automation.setValueType(valueType);
+        automation.setDefaultValue(defaultValue);
+        automation.setAutomationType(automationType);
+        automation.setExpression(expression);
+        automation.setServerExpression(serverExpression);
 
-        Map<String, Object> map = automation.serializeFeature();
+        Map<String, Object> actual = automation.serializeFeature();
 
-        // Order of YAML KEYS depends on the order of DECLARATION of the attributes of
-        // (Feature,Automation,...etc)
-        String expected = "description: Foo\n"
-                + "defaultValue: Bar\n"
-                + "expression: Baz\n"
-                + "serverExpression: John\n"
-                + "type: AUTOMATION\n"
-                + "automationType: BOT\n";
-        String output = yaml.dump(map);
+        try (FileInputStream file = new FileInputStream(String.format("src/test/resources/serializing/%s.yml", path))) {
+            Map<String, Object> expected = yaml.load(file);
+            assertEquals(expected, actual);
 
-        assertEquals(expected, output);
+        } catch (IOException e) {
+            fail(String.format("file with path %s was not found", path));
+        }
 
     }
 

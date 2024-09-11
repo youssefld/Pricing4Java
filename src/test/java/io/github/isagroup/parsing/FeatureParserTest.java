@@ -86,7 +86,6 @@ public class FeatureParserTest {
 
         assertThrows(NullPointerException.class,
                 () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "null-type.yml"));
-
     }
 
     @Test

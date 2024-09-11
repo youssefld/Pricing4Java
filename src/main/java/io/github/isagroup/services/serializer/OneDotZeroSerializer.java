@@ -6,8 +6,6 @@ import io.github.isagroup.models.PricingManager;
 
 public class OneDotZeroSerializer extends VersionSerializer {
 
-    private Serializable serializer;
-
     public OneDotZeroSerializer(Serializable serializer) {
         super(serializer);
     }
@@ -15,8 +13,7 @@ public class OneDotZeroSerializer extends VersionSerializer {
     @Override
     public Map<String, Object> serialize(PricingManager pricingManager) {
 
-        Map<String, Object> result = serializer.serialize(pricingManager);
-        result.put("version", null);
+        Map<String, Object> result = super.serialize(pricingManager);
         result.put("day", pricingManager.getCreatedAt().getDayOfMonth());
         result.put("month", pricingManager.getCreatedAt().getMonthValue());
         result.put("year", pricingManager.getCreatedAt().getYear());

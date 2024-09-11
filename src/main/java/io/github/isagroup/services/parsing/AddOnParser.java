@@ -12,6 +12,7 @@ import io.github.isagroup.models.AddOn;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
+import io.github.isagroup.models.Version;
 import io.github.isagroup.models.featuretypes.Payment;
 
 public class AddOnParser {
@@ -82,8 +83,14 @@ public class AddOnParser {
         List<String> plansAvailable = (List<String>) addOnMap.get("availableFor");
 
         for (String planName : plansAvailable) {
-            if (!pricingManager.getPlans().containsKey(planName)) {
-                throw new InvalidPlanException("The plan " + planName + " is not defined in the pricing manager");
+            if (pricingManager.getVersion().equals(new Version(1, 1))){
+                if (!pricingManager.getPlans().containsKey(planName) && !pricingManager.getAddOns().containsKey(planName)) {
+                    throw new InvalidPlanException("The plan or addOn " + planName + " is not defined in the pricing manager");
+                }
+            }else{
+                if (!pricingManager.getPlans().containsKey(planName)) {
+                    throw new InvalidPlanException("The plan " + planName + " is not defined in the pricing manager");
+                }
             }
         }
 

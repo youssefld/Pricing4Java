@@ -257,19 +257,18 @@ public class PricingManagerParser {
 
     private static void setAddOns(Map<String, Object> map, PricingManager pricingManager) {
         Map<String, Object> addOnsMap = (Map<String, Object>) map.get("addOns");
-        Map<String, AddOn> addOns = new LinkedHashMap<>();
-
+        
         if (addOnsMap == null) {
             return;
         }
+
+        pricingManager.setAddOns(new LinkedHashMap<>());
 
         for (String addOnName : addOnsMap.keySet()) {
             Map<String, Object> addOnMap = (Map<String, Object>) addOnsMap.get(addOnName);
             AddOn addOn = AddOnParser.parseMapToAddOn(addOnName, addOnMap, pricingManager);
 
-            addOns.put(addOnName, addOn);
+            pricingManager.getAddOns().put(addOnName, addOn);
         }
-
-        pricingManager.setAddOns(addOns);
     }
 }

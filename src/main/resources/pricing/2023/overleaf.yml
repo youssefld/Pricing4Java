@@ -1,14 +1,19 @@
-saasName: Overleaf
+saasName: Overleaf - Individual
 day: 28
 month: 11
 year: 2023
 currency: USD
 hasAnnualPayment: true
 features:
-  compileServers:
+  fastCompileServers:
     description: "Compiles for users on premium plans always run on a dedicated pool of the fastest available servers."
-    valueType: TEXT
-    defaultValue: FAST
+    valueType: BOOLEAN
+    defaultValue: true
+    type: DOMAIN
+  fastestCompileServers:
+    description: "Compiles for users on premium plans always run on a dedicated pool of the fastest available servers."
+    valueType: BOOLEAN
+    defaultValue: false
     type: DOMAIN
   realTimeTrackChanges:
     description: "Switch on track changes to see who made every change, accept or reject others’ changes, and write comments."
@@ -31,17 +36,22 @@ features:
     defaultValue: false
     type: INTEGRATION
     integrationType: API
-  latexEditorAndRealTimeCollaboration:
+  latexEditor:
     description: "Spell check, intelligent autocomplete, syntax highlighting, dozens of color themes, vim and emacs bindings, help with LaTeX warnings and error messages, and more. Everyone always has the latest version, and you can see your collaborators’ cursors and changes in real time."
     valueType: BOOLEAN
     defaultValue: true
     type: DOMAIN
-  unlimitedProjects:
+  realTimeCollaboration:
+    description: "Spell check, intelligent autocomplete, syntax highlighting, dozens of color themes, vim and emacs bindings, help with LaTeX warnings and error messages, and more. Everyone always has the latest version, and you can see your collaborators’ cursors and changes in real time."
+    valueType: BOOLEAN
+    defaultValue: true
+    type: DOMAIN
+  projects:
     description: "Your projects are private by default. This means that only you can view them, and only you can allow other people to access them."
     valueType: BOOLEAN
     defaultValue: true
     type: DOMAIN
-  thousandOfTemplates:
+  templates:
     description: "Produce beautiful documents starting from our gallery of LaTeX templates for journals, conferences, theses, reports, CVs and much more."
     valueType: BOOLEAN
     defaultValue: true
@@ -92,33 +102,36 @@ usageLimits:
   maxCollaboratorsPerProject:
     description: "The number of people you can invite to work on each project. They just need to have an Overleaf account. They can be different people in each project."
     valueType: NUMERIC
-    defaultValue: 2
+    defaultValue: 1
     unit: collaborator
     type: NON_RENEWABLE
-    linkedFeatures: null
+    linkedFeatures:
+      - projects
   compileTimeoutLimit:
     description: "This is how much time you get to compile your project on the Overleaf servers. You may need additional time for longer or more complex projects."
     valueType: NUMERIC
     defaultValue: 1
     unit: minute
     type: TIME_DRIVEN
-    linkedFeatures: null
+    linkedFeatures:
+      - fastCompileServers
+      - fastestCompileServers
 plans:
   FREE:
     description: ""
     monthlyPrice: 0
     annualPrice: 0
-    unit: user/month
+    unit: /month
     features: null
     usageLimits: null
   STANDARD:
     description: ""
     monthlyPrice: 21.0
     annualPrice: 16.59
-    unit: user/month
+    unit: /month
     features:
-      compileServers:
-        value: FASTEST
+      fastestCompileServers:
+        value: true
       realTimeTrackChanges:
         value: true
       fullDocumentHistory:
@@ -148,10 +161,10 @@ plans:
     description: ""
     monthlyPrice: 42
     annualPrice: 33.25
-    unit: user/month
+    unit: /month
     features:
-      compileServers:
-        value: FASTEST
+      fastestCompileServers:
+        value: true
       realTimeTrackChanges:
         value: true
       fullDocumentHistory:

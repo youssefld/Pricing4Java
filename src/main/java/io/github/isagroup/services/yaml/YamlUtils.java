@@ -14,9 +14,7 @@ import io.github.isagroup.exceptions.FilepathException;
 import io.github.isagroup.exceptions.SerializerException;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.parsing.PricingManagerParser;
-import io.github.isagroup.services.serializer.OneDotZeroSerializer;
 import io.github.isagroup.services.serializer.PricingManagerSerializer;
-import io.github.isagroup.services.serializer.Serializable;
 
 /**
  * Utility class to handle YAML files
@@ -67,7 +65,7 @@ public class YamlUtils {
 
         Representer representer = new SkipNullRepresenter();
 
-        Serializable pricingManagerSerializer = new OneDotZeroSerializer(new PricingManagerSerializer());
+        PricingManagerSerializer pricingManagerSerializer = new PricingManagerSerializer();
         try (FileWriter writer = new FileWriter(DEFAULT_YAML_WRITE_PATH + yamlPath);) {
             Map<String, Object> serializedPricingManager = pricingManagerSerializer.serialize(pricingManager);
             Yaml yaml = new Yaml(representer, dump);

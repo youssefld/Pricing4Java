@@ -12,8 +12,8 @@ import io.github.isagroup.models.AddOn;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
-import io.github.isagroup.models.Version;
 import io.github.isagroup.models.featuretypes.Payment;
+import io.github.isagroup.services.updaters.Version;
 
 public class AddOnParser {
 
@@ -30,30 +30,32 @@ public class AddOnParser {
         addOn.setName(addOnName);
         setAvailableFor(addOnMap, pricingManager, addOn);
 
-        if (addOnMap.containsKey("price") && (addOnMap.containsKey("monthlyPrice") || addOnMap.containsKey("annualPrice"))) {
+        if (addOnMap.containsKey("price")
+                && (addOnMap.containsKey("monthlyPrice") || addOnMap.containsKey("annualPrice"))) {
             throw new PricingParsingException("The add on " + addOnName
                     + " has both a price and monthlyPrice/annualPrice. It should have only one of them");
         }
 
         if (addOnMap.containsKey("price")) {
-            
-            if (isValidPrice(addOnMap.get("price"))){
+
+            if (isValidPrice(addOnMap.get("price"))) {
                 addOn.setPrice(addOnMap.get("price"));
             } else {
-                throw new PricingParsingException("The price of the add on " + addOnName + " is neither a valid number nor string");   
+                throw new PricingParsingException(
+                        "The price of the add on " + addOnName + " is neither a valid number nor string");
             }
         }
 
         if (addOnMap.containsKey("monthlyPrice") && addOnMap.containsKey("annualPrice")) {
-            
-            if (isValidPrice(addOnMap.get("monthlyPrice")) && isValidPrice(addOnMap.get("annualPrice"))){
+
+            if (isValidPrice(addOnMap.get("monthlyPrice")) && isValidPrice(addOnMap.get("annualPrice"))) {
                 addOn.setMonthlyPrice(addOnMap.get("monthlyPrice"));
                 addOn.setAnnualPrice(addOnMap.get("annualPrice"));
             } else {
                 throw new PricingParsingException("Either the monthlyPrice or annualPrice of the add on " + addOnName
-                            + " is neither a valid number nor String");
+                        + " is neither a valid number nor String");
             }
-            
+
         }
         addOn.setUnit((String) addOnMap.get("unit"));
 
@@ -83,11 +85,13 @@ public class AddOnParser {
         List<String> plansAvailable = (List<String>) addOnMap.get("availableFor");
 
         for (String planName : plansAvailable) {
-            if (pricingManager.getVersion().equals(new Version(1, 1))){
-                if (!pricingManager.getPlans().containsKey(planName) && !pricingManager.getAddOns().containsKey(planName)) {
-                    throw new InvalidPlanException("The plan or addOn " + planName + " is not defined in the pricing manager");
+            if (pricingManager.getVersion().equals(Version.V1_1)) {
+                if (!pricingManager.getPlans().containsKey(planName)
+                        && !pricingManager.getAddOns().containsKey(planName)) {
+                    throw new InvalidPlanException(
+                            "The plan or addOn " + planName + " is not defined in the pricing manager");
                 }
-            }else{
+            } else {
                 if (!pricingManager.getPlans().containsKey(planName)) {
                     throw new InvalidPlanException("The plan " + planName + " is not defined in the pricing manager");
                 }
@@ -167,13 +171,14 @@ public class AddOnParser {
         }
 
         for (String addOnUsageLimitName : addOnUsageLimitsMap.keySet()) {
-            
+
             Map<String, Object> addOnUsageLimitMap = new HashMap<>();
 
-            try{
+            try {
                 addOnUsageLimitMap = (Map<String, Object>) addOnUsageLimitsMap.get(addOnUsageLimitName);
-            }catch(ClassCastException e){
-                throw new PricingParsingException("The usage limit " + addOnUsageLimitName + " of the add-on " + addOnName + " is not a valid map");
+            } catch (ClassCastException e) {
+                throw new PricingParsingException("The usage limit " + addOnUsageLimitName + " of the add-on "
+                        + addOnName + " is not a valid map");
             }
 
             if (!globalUsageLimitsMap.containsKey(addOnUsageLimitName)) {
@@ -212,7 +217,7 @@ public class AddOnParser {
         }
     }
 
-    private static boolean isValidPrice(Object price){
+    private static boolean isValidPrice(Object price) {
         return price instanceof Double || price instanceof Long || price instanceof Integer || price instanceof String;
     }
 

@@ -154,11 +154,11 @@ public class FeatureParser {
     }
 
     private static void loadBasicAttributes(Feature feature, String featureName, Map<String, Object> map) {
-        
-        if (featureName == null){
+
+        if (featureName == null) {
             throw new PricingParsingException("A feature cannot have the name null");
         }
-        
+
         feature.setName(featureName);
         feature.setDescription((String) map.get("description"));
 

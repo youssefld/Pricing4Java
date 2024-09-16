@@ -12,14 +12,15 @@ import java.util.Date;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.yaml.snakeyaml.Yaml;
 
 import io.github.isagroup.exceptions.PricingParsingException;
 import io.github.isagroup.models.Plan;
-import io.github.isagroup.models.Version;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.parsing.PricingManagerParser;
+import io.github.isagroup.services.updaters.Version;
 import io.github.isagroup.services.yaml.YamlUtils;
 
 public class PricingManagerParserTest {
@@ -50,7 +51,7 @@ public class PricingManagerParserTest {
             Map<String, Object> configFile = yaml
                     .load(new FileInputStream(path));
             PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
-            assertEquals(new Version(1, 0), pricingManager.getVersion());
+            assertEquals(io.github.isagroup.services.updaters.Version.V1_0, pricingManager.getVersion());
         } catch (FileNotFoundException e) {
             fail(String.format("The file with location '%s' was not found", path));
         } catch (PricingParsingException e) {
@@ -74,23 +75,6 @@ public class PricingManagerParserTest {
         }
     }
 
-    @Test
-    void givenInvalidDateInYamlInCreatedAtShouldThrow() {
-        Yaml yaml = new Yaml();
-        String path = "src/test/resources/parsing/invalid-date-in-createdAt.yml";
-        try {
-            Map<String, Object> configFile = yaml
-                    .load(new FileInputStream(path));
-            PricingManagerParser.parseMapToPricingManager(configFile);
-            fail();
-        } catch (FileNotFoundException e) {
-            fail(String.format("The file with location '%s' was not found", path));
-        } catch (Exception e) {
-            assertEquals("date 2024-12-1000 is invalid. Use the following format to specify a date yyyy-MM-dd.",
-                    e.getMessage());
-        }
-    }
-
     @ParameterizedTest
     @CsvSource({ "version-1.1-as-string", "version-1.1-as-float" })
     void givenDifferentFormatsShouldEqualToOneDotOne(String input) {
@@ -101,7 +85,7 @@ public class PricingManagerParserTest {
             Map<String, Object> configFile = yaml
                     .load(new FileInputStream(path));
             PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
-            assertEquals(new Version(1, 1), pricingManager.getVersion());
+            assertEquals(Version.V1_1, pricingManager.getVersion());
             assertEquals(LocalDate.of(2024, 8, 30), pricingManager.getCreatedAt());
 
             // 1704110400000 milliseconds => 2024-01-01 12:00:00
@@ -117,41 +101,7 @@ public class PricingManagerParserTest {
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "null-saasName,SaasName was not defined",
-            "boolean-in-saasName,'saasName' has to be a string",
-            "null-day,Day of plan was not defined",
-            "boolean-in-day,'day' is expected to be an integer",
-            "null-month,Month of plan was not defined",
-            "boolean-in-month,'month' is expected to be an integer",
-            "null-year,Year of plan was not defined",
-            "boolean-in-year,'year' is expected to be an integer",
-            "invalid-date-1.0,'Cannot convert 2024-13-31 to a LocalDate. Check that day, month and year are valid.'",
-            "null-currency,Currency was not defined",
-            "boolean-in-currency,'currency' has to be a string",
-            "null-features,'features' is mandatory. It should be a map of features with their correspoding attributes.",
-            "string-in-features,The features are not defined correctly. It should be a map of features and their options.",
-            "boolean-in-features,The features are not defined correctly. It should be a map of features and their options.",
-            "integer-in-features,The features are not defined correctly. It should be a map of features and their options.",
-            "float-in-features,The features are not defined correctly. It should be a map of features and their options.",
-            "list-in-features,The features are not defined correctly. It should be a map of features and their options.",
-            "null-plans-and-addons,The pricing manager does not have any plans or add ons",
-            "boolean-in-plans,The plans are not defined correctly. It should be a map of plans and their options",
-            "string-in-plans,The plans are not defined correctly. It should be a map of plans and their options",
-            "integer-in-plans,The plans are not defined correctly. It should be a map of plans and their options",
-            "float-in-plans,The plans are not defined correctly. It should be a map of plans and their options",
-            "list-in-plans,The plans are not defined correctly. It should be a map of plans and their options",
-            "invalid-version,version 'This is an invalid version :(' is invalid",
-            "version-1.1-mix-version-1.0,'You have specified version 1.1 of the config but old configuration fields were encountered from version 1.0 (day, month, year). Please use createdAt and remove day, month and year or remove the version field.'",
-            "null-createdAt-version-1.1,'createdAt' is mandatory. Check your config file.",
-            "boolean-in-version,version has to be a string or a float formmated like <major.minor>.",
-            "boolean-createdAt-version-1.1,'createdAt is not a string or a date, change that field.'",
-            "invalid-string-createdAt-version-1.1,date Invalid date format :( is invalid. Use the following format to specify a date yyyy-MM-dd.",
-            "invalid-timestamp-starts,starts is expected to be a timestamp. Check your config file.",
-            "invalid-timestamp-ends,ends is expected to be a timestamp. Check your config file.",
-            "invalid-float-version,version '1.9999999999' is invalid",
-            "invalid-version-only-dots,version '...' is invalid"
-    })
+    @CsvFileSource(resources = "/exceptions.csv", delimiter = ';', useHeadersInDisplayName = true, numLinesToSkip = 1)
     void givenCSVOfYamlShouldThrowParsingExceptions(String input, String expectedErrorMessage) {
 
         Yaml yaml = new Yaml();

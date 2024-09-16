@@ -11,7 +11,7 @@ import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
 
-public class PricingManagerSerializer implements Serializable {
+public class PricingManagerSerializer {
 
     private Map<String, Object> serializedPricingManager;
 
@@ -21,7 +21,18 @@ public class PricingManagerSerializer implements Serializable {
 
     public Map<String, Object> serialize(PricingManager pricingManager) throws SerializerException {
 
+        serializedPricingManager.put("version", "1.1");
         serializedPricingManager.put("saasName", pricingManager.getSaasName());
+        serializedPricingManager.put("createdAt", pricingManager.getCreatedAt().toString());
+
+        if (pricingManager.getStarts() != null) {
+            serializedPricingManager.put("starts", pricingManager.getStarts());
+        }
+
+        if (pricingManager.getEnds() != null) {
+            serializedPricingManager.put("ends", pricingManager.getEnds());
+        }
+
         serializedPricingManager.put("currency", pricingManager.getCurrency());
         serializedPricingManager.put("hasAnnualPayment", pricingManager.getHasAnnualPayment());
 

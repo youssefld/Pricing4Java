@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import io.github.isagroup.exceptions.PricingParsingException;
 import io.github.isagroup.models.AddOn;
@@ -16,7 +15,7 @@ import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
-import io.github.isagroup.models.Version;
+import io.github.isagroup.services.updaters.Version;
 
 public class PricingManagerParser {
 
@@ -45,26 +44,21 @@ public class PricingManagerParser {
 
         Version version = null;
 
-        if (yamlConfigMap.get("version") == null) {
-            version = new Version(1, 0);
-        } else if (yamlConfigMap.get("version") instanceof Double) {
-            Double versionAsDouble = (Double) yamlConfigMap.get("version");
-            String versionAsString = String.valueOf(versionAsDouble);
-            Optional<Version> someVersion = Version.valueOf(versionAsString);
-            if (someVersion.isEmpty()) {
-                throw new PricingParsingException(String.format("version '%s' is invalid", versionAsString));
+        try {
+            if (yamlConfigMap.get("version") == null) {
+                version = Version.V1_0;
+            } else if (yamlConfigMap.get("version") instanceof Double
+                    || yamlConfigMap.get("version") instanceof String) {
+
+                version = Version.version(yamlConfigMap.get("version"));
+
+            } else {
+                throw new PricingParsingException(
+                        String.format("'version' detected type is %s but 'version' type must be Double or String",
+                                yamlConfigMap.get("version").getClass().getSimpleName()));
             }
-            version = someVersion.get();
-        } else if (yamlConfigMap.get("version") instanceof String) {
-            String versionToCheck = (String) yamlConfigMap.get("version");
-            Optional<Version> someVersion = Version.valueOf(versionToCheck);
-            if (someVersion.isEmpty()) {
-                throw new PricingParsingException(String.format("version '%s' is invalid", versionToCheck));
-            }
-            version = someVersion.get();
-        } else {
-            throw new PricingParsingException(
-                    "version has to be a string or a float formmated like <major.minor>.");
+        } catch (Exception e) {
+            throw new PricingParsingException(e.getMessage());
         }
 
         pricingManager.setVersion(version);
@@ -93,7 +87,7 @@ public class PricingManagerParser {
             pricingManager.setHasAnnualPayment((Boolean) yamlConfigMap.get("hasAnnualPayment"));
         }
 
-        if (pricingManager.getVersion().equals(new Version(1, 0))) {
+        if (pricingManager.getVersion().equals(Version.V1_0)) {
             if (yamlConfigMap.get("day") == null) {
                 throw new PricingParsingException("Day of plan was not defined");
             }
@@ -131,7 +125,7 @@ public class PricingManagerParser {
                         month, day));
             }
 
-        } else if (pricingManager.getVersion().equals(new Version(1, 1))) {
+        } else if (pricingManager.getVersion().equals(Version.V1_1)) {
 
             if (yamlConfigMap.get("day") != null
                     || yamlConfigMap.get("month") != null
@@ -154,20 +148,26 @@ public class PricingManagerParser {
 
                 } catch (DateTimeParseException err) {
                     throw new PricingParsingException(
-                            String.format("date %s is invalid. Use the following format to specify a date yyyy-MM-dd.",
+                            String.format(
+                                    "\"createdAt\" \"%s\" is invalid, use the following yyyy-MM-dd",
                                     yamlConfigMap.get("createdAt")));
                 }
 
             } else {
-                throw new PricingParsingException("createdAt is not a string or a date, change that field.");
+                throw new PricingParsingException(
+                        String.format(
+                                "\"createdAt\" detected type is %s and must be a String or Date formatted like yyyy-MM-dd",
+                                yamlConfigMap.get("createdAt").getClass().getSimpleName()));
             }
 
             if (yamlConfigMap.get("starts") != null && !(yamlConfigMap.get("starts") instanceof Date)) {
-                throw new PricingParsingException("starts is expected to be a timestamp. Check your config file.");
+                throw new PricingParsingException(String.format("\"starts\" type is %s and must be a Date",
+                        yamlConfigMap.get("starts").getClass().getSimpleName()));
             }
 
             if (yamlConfigMap.get("ends") != null && !(yamlConfigMap.get("ends") instanceof Date)) {
-                throw new PricingParsingException("ends is expected to be a timestamp. Check your config file.");
+                throw new PricingParsingException(String.format("\"ends\" type is %s and must be a Date",
+                        yamlConfigMap.get("ends").getClass().getSimpleName()));
             }
 
             pricingManager.setStarts((Date) yamlConfigMap.get("starts"));
@@ -257,7 +257,7 @@ public class PricingManagerParser {
 
     private static void setAddOns(Map<String, Object> map, PricingManager pricingManager) {
         Map<String, Object> addOnsMap = (Map<String, Object>) map.get("addOns");
-        
+
         if (addOnsMap == null) {
             return;
         }

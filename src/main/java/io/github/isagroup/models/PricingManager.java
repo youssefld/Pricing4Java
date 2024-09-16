@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import io.github.isagroup.services.updaters.Version;
+
 /**
  * Object to model pricing configuration
  */

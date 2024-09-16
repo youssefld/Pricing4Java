@@ -41,14 +41,14 @@ public class FeatureSerializerTest {
 
     @ParameterizedTest(name = "[{index}] {arguments}")
     @CsvSource(useHeadersInDisplayName = true, textBlock = """
-            DESCRIPTION, VALUE_TYPE, DEFAULT_VALUE, AUTOMATION_TYPE, EXPRESSION, SERVER_EXPRESSION,PATH
-            Testing bot,TEXT,Bar,BOT,1==1,1==1,automation-bot-feature
-            Testing filtering,TEXT,Bar,FILTERING,1==1,1==1,automation-filtering-feature
-            Testing tracking,TEXT,Bar,TRACKING,1==1,1==1,automation-tracking-feature
-            Testing task automation,TEXT,Bar,TASK_AUTOMATION,1==1,1==1,automation-task-automation-feature
+            DESCRIPTION, VALUE_TYPE, DEFAULT_VALUE, AUTOMATION_TYPE, EXPRESSION,PATH
+            Testing bot,TEXT,Bar,BOT,1==1,automation-bot-feature
+            Testing filtering,TEXT,Bar,FILTERING,1==1,automation-filtering-feature
+            Testing tracking,TEXT,Bar,TRACKING,1==1,automation-tracking-feature
+            Testing task automation,TEXT,Bar,TASK_AUTOMATION,1==1,automation-task-automation-feature
             """)
     void givenDifferentAutomationTypesShouldSerializeToMap(String description, ValueType valueType,
-            String defaultValue, AutomationType automationType, String expression, String serverExpression,
+            String defaultValue, AutomationType automationType, String expression,
             String path) {
 
         Automation automation = new Automation();
@@ -57,7 +57,6 @@ public class FeatureSerializerTest {
         automation.setDefaultValue(defaultValue);
         automation.setAutomationType(automationType);
         automation.setExpression(expression);
-        automation.setServerExpression(serverExpression);
 
         Map<String, Object> actual = automation.serializeFeature();
 
@@ -90,6 +89,31 @@ public class FeatureSerializerTest {
         String output = yaml.dump(map);
 
         assertEquals(expected, output);
+
+    }
+
+    @Test
+    public void givenExpressionAndServerExpressionEqualShouldNotSerialize() {
+
+        Domain domain = new Domain();
+        domain.setDescription("Foo");
+        domain.setValueType(ValueType.TEXT);
+        domain.setDefaultValue("Bar");
+        domain.setExpression("Baz");
+
+        Map<String, Object> map = domain.serializeFeature();
+
+        String test = """
+                description: Foo
+                valueType: TEXT
+                defaultValue: Bar
+                expression: Baz
+                type: DOMAIN
+                """;
+
+        Map<String, Object> expected = yaml.load(test);
+
+        assertEquals(expected, map);
 
     }
 

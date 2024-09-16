@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.yaml.snakeyaml.DumperOptions;
@@ -19,19 +18,58 @@ import org.yaml.snakeyaml.DumperOptions.FlowStyle;
 
 import io.github.isagroup.exceptions.PricingParsingException;
 import io.github.isagroup.models.PricingManager;
-import io.github.isagroup.models.Version;
 import io.github.isagroup.services.parsing.PricingManagerParser;
-import io.github.isagroup.services.serializer.OneDotOneSerializer;
 import io.github.isagroup.services.serializer.PricingManagerSerializer;
-import io.github.isagroup.services.serializer.Serializable;
+import io.github.isagroup.services.updaters.Updater;
+import io.github.isagroup.services.updaters.V11Updater;
+import io.github.isagroup.services.updaters.V12Updater;
+import io.github.isagroup.services.updaters.Version;
+import io.github.isagroup.services.updaters.YamlUpdater;
 import io.github.isagroup.services.yaml.SkipNullRepresenter;
 
 public class VersionTransformer {
 
     public static void main(String[] args) {
 
+        Version version = null;
+
+        if (args.length != 3) {
+            System.out.println("""
+                    Arguments
+                    sourceFolder targetFolder version
+
+                    Version format is major.minor
+
+                    Examples:
+
+                    ./pricings ./pricing-updated 1.1
+
+                    """);
+            return;
+        }
+
+        if (args[0] == null) {
+            System.out.println(
+                    "Source folder is null. You have not specified the source directory to read configuration files");
+            return;
+        }
+
+        if (args[1] == null) {
+            System.out.println(
+                    "Destination folder is null. You have not specified a directory to dump the configuration files");
+            return;
+        }
+
         try {
-            transformFiles("src/main/resources/pricing", "src/test/resources/temp", "1.1");
+            version = Version.version(args[2]);
+
+        } catch (Exception e) {
+            System.out.println("Unrecognized version");
+            return;
+        }
+
+        try {
+            transformFiles("src/main/resources/pricing", "src/test/resources/temp", version);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -39,22 +77,7 @@ public class VersionTransformer {
 
     }
 
-    private static void transformFiles(String srcPath, String destinyPath, String targetVersion) throws Exception {
-
-        if (srcPath == null) {
-            System.out.println("You have not specified the source directory to read configuration files");
-            return;
-        }
-
-        if (destinyPath == null) {
-            System.out.println("You have not specified a directory to dump the configuration files");
-            return;
-        }
-
-        if (targetVersion == null) {
-            System.out.println("You have not specified a version to target the transformation");
-            return;
-        }
+    private static void transformFiles(String srcPath, String destinyPath, Version targVersion) throws Exception {
 
         File sourceDirectory = new File(srcPath);
         File destinationDirectory = new File(destinyPath);
@@ -74,7 +97,7 @@ public class VersionTransformer {
         System.out.println(String.format("Reading files from '%s' directory at path '%s'", sourceDirectory.getName(),
                 sourceDirectory.getAbsolutePath()));
         try {
-            processFiles(sourceDirectory.toURI(), destinyPath, targetVersion);
+            processFiles(sourceDirectory.toURI(), destinyPath, targVersion);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -98,16 +121,31 @@ public class VersionTransformer {
 
     }
 
+    private static Map<String, Object> updater(Map<String, Object> configFile, Version version) {
+
+        Updater updater = new YamlUpdater(configFile);
+
+        switch (version) {
+            case V1_0 -> updater = new YamlUpdater(configFile);
+            case V1_1 -> updater = new V11Updater(configFile);
+            case V1_2 -> updater = new V12Updater(configFile);
+        }
+
+        try {
+            return updater.update();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
     private static boolean hasYamlExtension(String name) {
         return name.endsWith(".yml") || name.endsWith(".yaml");
     }
 
-    private static void processFiles(URI srcPath, String destiniyPath, String targetVersion) throws Exception {
-        Optional<Version> someVersion = Version.valueOf(targetVersion);
-
-        if (someVersion.isEmpty()) {
-            throw new Exception(String.format("version '%s' is not valid", targetVersion));
-        }
+    private static void processFiles(URI srcPath, String destiniyPath, Version targetVersion) throws Exception {
 
         DumperOptions options = new DumperOptions();
         options.setIndent(2);
@@ -124,21 +162,21 @@ public class VersionTransformer {
                         PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
 
                         String header = "| trying to convert '%s' from version %s to %s |";
-                        String formattedMessage = String.format(header, file.getName(), pricingManager.getVersion(),
-                                someVersion.get());
-                        if (someVersion.get().equals(new Version(1, 1))) {
-                            System.out.println("=".repeat(formattedMessage.length()));
-                            System.out.println(formattedMessage);
-                            System.out.println("=".repeat(formattedMessage.length()));
+                        String formattedMessage = String.format(header, file.getName(),
+                                pricingManager.getVersion(),
+                                targetVersion);
+                        Map<String, Object> updatedFile = updater(configFile, targetVersion);
+                        PricingManager updatedPricing = PricingManagerParser.parseMapToPricingManager(updatedFile);
+                        System.out.println("=".repeat(formattedMessage.length()));
+                        System.out.println(formattedMessage);
+                        System.out.println("=".repeat(formattedMessage.length()));
 
-                            Serializable serializer = new OneDotOneSerializer(new PricingManagerSerializer());
+                        PricingManagerSerializer serializer = new PricingManagerSerializer();
 
-                            try (FileWriter fileWritter = new FileWriter(destiniyPath + "/" + file.getName())) {
-                                yaml.dump(serializer.serialize(pricingManager), fileWritter);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-
+                        try (FileWriter fileWritter = new FileWriter(destiniyPath + "/" + file.getName())) {
+                            yaml.dump(serializer.serialize(updatedPricing), fileWritter);
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
 
                     } catch (PricingParsingException e) {

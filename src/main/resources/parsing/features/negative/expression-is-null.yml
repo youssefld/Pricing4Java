@@ -1,5 +1,4 @@
-version: "1.0"
-saasName: putting 1.0 should be 1.0 in java object
+saasName: Null expression
 currency: EUR
 hasAnnualPayment: false
 day: 31
@@ -10,8 +9,6 @@ features:
     type: DOMAIN
     valueType: TEXT
     defaultValue: baz
-    expression: 1==1
-    serverExpression: 1==1
 plans:
   BASIC:
     description: Basic plan

@@ -4,11 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -20,25 +19,40 @@ import io.github.isagroup.exceptions.PricingParsingException;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.parsing.PricingManagerParser;
 import io.github.isagroup.services.serializer.PricingManagerSerializer;
-import io.github.isagroup.services.updaters.Updater;
-import io.github.isagroup.services.updaters.V11Updater;
-import io.github.isagroup.services.updaters.V12Updater;
+
 import io.github.isagroup.services.updaters.Version;
 import io.github.isagroup.services.updaters.YamlUpdater;
 import io.github.isagroup.services.yaml.SkipNullRepresenter;
 
 public class VersionTransformer {
 
+    private final Yaml yaml;
+    private final PricingManagerSerializer serializer;
+
+    public VersionTransformer() {
+
+        DumperOptions options = new DumperOptions();
+        options.setIndent(2);
+        options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(FlowStyle.BLOCK);
+        this.yaml = new Yaml(new SkipNullRepresenter(), options);
+        this.serializer = new PricingManagerSerializer();
+    }
+
     public static void main(String[] args) {
 
-        Version version = null;
-
         if (args.length != 3) {
+            System.out.println("[ERROR] Expected 3 arguments but 2 were given");
             System.out.println("""
-                    Arguments
-                    sourceFolder targetFolder version
+                    Yaml4SaaSUpdater
+                    Description:
+                    Utility that updates Yaml4SaaS pricings to the given version
+                    of the specification
+                    Usage:
+                    <source_folder_path> <destination_folder_path> <version>
 
-                    Version format is major.minor
+                    Supported version are:
+                    1.1
 
                     Examples:
 
@@ -60,136 +74,116 @@ public class VersionTransformer {
             return;
         }
 
-        try {
-            version = Version.version(args[2]);
-
-        } catch (Exception e) {
-            System.out.println("Unrecognized version");
+        if (args[2] == null) {
+            System.out.println("Version is null. Current supported versions are " + Arrays.toString(Version.values()));
             return;
         }
 
+        Version version = null;
         try {
-            transformFiles("src/main/resources/pricing", "src/test/resources/temp", version);
-
+            version = Version.version(args[2]);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out
+                    .println("[ERROR] <version>: Unrecognized version " + args[2] + ".\nSupported versions are:\n1.1");
+            return;
         }
 
-    }
-
-    private static void transformFiles(String srcPath, String destinyPath, Version targVersion) throws Exception {
-
-        File sourceDirectory = new File(srcPath);
-        File destinationDirectory = new File(destinyPath);
+        File sourceDirectory = new File(args[0]);
+        File destinationDirectory = new File(args[1]);
 
         if (!sourceDirectory.exists()) {
-            System.out.println(String.format("Specified path '%s' does not exists directory does not exists",
-                    sourceDirectory.getAbsolutePath()));
+            System.out.printf(
+                    "[ERROR] <source_folder_path>:\nSpecified path " + sourceDirectory.getPath() + " doesn't exist");
+            return;
+        }
+
+        if (!destinationDirectory.exists()) {
+            System.out.printf("[ERROR] <destination_folder_path>:\nSpecified path " + destinationDirectory.getPath()
+                    + " doesn't exist");
             return;
         }
 
         if (sourceDirectory.isFile()) {
-            System.out.println(String.format("Specified path '%s' is a file, specify a directory",
-                    sourceDirectory.getAbsolutePath()));
+            System.out.println(
+                    "[ERROR] <source_folder_path>: Provided path " + sourceDirectory.getPath() + " is not a directory");
             return;
         }
 
-        System.out.println(String.format("Reading files from '%s' directory at path '%s'", sourceDirectory.getName(),
-                sourceDirectory.getAbsolutePath()));
+        if (destinationDirectory.isFile()) {
+            System.out.println("[ERROR] <destination_folder_path>: Provided path " + destinationDirectory.getPath()
+                    + " is not a directory");
+            return;
+        }
+
+        System.out.println("Scanning directory " + sourceDirectory.getPath() + " ");
+
+        VersionTransformer versionTransformer = new VersionTransformer();
+
         try {
-            processFiles(sourceDirectory.toURI(), destinyPath, targVersion);
+            versionTransformer.processFiles(sourceDirectory, destinationDirectory, version);
+            System.out.println();
+            System.out.println("DONE!");
+            System.out.println("Dumped files in directory " + destinationDirectory.getPath());
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if (destinationDirectory.exists()) {
-            if (destinationDirectory.isFile()) {
-                System.out.println(
-                        String.format("Specified path '%s' is a file", destinationDirectory.getAbsolutePath()));
-                return;
-
-            } else {
-                System.out.println(
-                        String.format("Dumping configuration files to '%s'", destinationDirectory.getAbsolutePath()));
-            }
-        } else {
-            destinationDirectory.mkdir();
-            System.out.println(String.format("Creating folder '%s' at path '%s'",
-                    destinationDirectory.getName(),
-                    destinationDirectory.getAbsolutePath()));
-        }
-
     }
 
-    private static Map<String, Object> updater(Map<String, Object> configFile, Version version) {
+    private void processFiles(File src, File dst, Version targetVersion) {
 
-        Updater updater = new YamlUpdater(configFile);
-
-        switch (version) {
-            case V1_0 -> updater = new YamlUpdater(configFile);
-            case V1_1 -> updater = new V11Updater(configFile);
-            case V1_2 -> updater = new V12Updater(configFile);
-        }
-
-        try {
-            return updater.update();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
-
-    private static boolean hasYamlExtension(String name) {
-        return name.endsWith(".yml") || name.endsWith(".yaml");
-    }
-
-    private static void processFiles(URI srcPath, String destiniyPath, Version targetVersion) throws Exception {
-
-        DumperOptions options = new DumperOptions();
-        options.setIndent(2);
-        options.setPrettyFlow(true);
-        options.setDefaultFlowStyle(FlowStyle.BLOCK);
-        Yaml yaml = new Yaml(new SkipNullRepresenter(), options);
-
-        try (Stream<Path> stream = Files.walk(Paths.get(srcPath), FileVisitOption.FOLLOW_LINKS)) {
+        try (Stream<Path> stream = Files.walk(src.toPath(), FileVisitOption.FOLLOW_LINKS)) {
             stream.forEach((path) -> {
                 File file = path.toFile();
-                if (file.isFile() && hasYamlExtension(file.getName())) {
-                    try (FileInputStream fileInput = new FileInputStream(file)) {
-                        Map<String, Object> configFile = yaml.load(fileInput);
-                        PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
-
-                        String header = "| trying to convert '%s' from version %s to %s |";
-                        String formattedMessage = String.format(header, file.getName(),
-                                pricingManager.getVersion(),
-                                targetVersion);
-                        Map<String, Object> updatedFile = updater(configFile, targetVersion);
-                        PricingManager updatedPricing = PricingManagerParser.parseMapToPricingManager(updatedFile);
-                        System.out.println("=".repeat(formattedMessage.length()));
-                        System.out.println(formattedMessage);
-                        System.out.println("=".repeat(formattedMessage.length()));
-
-                        PricingManagerSerializer serializer = new PricingManagerSerializer();
-
-                        try (FileWriter fileWritter = new FileWriter(destiniyPath + "/" + file.getName())) {
-                            yaml.dump(serializer.serialize(updatedPricing), fileWritter);
-                        } catch (IOException e) {
+                if (file.isFile() && this.hasYamlExtension(file.getName())) {
+                    Map<String, Object> configFile = this.loadYaml4SaaSFile(file);
+                    if (configFile != null) {
+                        YamlUpdater yamlUpdater = new YamlUpdater(configFile);
+                        try {
+                            Map<String, Object> updatedFile = yamlUpdater.update(targetVersion);
+                            PricingManager updatedPricing = PricingManagerParser.parseMapToPricingManager(updatedFile);
+                            this.writeUpdatedFile(updatedPricing, dst, file.getName());
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
-
-                    } catch (PricingParsingException e) {
-                        System.out.print(String.format("file '%s' at path '%s' could not be parsed",
-                                file.getName(), file.getAbsolutePath()));
-                        e.printStackTrace();
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
+
                 }
             });
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void writeUpdatedFile(PricingManager pricingManager, File destination, String fileName) {
+        System.out.println("Updating file " + fileName);
+
+        try (FileWriter fileWriter = new FileWriter(destination + "/" + fileName)) {
+            yaml.dump(this.serializer.serialize(pricingManager), fileWriter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean hasYamlExtension(String name) {
+        return name.endsWith(".yml") || name.endsWith(".yaml");
+    }
+
+    private Map<String, Object> loadYaml4SaaSFile(File file) {
+        try (FileInputStream fileInput = new FileInputStream(file)) {
+            Map<String, Object> configFile = this.yaml.load(fileInput);
+            PricingManagerParser.parseMapToPricingManager(configFile);
+            return configFile;
+
+        } catch (PricingParsingException e) {
+            System.out.println(String.format("file '%s' at path '%s' could not be parsed",
+                    file.getName(), file.getAbsolutePath()));
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

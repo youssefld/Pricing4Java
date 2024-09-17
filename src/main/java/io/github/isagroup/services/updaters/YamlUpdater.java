@@ -2,17 +2,25 @@ package io.github.isagroup.services.updaters;
 
 import java.util.Map;
 
-public class YamlUpdater implements Updater {
+public class YamlUpdater {
 
-    private Map<String, Object> yaml;
+    private final Map<String, Object> configFile;
 
-    public YamlUpdater(Map<String, Object> yaml) {
-        this.yaml = yaml;
+    private Updater updater;
+
+    public YamlUpdater(Map<String, Object> configFile) {
+        this.configFile = configFile;
+        this.updater = new BaseUpdater(configFile);
     }
 
-    @Override
-    public Map<String, Object> update() throws Exception {
-        return this.yaml;
-    }
+    public Map<String, Object> update(Version version) throws Exception {
 
+        switch (version) {
+            case V1_0 -> this.updater = new BaseUpdater(configFile);
+            case V1_1 -> this.updater = new V11Updater(configFile);
+            case V1_2 -> this.updater = new V12Updater(configFile);
+        }
+
+        return updater.update();
+    }
 }

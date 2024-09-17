@@ -29,7 +29,14 @@ public abstract class VersionUpdater implements Updater {
     }
 
     private boolean isYamlVersionAndTargetVersionEqual() throws Exception {
-        return Version.version(this.yamlFile.get("version")).equals(this.target);
+
+        String version = (String) this.yamlFile.get("version");
+
+        if (this.yamlFile.get("version") == null) {
+            version = "1.0";
+        }
+
+        return Version.version(version).equals(target);
     }
 
 }

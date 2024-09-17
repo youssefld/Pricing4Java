@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 public class V11Updater extends VersionUpdater {
 
     public V11Updater(Map<String, Object> yamlFile) {
-        super(Version.V1_1, new YamlUpdater(yamlFile), yamlFile);
+        super(Version.V1_1, new BaseUpdater(yamlFile), yamlFile);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class V11Updater extends VersionUpdater {
             String expression = (String) featureAttributes.get("expression");
             String serverExpression = (String) featureAttributes.get("serverExpression");
 
-            if (expression.equals(serverExpression)) {
+            if (expression != null && expression.equals(serverExpression)) {
                 featureAttributes.remove("serverExpression");
             }
 

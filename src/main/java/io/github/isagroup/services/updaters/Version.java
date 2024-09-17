@@ -16,7 +16,19 @@ public enum Version {
 
     }
 
+    public static Version defaultVer() {
+        return Version.V1_0;
+    }
+
+    public static Version latest() {
+        return Version.V1_1;
+    }
+
     public static Version version(Object version) throws Exception {
+
+        if (version == null) {
+            throw new Exception("Version is null");
+        }
 
         if (version instanceof Double) {
             return Version.version((Double) version);

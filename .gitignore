@@ -31,5 +31,7 @@ target/
 
 .vscode
 
+.idea
+
 # MacOS
 .DS_Store

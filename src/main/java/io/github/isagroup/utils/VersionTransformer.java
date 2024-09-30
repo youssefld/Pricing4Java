@@ -139,9 +139,8 @@ public class VersionTransformer {
                 if (file.isFile() && this.hasYamlExtension(file.getName())) {
                     Map<String, Object> configFile = this.loadYaml4SaaSFile(file);
                     if (configFile != null) {
-                        YamlUpdater yamlUpdater = new YamlUpdater(configFile);
                         try {
-                            Map<String, Object> updatedFile = yamlUpdater.update(targetVersion);
+                            Map<String, Object> updatedFile = YamlUpdater.update(configFile,targetVersion);
                             PricingManager updatedPricing = PricingManagerParser.parseMapToPricingManager(updatedFile);
                             this.writeUpdatedFile(updatedPricing, dst, file.getName());
                         } catch (Exception e) {

@@ -10,6 +10,7 @@ import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
+import io.github.isagroup.services.updaters.Version;
 
 public class PricingManagerSerializer {
 
@@ -21,7 +22,7 @@ public class PricingManagerSerializer {
 
     public Map<String, Object> serialize(PricingManager pricingManager) throws SerializerException {
 
-        serializedPricingManager.put("version", "1.1");
+        serializedPricingManager.put("version", Version.LATEST.toString());
         serializedPricingManager.put("saasName", pricingManager.getSaasName());
         serializedPricingManager.put("createdAt", pricingManager.getCreatedAt().toString());
 

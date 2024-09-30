@@ -2,41 +2,38 @@ package io.github.isagroup.services.updaters;
 
 import java.util.Map;
 
+import io.github.isagroup.exceptions.UpdateException;
+import io.github.isagroup.exceptions.VersionException;
+
 public abstract class VersionUpdater implements Updater {
 
-    private Version target;
-    private Updater versionUpdater;
-    private Map<String, Object> yamlFile;
+    private final Version target;
+    private final Updater versionUpdater;
 
-    public VersionUpdater(Version target, Updater updater, Map<String, Object> yamlFile) {
+    public VersionUpdater(Version target, Updater updater) {
         this.target = target;
         this.versionUpdater = updater;
-        this.yamlFile = yamlFile;
-
     }
 
     @Override
-    public Map<String, Object> update() throws Exception {
+    public Map<String, Object> update(Map<String, Object> configFile) throws UpdateException {
+
+        if (this.versionUpdater == null) {
+            return configFile;
+        }
 
         if (target == null) {
-            throw new Exception("Cannot convert to null");
+            throw new UpdateException("Target version was not specified in the constructor");
         }
 
-        if (isYamlVersionAndTargetVersionEqual()) {
-            return this.yamlFile;
+        try {
+            if (Version.version(configFile.get("version")).equals(target)) {
+                return configFile;
+            }
+        } catch (VersionException e) {
+            throw new UpdateException(e.getMessage());
         }
-        return this.versionUpdater.update();
+
+        return this.versionUpdater.update(configFile);
     }
-
-    private boolean isYamlVersionAndTargetVersionEqual() throws Exception {
-
-        String version = (String) this.yamlFile.get("version");
-
-        if (this.yamlFile.get("version") == null) {
-            version = "1.0";
-        }
-
-        return Version.version(version).equals(target);
-    }
-
 }

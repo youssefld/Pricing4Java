@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import io.github.isagroup.exceptions.PricingParsingException;
+import io.github.isagroup.exceptions.VersionException;
 import io.github.isagroup.models.AddOn;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
@@ -39,8 +40,7 @@ public class PricingManagerParser {
         return pricingManager;
     }
 
-    private static void setBasicAttributes(Map<String, Object> yamlConfigMap, PricingManager pricingManager)
-            throws PricingParsingException {
+    private static void setBasicAttributes(Map<String, Object> yamlConfigMap, PricingManager pricingManager) {
 
         Version version = null;
 
@@ -57,7 +57,7 @@ public class PricingManagerParser {
                         String.format("'version' detected type is %s but 'version' type must be Double or String",
                                 yamlConfigMap.get("version").getClass().getSimpleName()));
             }
-        } catch (Exception e) {
+        } catch (VersionException e) {
             throw new PricingParsingException(e.getMessage());
         }
 
@@ -87,112 +87,62 @@ public class PricingManagerParser {
             pricingManager.setHasAnnualPayment((Boolean) yamlConfigMap.get("hasAnnualPayment"));
         }
 
-        if (pricingManager.getVersion().equals(Version.V1_0)) {
-            if (yamlConfigMap.get("day") == null) {
-                throw new PricingParsingException("Day of plan was not defined");
-            }
+        if (yamlConfigMap.get("createdAt") == null) {
+            throw new PricingParsingException("'createdAt' is mandatory. Check your config file.");
+        } else if (yamlConfigMap.get("createdAt") instanceof Date) {
+            Date createdAt = (Date) yamlConfigMap.get("createdAt");
+            pricingManager.setCreatedAt(createdAt.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 
-            if (!(yamlConfigMap.get("day") instanceof Integer)) {
-                throw new PricingParsingException("'day' is expected to be an integer");
-            }
-
-            if (yamlConfigMap.get("month") == null) {
-                throw new PricingParsingException("Month of plan was not defined");
-            }
-
-            if (!(yamlConfigMap.get("month") instanceof Integer)) {
-                throw new PricingParsingException("'month' is expected to be an integer");
-            }
-
-            if (yamlConfigMap.get("year") == null) {
-                throw new PricingParsingException("Year of plan was not defined");
-            }
-
-            if (!(yamlConfigMap.get("year") instanceof Integer)) {
-                throw new PricingParsingException("'year' is expected to be an integer");
-            }
-
-            int day = (int) yamlConfigMap.get("day");
-            int month = (int) yamlConfigMap.get("month");
-            int year = (int) yamlConfigMap.get("year");
-
+        } else if (yamlConfigMap.get("createdAt") instanceof String) {
             try {
-                pricingManager.setCreatedAt(LocalDate.of(year, month, day));
+                pricingManager.setCreatedAt(LocalDate.parse((String) yamlConfigMap.get("createdAt")));
 
-            } catch (DateTimeException err) {
-                throw new PricingParsingException(String.format(
-                        "Cannot convert %d-%d-%d to a LocalDate. Check that day, month and year are valid.", year,
-                        month, day));
-            }
-
-        } else if (pricingManager.getVersion().equals(Version.V1_1)) {
-
-            if (yamlConfigMap.get("day") != null
-                    || yamlConfigMap.get("month") != null
-                    || yamlConfigMap.get("year") != null) {
+            } catch (DateTimeParseException err) {
                 throw new PricingParsingException(
-                        "You have specified version 1.1 of the config but old configuration fields were encountered from version 1.0 (day, month, year). Please use createdAt and remove day, month and year or remove the version field.");
+                    String.format(
+                        "\"createdAt\" \"%s\" is invalid, use the following yyyy-MM-dd",
+                        yamlConfigMap.get("createdAt")));
             }
 
-            if (yamlConfigMap.get("createdAt") == null) {
-                throw new PricingParsingException("'createdAt' is mandatory. Check your config file.");
-            }
-
-            if (yamlConfigMap.get("createdAt") instanceof Date) {
-                Date createdAt = (Date) yamlConfigMap.get("createdAt");
-                pricingManager.setCreatedAt(createdAt.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-
-            } else if (yamlConfigMap.get("createdAt") instanceof String) {
-                try {
-                    pricingManager.setCreatedAt(LocalDate.parse((String) yamlConfigMap.get("createdAt")));
-
-                } catch (DateTimeParseException err) {
-                    throw new PricingParsingException(
-                            String.format(
-                                    "\"createdAt\" \"%s\" is invalid, use the following yyyy-MM-dd",
-                                    yamlConfigMap.get("createdAt")));
-                }
-
-            } else {
-                throw new PricingParsingException(
-                        String.format(
-                                "\"createdAt\" detected type is %s and must be a String or Date formatted like yyyy-MM-dd",
-                                yamlConfigMap.get("createdAt").getClass().getSimpleName()));
-            }
-
-            if (yamlConfigMap.get("starts") != null && !(yamlConfigMap.get("starts") instanceof Date)) {
-                throw new PricingParsingException(String.format("\"starts\" type is %s and must be a Date",
-                        yamlConfigMap.get("starts").getClass().getSimpleName()));
-            }
-
-            if (yamlConfigMap.get("ends") != null && !(yamlConfigMap.get("ends") instanceof Date)) {
-                throw new PricingParsingException(String.format("\"ends\" type is %s and must be a Date",
-                        yamlConfigMap.get("ends").getClass().getSimpleName()));
-            }
-
-            pricingManager.setStarts((Date) yamlConfigMap.get("starts"));
-            pricingManager.setEnds((Date) yamlConfigMap.get("ends"));
-
+        } else {
+            throw new PricingParsingException(
+                String.format(
+                    "\"createdAt\" detected type is %s and must be a String or Date formatted like yyyy-MM-dd",
+                    yamlConfigMap.get("createdAt").getClass().getSimpleName()));
         }
+
+        if (yamlConfigMap.get("starts") != null && !(yamlConfigMap.get("starts") instanceof Date)) {
+            throw new PricingParsingException(String.format("\"starts\" type is %s and must be a Date",
+                yamlConfigMap.get("starts").getClass().getSimpleName()));
+        }
+
+        if (yamlConfigMap.get("ends") != null && !(yamlConfigMap.get("ends") instanceof Date)) {
+            throw new PricingParsingException(String.format("\"ends\" type is %s and must be a Date",
+                yamlConfigMap.get("ends").getClass().getSimpleName()));
+        }
+
+        pricingManager.setStarts((Date) yamlConfigMap.get("starts"));
+        pricingManager.setEnds((Date) yamlConfigMap.get("ends"));
 
     }
 
     private static void setFeatures(Map<String, Object> map, PricingManager pricingManager) {
-        Map<String, Feature> pricingFeatures = new LinkedHashMap<>();
 
-        Map<String, Object> featuresMap = new HashMap<>();
 
         if (map.get("features") == null) {
             throw new PricingParsingException(
                     "'features' is mandatory. It should be a map of features with their correspoding attributes.");
         }
 
-        try {
-            featuresMap = (Map<String, Object>) map.get("features");
-        } catch (ClassCastException e) {
+        if (!(map.get("features") instanceof Map)) {
             throw new PricingParsingException(
-                    "The features are not defined correctly. It should be a map of features and their options.");
+                    "'features' must be a Map but found " + map.get("features").getClass().getSimpleName()
+                            + " instead");
         }
+
+        Map<String, Feature> pricingFeatures = new LinkedHashMap<>();
+        Map<String,Object> featuresMap = (Map<String, Object>) map.get("features");
+
 
         for (String featureName : featuresMap.keySet()) {
 

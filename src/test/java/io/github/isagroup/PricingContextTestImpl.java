@@ -5,19 +5,26 @@ import java.util.Map;
 public class PricingContextTestImpl extends PricingContext {
 
     private String path;
-
     private String secret;
-
     private Integer jwtExpiration;
-
     private String userPlan;
-
     private Map<String, Object> userContext;
+
+
+    public PricingContextTestImpl() {
+        this.path = null;
+        this.secret = "defualtSecret";
+        this.jwtExpiration = 86400;
+        this.userPlan = null;
+        this.userContext = null;
+    }
 
     @Override
     public String getConfigFilePath() {
         return path;
-    };
+    }
+
+    ;
 
     public void setConfigFilePath(String path) {
         this.path = path;
@@ -26,7 +33,9 @@ public class PricingContextTestImpl extends PricingContext {
     @Override
     public String getJwtSecret() {
         return secret;
-    };
+    }
+
+    ;
 
     public void setJwtSecret(String secret) {
         this.secret = secret;
@@ -35,7 +44,8 @@ public class PricingContextTestImpl extends PricingContext {
     @Override
     public int getJwtExpiration() {
         return jwtExpiration;
-    };
+    }
+
 
     public void setJwtExpiration(Integer jwtExpiration) {
         this.jwtExpiration = jwtExpiration;

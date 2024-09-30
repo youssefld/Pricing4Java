@@ -1,15 +1,15 @@
-version: 1.0
-saasName: given version as float should be equal to Java version 1.0
+version: "1.1"
+saasName: Given well formatted version should pass
+createdAt: 2024-09-23
 currency: EUR
 hasAnnualPayment: false
-day: 31
-month: 8
-year: 2024
 features:
   foo:
     type: DOMAIN
     valueType: TEXT
     defaultValue: baz
+    expression: 1==1
+    serverExpression: 1==1
 plans:
   BASIC:
     description: Basic plan

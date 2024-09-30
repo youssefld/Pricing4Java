@@ -1,8 +1,8 @@
-saasName: Null currency
+saasName: Value type is not a value in the enum
 day: 1
 month: 1
 year: 2000
-currency: foo
+currency: EUR
 features:
   foo:
     description: Bar

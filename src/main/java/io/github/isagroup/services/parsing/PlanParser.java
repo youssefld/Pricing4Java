@@ -219,8 +219,9 @@ public class PlanParser {
 
     }
 
-    private static boolean isValidPrice(Object price){
-        return price instanceof Double || price instanceof Long || price instanceof Integer || price instanceof String || price == null;
+    private static boolean isValidPrice(Object price) {
+        return price instanceof Double || price instanceof Long || price instanceof Integer || price instanceof String
+                || price == null;
     }
 
 }

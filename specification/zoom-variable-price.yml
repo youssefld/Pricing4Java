@@ -1,0 +1,71 @@
+saasName: zoom
+createdAt: 2024-09-26
+currency: USD
+hasAnnualPayment: true
+features:
+  cloudStorageAddOn:
+    description: ""
+    valueType: BOOLEAN
+    defaultValue: false
+    type: DOMAIN
+    expression: userContext["cloudStorageAddOn"]
+usageLimits:
+  cloudStorageOverageFee:
+    valueType: NUMERIC
+    defaultValue: 1.5
+    unit: USD/GB
+    type: NON_RENEWABLE
+  meetingRecordingStorageCapacity:
+    valueType: NUMERIC
+    defaultValue: 5
+    unit: GB
+    type: NON_RENEWABLE
+plans:
+  pro:
+    description: ""
+    monthlyPrice: 15.99
+    annualPrice: 13.32
+    unit: month/user
+    usageLimits: null
+  business-plus:
+    description: ""
+    monthlyPrice: 15.99
+    annualPrice: 13.32
+    unit: month/user
+    usageLimits:
+      meetingRecordingStorageCapacity:
+        value: 10
+addOns:
+  cloudStorage30GB:
+    monthlyPrice: 10
+    priceExpression: addOnsContext['monthlyPrice'] + userContext['overConsumedGB'] * addOnsContext['usageLimits']['cloudStorageOverageFee']
+    usageLimits:
+      cloudStorageOverageFee:
+        value: 1.5
+    features:
+      cloudStorageAddOn: true
+  cloudStorage200GB:
+    monthlyPrice: 40
+    priceExpression: addOnsContext['monthlyPrice'] + userContext['overConsumedGB'] * addOnsContext['usageLimits']['cloudStorageOverageFee']
+    features:
+      cloudStorageAddOn:
+        value: true
+    usageLimits: null
+  cloudStorage1TB:
+    monthlyPrice: 100
+    priceExpression: addOnsContext['monthlyPrice'] + userContext['overConsumedGB'] * addOnsContext['usageLimits']['cloudStorageOverageFee']
+    features:
+      cloudStorageAddOn:
+        value: true
+    usageLimits:
+      cloudStorageOverageFee:
+        value: 0.5
+  cloudStorage5TB:
+    monthlyPrice: 500
+    priceExpression: addOnsContext['monthlyPrice'] + userContext['overConsumedGB'] * addOnsContext['usageLimits']['cloudStorageOverageFee']
+    features:
+      cloudStorageAddOn:
+        value: true
+    usageLimits:
+      cloudStorageOverageFee:
+        value: 0.1

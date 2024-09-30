@@ -6,12 +6,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import io.github.isagroup.services.updaters.Version;
+import io.github.isagroup.services.updaters.YamlUpdater;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
 
 import io.github.isagroup.exceptions.FilepathException;
 import io.github.isagroup.exceptions.SerializerException;
+import io.github.isagroup.exceptions.UpdateException;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.parsing.PricingManagerParser;
 import io.github.isagroup.services.serializer.PricingManagerSerializer;
@@ -36,13 +39,16 @@ public class YamlUtils {
 
         try {
             String result = new String(Files.readAllBytes(Paths.get(DEFAULT_YAML_WRITE_PATH + yamlPath)));
-            Map<String, Object> test = yaml.load(result);
+            Map<String, Object> configFile = yaml.load(result);
 
-            return PricingManagerParser.parseMapToPricingManager(test);
+            return PricingManagerParser.parseMapToPricingManager(YamlUpdater.update(configFile,Version.V1_1));
 
         } catch (IOException e) {
             throw new FilepathException("Either the file path is invalid or the file does not exist.");
+        } catch (UpdateException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
     /**
@@ -66,7 +72,7 @@ public class YamlUtils {
         Representer representer = new SkipNullRepresenter();
 
         PricingManagerSerializer pricingManagerSerializer = new PricingManagerSerializer();
-        try (FileWriter writer = new FileWriter(DEFAULT_YAML_WRITE_PATH + yamlPath);) {
+        try (FileWriter writer = new FileWriter(DEFAULT_YAML_WRITE_PATH + yamlPath)) {
             Map<String, Object> serializedPricingManager = pricingManagerSerializer.serialize(pricingManager);
             Yaml yaml = new Yaml(representer, dump);
             yaml.dump(serializedPricingManager, writer);

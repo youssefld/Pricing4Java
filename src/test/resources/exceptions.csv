@@ -1,37 +1,29 @@
 FILENAME;EXPECTED_ERROR_MESSAGE
 null-saasName;SaasName was not defined
 boolean-in-saasName;'saasName' has to be a string
-null-day;Day of plan was not defined
-boolean-in-day;'day' is expected to be an integer
-null-month;Month of plan was not defined
-boolean-in-month;'month' is expected to be an integer
-null-year;Year of plan was not defined
-boolean-in-year;'year' is expected to be an integer
-invalid-date-1.0;Cannot convert 2024-13-31 to a LocalDate. Check that day, month and year are valid.
 null-currency;Currency was not defined
 boolean-in-currency;'currency' has to be a string
 null-features;'features' is mandatory. It should be a map of features with their correspoding attributes.
-string-in-features;The features are not defined correctly. It should be a map of features and their options.
-boolean-in-features;The features are not defined correctly. It should be a map of features and their options.
-integer-in-features;The features are not defined correctly. It should be a map of features and their options.
-float-in-features;The features are not defined correctly. It should be a map of features and their options.
-list-in-features;The features are not defined correctly. It should be a map of features and their options.
+string-in-features;'features' must be a Map but found String instead
+boolean-in-features;'features' must be a Map but found Boolean instead
+integer-in-features;'features' must be a Map but found Integer instead
+float-in-features;'features' must be a Map but found Double instead
+list-in-features;'features' must be a Map but found ArrayList instead
 null-plans-and-addons;The pricing manager does not have any plans or add ons
 boolean-in-plans;The plans are not defined correctly. It should be a map of plans and their options
 string-in-plans;The plans are not defined correctly. It should be a map of plans and their options
 integer-in-plans;The plans are not defined correctly. It should be a map of plans and their options
 float-in-plans;The plans are not defined correctly. It should be a map of plans and their options
 list-in-plans;The plans are not defined correctly. It should be a map of plans and their options
-invalid-version;Invalid character "T" at position 0 in version "This is an invalid version :("
-version-1.1-mix-version-1.0;You have specified version 1.1 of the config but old configuration fields were encountered from version 1.0 (day, month, year). Please use createdAt and remove day, month and year or remove the version field.
+invalid-version;Cannot update from "This is an invalid version :(" to version 1.1
 null-createdAt-version-1.1;'createdAt' is mandatory. Check your config file.
-boolean-in-version;'version' detected type is Boolean but 'version' type must be Double or String
+boolean-in-version;Cannot update from "true" to version 1.1
 boolean-createdAt-version-1.1;"createdAt" detected type is Boolean and must be a String or Date formatted like yyyy-MM-dd
 invalid-string-createdAt-version-1.1;"createdAt" "Invalid date format :(" is invalid, use the following yyyy-MM-dd
 invalid-timestamp-starts;"starts" type is String and must be a Date
 invalid-timestamp-ends;"ends" type is String and must be a Date
-invalid-float-version;Unable to parse minor "9999999999"
-invalid-version-only-dots;Unable to parse major ""
+invalid-float-version;Cannot update from "1.9999999999" to version 1.1
+invalid-version-only-dots;Cannot update from "..." to version 1.1
 invalid-date-in-createdAt;"createdAt" "2024-12-1000" is invalid, use the following yyyy-MM-dd
 
 

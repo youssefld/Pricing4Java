@@ -10,6 +10,9 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Date;
 
+import io.github.isagroup.exceptions.FilepathException;
+import io.github.isagroup.exceptions.UpdateException;
+import io.github.isagroup.services.updaters.YamlUpdater;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
@@ -42,20 +45,16 @@ public class PricingManagerParserTest {
     }
 
     @ParameterizedTest
-    @CsvSource({ "null-version-defaults-to-1.0", "version-1.0-as-string", "version-1.0-as-float" })
+    @CsvSource({ "null-version-defaults-to-v1.0", "version-as-string", "version-as-float" })
     void givenDifferentFormatsShouldEqualToOneDotZero(String input) {
 
-        Yaml yaml = new Yaml();
-        String path = String.format("src/test/resources/parsing/%s.yml", input);
+        String path = String.format("parsing/pricing-manager/version/%s.yml", input);
         try {
-            Map<String, Object> configFile = yaml
-                    .load(new FileInputStream(path));
-            PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
-            assertEquals(io.github.isagroup.services.updaters.Version.V1_0, pricingManager.getVersion());
-        } catch (FileNotFoundException e) {
-            fail(String.format("The file with location '%s' was not found", path));
+           YamlUtils.retrieveManagerFromYaml(path);
         } catch (PricingParsingException e) {
-            fail("Pricing could not be parsed correctly check the yaml file.");
+            fail(input + e.getMessage());
+        } catch (FilepathException e) {
+            fail();
         }
     }
 
@@ -109,11 +108,11 @@ public class PricingManagerParserTest {
         try {
             Map<String, Object> configFile = yaml
                     .load(new FileInputStream(path));
-            PricingManagerParser.parseMapToPricingManager(configFile);
+            PricingManagerParser.parseMapToPricingManager(YamlUpdater.update(configFile,Version.V1_1));
             fail();
         } catch (FileNotFoundException e) {
             fail(String.format("The file with location '%s' was not found", path));
-        } catch (PricingParsingException e) {
+        } catch (PricingParsingException | UpdateException e) {
             assertEquals(expectedErrorMessage, e.getMessage());
         }
     }

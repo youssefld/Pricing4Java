@@ -85,32 +85,55 @@ public class FeatureParserTest {
     @Test
     void givenNullTypeShouldThrowNullPointerException() {
 
-        assertThrows(NullPointerException.class,
-                () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "null-type.yml"));
+        try {
+            YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "null-type.yml");
+            fail();
+        } catch (PricingParsingException e) {
+            assertEquals("feature 'type' is mandatory", e.getMessage());
+        }
+
     }
 
     @Test
     void givenNullValueTypeShouldThrowNullPointerException() {
+        try {
+            YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "null-value-type.yml");
+            fail();
+        } catch (PricingParsingException e) {
+            assertEquals("Feature value type is null", e.getMessage());
+        }
 
-        assertThrows(NullPointerException.class,
-                () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "null-value-type.yml"));
     }
 
     @Test
     void givenUnsuportedValueTypeShouldThrowIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class,
-                () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "unsuported-value-type.yml"));
+        try {
+            YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "unsuported-value-type.yml");
+            fail();
+        } catch (PricingParsingException e) {
+            assertEquals("The feature foo does not have a supported valueType. Current valueType: foo", e.getMessage());
+        }
     }
 
     @Test
     void givenFeatureWithNullNameShouldThrowException() {
-        assertThrows(PricingParsingException.class,
-                () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "feature-null-as-key.yml"));
+
+        try {
+            YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "feature-null-as-key.yml");
+            fail();
+        } catch (PricingParsingException e) {
+            assertEquals("A feature cannot have the name null", e.getMessage());
+        }
     }
 
     @Test
     void givenKeyValueInFeaturesShouldThrowClassCastException() {
-        assertThrows(PricingParsingException.class,
-                () -> YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "features-is-key-value.yml"));
+
+        try {
+            YamlUtils.retrieveManagerFromYaml(NEGATIVE_CASES + "features-is-key-value.yml");
+            fail();
+        } catch (PricingParsingException e) {
+            assertEquals("The feature foo is not defined correctly. All its options must be specified, and it cannot be defined as a key-value pair", e.getMessage());
+        }
     }
 }

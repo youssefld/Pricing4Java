@@ -30,6 +30,10 @@ public class FeatureParser {
 
     public static Feature parseMapToFeature(String featureName, Map<String, Object> featureMap) {
 
+        if (featureMap.get("type") == null) {
+            throw new PricingParsingException("feature 'type' is mandatory");
+        }
+
         try {
 
             switch (FeatureType.valueOf((String) featureMap.get("type"))) {
@@ -163,14 +167,14 @@ public class FeatureParser {
         feature.setDescription((String) map.get("description"));
 
         if (map.get("valueType") == null) {
-            throw new NullPointerException("Feature value type is null");
+            throw new PricingParsingException("Feature value type is null");
         }
 
         try {
             feature.setValueType(ValueType.valueOf((String) map.get("valueType")));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("The feature " + featureName
-                    + "does not have a supported valueType. Current valueType: " + (String) map.get("valueType"));
+            throw new PricingParsingException("The feature " + featureName
+                    + " does not have a supported valueType. Current valueType: " + (String) map.get("valueType"));
         }
         try {
             switch (feature.getValueType()) {

@@ -2,9 +2,10 @@ saasName: Null currency
 day: 1
 month: 1
 year: 2000
-currency: foo
+currency: EUR
 features:
   foo:
     description: Bar
-    type: null
     valueType: TEXT
+    defaultValue: foo
+    type: null

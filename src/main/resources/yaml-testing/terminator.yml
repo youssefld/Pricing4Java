@@ -9,14 +9,12 @@ features:
     valueType: BOOLEAN
     defaultValue: false
     expression: ''
-    serverExpression: ''
     type: DOMAIN
   skynet:
     description: Skynet IA
     valueType: BOOLEAN
     defaultValue: false
     expression: ''
-    serverExpression: ''
     type: DOMAIN
 usageLimits:
   machines:

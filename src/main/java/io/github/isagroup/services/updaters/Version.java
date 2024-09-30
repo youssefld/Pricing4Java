@@ -1,12 +1,16 @@
 package io.github.isagroup.services.updaters;
 
+import io.github.isagroup.exceptions.VersionException;
+
 public enum Version {
     V1_0(1, 0), V1_1(1, 1), V1_2(1, 2);
 
     private final int major;
     private final int minor;
 
-    private Version(int major, int minor) {
+    public static final Version LATEST = V1_1;
+
+     Version(int major, int minor) {
         if (!isValid(major, minor)) {
             throw new IllegalStateException(String.format("Version of yaml {}.{} is unsupported", major, minor));
         }
@@ -16,39 +20,29 @@ public enum Version {
 
     }
 
-    public static Version defaultVer() {
-        return Version.V1_0;
-    }
-
-    public static Version latest() {
-        return Version.V1_1;
-    }
-
-    public static Version version(Object version) throws Exception {
+    public static Version version(Object version) throws VersionException {
 
         if (version == null) {
-            throw new Exception("Version is null");
-        }
-
-        if (version instanceof Double) {
+            throw new VersionException("Version is null");
+        } else if (version instanceof Double) {
             return Version.version((Double) version);
         } else if (version instanceof String) {
             return Version.version((String) version);
         } else {
-            throw new Exception("Unexpected type of class " + version.getClass().getName());
+            throw new VersionException("Unexpected type of class " + version.getClass().getName());
         }
 
     }
 
-    private static Version version(Double version) throws Exception {
+    private static Version version(Double version) throws VersionException {
         String tempVer = String.valueOf(version);
         return Version.version(tempVer);
     }
 
-    private static Version version(String version) throws Exception {
+    private static Version version(String version) throws VersionException {
 
         if (version.isEmpty() || version.isBlank()) {
-            throw new Exception("Version is blank");
+            throw new VersionException("Version is blank");
         }
 
         StringBuilder majorBuilder = new StringBuilder();
@@ -64,7 +58,7 @@ public enum Version {
             }
 
             if (charVersion[i] < '0' || charVersion[i] > '9') {
-                throw new Exception(
+                throw new VersionException(
                         String.format(
                                 "Invalid character \"%s\" at position %d in version \"%s\"",
                                 charVersion[i], i, version));
@@ -82,17 +76,17 @@ public enum Version {
         try {
             major = Integer.parseInt(majorBuilder.toString());
         } catch (NumberFormatException e) {
-            throw new Exception(String.format("Unable to parse major \"%s\"", majorBuilder.toString()));
+            throw new VersionException(String.format("Unable to parse major \"%s\"", majorBuilder.toString()));
         }
 
         try {
             minor = Integer.parseInt(minorBuilder.toString());
         } catch (NumberFormatException e) {
-            throw new Exception(String.format("Unable to parse minor \"%s\"", minorBuilder.toString()));
+            throw new VersionException(String.format("Unable to parse minor \"%s\"", minorBuilder.toString()));
         }
 
         if (!isValid(major, minor)) {
-            throw new Exception(String.format("Version %d.%d is not valid", major, minor));
+            throw new VersionException(String.format("Version %d.%d is not valid", major, minor));
         }
 
         switch (major) {
@@ -108,7 +102,7 @@ public enum Version {
                         return null;
                 }
             default:
-                throw new Exception("Unrecognized version");
+                throw new VersionException("Unrecognized version");
         }
 
     }

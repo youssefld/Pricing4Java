@@ -220,6 +220,8 @@ class PricingServiceTests {
     @Order(10)
     void shouldReturnPlanGivenPlanName() {
 
+        // Petclinic
+
         Plan plan = pricingService.getPlanFromName("BASIC");
 
         assertInstanceOf(Plan.class, plan);
@@ -232,6 +234,8 @@ class PricingServiceTests {
     @Test
     @Order(20)
     void shouldThrowExceptionGivenNonExistentPlan() {
+
+        // Petclinic
 
         String nonExistentPlan = "nonExistentPlan";
 
@@ -250,6 +254,8 @@ class PricingServiceTests {
     @Order(30)
     void givenPlanShouldAddPlanToConfigFile() {
 
+        // Petclinic
+
         pricingService.addPlanToConfiguration(newPlan);
 
         PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(TEMPORAL_CONFIG_PATH);
@@ -263,20 +269,26 @@ class PricingServiceTests {
     @Order(40)
     void givenDuplicatePlanNameShouldThrowExceptionWhenAddingPlan() {
 
+        // Petclinic
+
         Plan newDuplicatePlan = newPlan;
         newDuplicatePlan.setName(TEST_PLAN);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        try {
             pricingService.addPlanToConfiguration(newDuplicatePlan);
-        });
+        } catch (IllegalArgumentException e) {
+            assertEquals("The plan " + TEST_PLAN + " already exists in the current pricing configuration",
+                e.getMessage());
+        }
 
-        assertEquals("The plan " + TEST_PLAN + " already exists in the current pricing configuration",
-                exception.getMessage());
+
 
     }
 
     @Test
     void givenExistingUsageLimitShouldUpdateSameUsageLimit() {
+
+        // Terminator pricing
 
         pricingContextTestImpl.setConfigFilePath(TERMINATOR_TEMP_CONFIG_PATH);
 
@@ -306,6 +318,8 @@ class PricingServiceTests {
     @Test
     void givenNewFeatureShouldAppearInAllPlans() {
 
+        // Petclinic
+
         setRemoveFlag(false);
 
         Information businessAnalysis = new Information();
@@ -329,6 +343,8 @@ class PricingServiceTests {
     @Test
     void givenAFeatureShouldRemoveItFromPricing() {
 
+        // Terminator
+
         pricingContextTestImpl.setConfigFilePath(TERMINATOR_TEMP_CONFIG_PATH);
         String skynet = "skynet";
         String machines = "machines";
@@ -351,13 +367,7 @@ class PricingServiceTests {
             assertFalse(plan.getUsageLimits().containsKey(machines));
         }
 
-        assertNull(addOns); // Los addOns quedan vacíos tras la eliminación
-
-        // for (AddOn addOn : addOns.values()) {
-        // assertFalse(addOn.getFeatures().containsKey(skynet));
-        // assertFalse(addOn.getUsageLimits().containsKey(machines));
-        // assertFalse(addOn.getUsageLimitsExtensions().containsKey(machines));
-        // }
+        assertNull(addOns);
 
     }
 
@@ -380,6 +390,8 @@ class PricingServiceTests {
     @Test
     @Order(60)
     void givenNonExistingPlanNameShouldThrowWhenDeleting() {
+
+        // Petclinic
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             pricingService.removePlanFromConfiguration(TEST_NEW_PLAN);

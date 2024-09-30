@@ -31,9 +31,9 @@ public class AddOnParser {
         setAvailableFor(addOnMap, pricingManager, addOn);
 
         if (addOnMap.containsKey("price")
-                && (addOnMap.containsKey("monthlyPrice") || addOnMap.containsKey("annualPrice"))) {
+            && (addOnMap.containsKey("monthlyPrice") || addOnMap.containsKey("annualPrice"))) {
             throw new PricingParsingException("The add on " + addOnName
-                    + " has both a price and monthlyPrice/annualPrice. It should have only one of them");
+                + " has both a price and monthlyPrice/annualPrice. It should have only one of them");
         }
 
         if (addOnMap.containsKey("price")) {
@@ -42,7 +42,7 @@ public class AddOnParser {
                 addOn.setPrice(addOnMap.get("price"));
             } else {
                 throw new PricingParsingException(
-                        "The price of the add on " + addOnName + " is neither a valid number nor string");
+                    "The price of the add on " + addOnName + " is neither a valid number nor string");
             }
         }
 
@@ -53,7 +53,7 @@ public class AddOnParser {
                 addOn.setAnnualPrice(addOnMap.get("annualPrice"));
             } else {
                 throw new PricingParsingException("Either the monthlyPrice or annualPrice of the add on " + addOnName
-                        + " is neither a valid number nor String");
+                    + " is neither a valid number nor String");
             }
 
         }
@@ -85,16 +85,10 @@ public class AddOnParser {
         List<String> plansAvailable = (List<String>) addOnMap.get("availableFor");
 
         for (String planName : plansAvailable) {
-            if (pricingManager.getVersion().equals(Version.V1_1)) {
-                if (!pricingManager.getPlans().containsKey(planName)
-                        && !pricingManager.getAddOns().containsKey(planName)) {
-                    throw new InvalidPlanException(
-                            "The plan or addOn " + planName + " is not defined in the pricing manager");
-                }
-            } else {
-                if (!pricingManager.getPlans().containsKey(planName)) {
-                    throw new InvalidPlanException("The plan " + planName + " is not defined in the pricing manager");
-                }
+            if (!pricingManager.getPlans().containsKey(planName)
+                && !pricingManager.getAddOns().containsKey(planName)) {
+                throw new InvalidPlanException(
+                    "The plan or addOn " + planName + " is not defined in the pricing manager");
             }
         }
 
@@ -103,7 +97,7 @@ public class AddOnParser {
     }
 
     private static void setAddOnFeatures(String addOnName, Map<String, Object> addOnMap, PricingManager pricingManager,
-            AddOn addOn) {
+                                         AddOn addOn) {
         Map<String, Object> addOnFeaturesMap = (Map<String, Object>) addOnMap.get("features");
         Map<String, Feature> globalFeaturesMap = pricingManager.getFeatures();
         Map<String, Feature> addOnFeatures = new HashMap<>();
@@ -118,7 +112,7 @@ public class AddOnParser {
 
             if (!globalFeaturesMap.containsKey(addOnFeatureName)) {
                 throw new FeatureNotFoundException(
-                        "The feature " + addOnFeatureName + " is not defined in the global features");
+                    "The feature " + addOnFeatureName + " is not defined in the global features");
             }
 
             Feature addOnFeature = Feature.cloneFeature(globalFeaturesMap.get(addOnFeatureName));
@@ -127,11 +121,11 @@ public class AddOnParser {
                 case NUMERIC:
                     addOnFeature.setValue(addOnFeatureMap.get("value"));
                     if (!(addOnFeature.getValue() instanceof Integer || addOnFeature.getValue() instanceof Double
-                            || addOnFeature.getValue() instanceof Long)) {
+                        || addOnFeature.getValue() instanceof Long)) {
                         throw new InvalidDefaultValueException(
-                                "The feature " + addOnFeatureName + " does not have a valid value. Current valueType:"
-                                        + addOnFeature.getValueType().toString() + "; Current defaultValue: "
-                                        + addOnFeatureMap.get("value").toString());
+                            "The feature " + addOnFeatureName + " does not have a valid value. Current valueType:"
+                                + addOnFeature.getValueType().toString() + "; Current defaultValue: "
+                                + addOnFeatureMap.get("value").toString());
                     }
                     break;
                 case BOOLEAN:
@@ -154,7 +148,7 @@ public class AddOnParser {
     }
 
     private static void setAddOnUsageLimits(String addOnName, Map<String, Object> addOnMap,
-            PricingManager pricingManager, AddOn addOn, boolean areExtensions) {
+                                            PricingManager pricingManager, AddOn addOn, boolean areExtensions) {
 
         Map<String, Object> addOnUsageLimitsMap = null;
 
@@ -178,12 +172,12 @@ public class AddOnParser {
                 addOnUsageLimitMap = (Map<String, Object>) addOnUsageLimitsMap.get(addOnUsageLimitName);
             } catch (ClassCastException e) {
                 throw new PricingParsingException("The usage limit " + addOnUsageLimitName + " of the add-on "
-                        + addOnName + " is not a valid map");
+                    + addOnName + " is not a valid map");
             }
 
             if (!globalUsageLimitsMap.containsKey(addOnUsageLimitName)) {
                 throw new FeatureNotFoundException(
-                        "The feature " + addOnUsageLimitName + " is not defined in the global features");
+                    "The feature " + addOnUsageLimitName + " is not defined in the global features");
             }
 
             UsageLimit addOnUsageLimit = UsageLimit.cloneUsageLimit(globalUsageLimitsMap.get(addOnUsageLimitName));
@@ -192,11 +186,11 @@ public class AddOnParser {
                 case NUMERIC:
                     addOnUsageLimit.setValue(addOnUsageLimitMap.get("value"));
                     if (!(addOnUsageLimit.getValue() instanceof Integer || addOnUsageLimit.getValue() instanceof Double
-                            || addOnUsageLimit.getValue() instanceof Long)) {
+                        || addOnUsageLimit.getValue() instanceof Long)) {
                         throw new InvalidDefaultValueException("The feature " + addOnUsageLimitName
-                                + " does not have a valid value. Current valueType:"
-                                + addOnUsageLimit.getValueType().toString() + "; Current defaultValue: "
-                                + addOnUsageLimitMap.get("value").toString());
+                            + " does not have a valid value. Current valueType:"
+                            + addOnUsageLimit.getValueType().toString() + "; Current defaultValue: "
+                            + addOnUsageLimitMap.get("value").toString());
                     }
                     break;
                 case BOOLEAN:

@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import io.github.isagroup.services.updaters.Version;
 import io.github.isagroup.services.updaters.YamlUpdater;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -29,7 +28,7 @@ public class YamlUtils {
     /**
      * This method maps the content of the YAML file located in {@code yamlPath}
      * into a {@link PricingManager} object.
-     * 
+     *
      * @param yamlPath Path of the YAML file, relative to the resources folder
      * @return PricingManager object that represents the content of the YAML file
      */
@@ -40,20 +39,20 @@ public class YamlUtils {
         try {
             String result = new String(Files.readAllBytes(Paths.get(DEFAULT_YAML_WRITE_PATH + yamlPath)));
             Map<String, Object> configFile = yaml.load(result);
-
-            return PricingManagerParser.parseMapToPricingManager(YamlUpdater.update(configFile,Version.V1_1));
+            YamlUpdater.update(configFile);
+            return PricingManagerParser.parseMapToPricingManager(configFile);
 
         } catch (IOException e) {
             throw new FilepathException("Either the file path is invalid or the file does not exist.");
         } catch (UpdateException e) {
-            e.printStackTrace();
+            auxWriteYaml(e.getConfigFile(), yamlPath);
         }
         return null;
     }
 
     /**
      * Writes a {@link PricingManager} object into a YAML file.
-     * 
+     *
      * @param pricingManager a {@link PricingManager} object that represents a
      *                       pricing configuration
      * @param yamlPath       Path of the YAML file, relative to the resources folder
@@ -81,6 +80,27 @@ public class YamlUtils {
             throw new FilepathException("Either the file path is invalid or the file does not exist.");
         } catch (SerializerException e) {
             throw new SerializerException("An error occurred while serializing the PricingManager object.");
+        }
+    }
+
+    private static void auxWriteYaml(Map<String, Object> configFile, String yamlPath) {
+
+        if (yamlPath == null) {
+            throw new FilepathException("Either the file path is invalid or the file does not exist.");
+        }
+
+        DumperOptions dump = new DumperOptions();
+        dump.setIndent(2);
+        dump.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+
+        Representer representer = new SkipNullRepresenter();
+
+        try (FileWriter writer = new FileWriter(DEFAULT_YAML_WRITE_PATH + yamlPath)) {
+            Yaml yaml = new Yaml(representer, dump);
+            yaml.dump(configFile, writer);
+
+        } catch (IOException e) {
+            throw new FilepathException("Either the file path is invalid or the file does not exist.");
         }
     }
 }

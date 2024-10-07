@@ -140,8 +140,8 @@ public class VersionTransformer {
                     Map<String, Object> configFile = this.loadYaml4SaaSFile(file);
                     if (configFile != null) {
                         try {
-                            Map<String, Object> updatedFile = YamlUpdater.update(configFile,targetVersion);
-                            PricingManager updatedPricing = PricingManagerParser.parseMapToPricingManager(updatedFile);
+                            YamlUpdater.update(configFile);
+                            PricingManager updatedPricing = PricingManagerParser.parseMapToPricingManager(configFile);
                             this.writeUpdatedFile(updatedPricing, dst, file.getName());
                         } catch (Exception e) {
                             e.printStackTrace();

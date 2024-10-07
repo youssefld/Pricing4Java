@@ -1,6 +1,8 @@
 package io.github.isagroup.services.updaters;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -11,35 +13,55 @@ import io.github.isagroup.exceptions.UpdateException;
 public class V10ToV11Updater extends VersionUpdater {
 
     public V10ToV11Updater(Updater updater) {
-        super(Version.V1_1, updater);
+        super(Version.V1_0, updater);
     }
 
     @Override
-    public Map<String, Object> update(Map<String, Object> configFile) throws UpdateException {
+    public void update(Map<String, Object> configFile) throws UpdateException {
 
-        Map<String, Object> yamlFile = super.update(configFile);
+        List<String> errors = new ArrayList<>();
 
-        yamlFile.put("version", "1.1");
+        configFile.put("version", "1.1");
 
-        if ((yamlFile.get("day") != null && yamlFile.get("day") instanceof Integer) &&
-            (yamlFile.get("month") != null && yamlFile.get("month") instanceof Integer) &&
-            (yamlFile.get("year") != null && yamlFile.get("year") instanceof Integer)){
-            int day = (int) yamlFile.get("day");
-            int month = (int) yamlFile.get("month");
-            int year = (int) yamlFile.get("year");
-
-            yamlFile.remove("day");
-            yamlFile.remove("month");
-            yamlFile.remove("year");
-            yamlFile.put("createdAt", LocalDate.of(year, month, day).toString());
+        if (configFile.get("day") == null) {
+            errors.add("day is mandatory");
+        } else if (!(configFile.get("day") instanceof Integer)) {
+            errors.add("day must be an integer");
         }
 
-        if (yamlFile.get("features") instanceof Map) {
-            removeServerExpression((Map<String, Object>) yamlFile.get("features"));
+        if (configFile.get("month") == null) {
+            errors.add("month is mandatory");
+        } else if (!(configFile.get("month") instanceof Integer)) {
+            errors.add("month must be an integer");
         }
 
+        if (configFile.get("year") == null) {
+            errors.add("year is mandatory");
+        } else if (!(configFile.get("year") instanceof Integer)) {
+            errors.add("year must be an integer");
+        }
 
-        return yamlFile;
+        if (!errors.isEmpty()) {
+            throw new UpdateException(String.join("\n", errors), configFile);
+        }
+
+        int day = (int) configFile.get("day");
+        int month = (int) configFile.get("month");
+        int year = (int) configFile.get("year");
+
+        try {
+            configFile.put("createdAt", LocalDate.of(year, month, day).toString());
+            configFile.remove("day");
+            configFile.remove("month");
+            configFile.remove("year");
+        } catch (DateTimeException e) {
+            throw new UpdateException(e.getMessage(), configFile);
+        }
+
+        if (configFile.get("features") instanceof Map) {
+            removeServerExpression((Map<String, Object>) configFile.get("features"));
+        }
+
     }
 
     private void removeServerExpression(Map<String, Object> features) throws UpdateException {

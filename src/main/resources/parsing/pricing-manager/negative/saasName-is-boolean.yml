@@ -1,6 +1,7 @@
-version: "1.1"
-saasName: Given well formatted version should pass
-createdAt: 2024-09-23
+saasName: true
+day: 5
+month: 10
+year: 2024
 currency: EUR
 hasAnnualPayment: false
 features:
@@ -8,8 +9,6 @@ features:
     type: DOMAIN
     valueType: TEXT
     defaultValue: baz
-    expression: 1==1
-    serverExpression: 1==1
 plans:
   BASIC:
     description: Basic plan

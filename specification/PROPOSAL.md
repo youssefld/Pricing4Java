@@ -4,25 +4,68 @@
 
 See `zoom-variable-price.yml`
 
-## Custom billing
-
-Que calendario utilizas
-Cada cuanto lo quieres cobrar
-
 ```yaml
-billing: 1B+
+plan:
+  PRO:
+    price: 6*x + 2
+variables:
+  x: userContext['seats']
+  y: 40
+  z: 20
 ```
 
-Y yearly
-M monthly
-H half year
-W weekly
+Spel tiene api para validar una expresión
 
-### References
+## References
+- https://zapier.com/pricing
 
-- [Soft dates](https://help.certinia.com/main/2024.2/Content/BillingCentral/Features/SoftDates/SoftDates.htm)
-- [Stripe](https://docs.stripe.com/billing/subscriptions/billing-cycle)
-- [Calculating Billing Periods and Billing Dates](https://help.certinia.com/main/2024.2/Content/BillingCentral/Features/SoftDates/CalculatingBillingPeriodsAndBillingDates.htm)
+## Custom billing
+
+Dependiendo de a que boton le des se renderiza
+los precios
+
+Click
+
+|--------|----------|------------|
+| Yearly |  Monthly | Six months |
+|--------|----------|------------|
+```yaml
+billing:
+  monthly: 1
+  3-month: 0.98
+  6-month: 0.95
+  yearly: 0.9
+plans:
+  PRO:
+    price: 30
+    useMultipleBilling: true
+```
+
+```yaml
+monthlyPrice: 14.99
+annualPrice: 13.49
+```
+Factor descuento anual:
+
+discount_factor = monthlyPrice / annualPrice
+
+Y si el billing lo metemos en plans?
+
+```yaml
+plans:
+  billing:
+    monthly: 1
+    3-month: 0.98
+    6-month: 0.95
+    yearly: 0.9
+  plans:
+    BASIC:
+      price: 30
+    PRO: 
+      price: 60
+    ADVANCED:
+      price: 90
+```
 
 ## Templates
 

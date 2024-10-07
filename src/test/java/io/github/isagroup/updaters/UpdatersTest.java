@@ -1,7 +1,9 @@
 package io.github.isagroup.updaters;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Map;
 
@@ -22,30 +24,15 @@ import io.github.isagroup.services.serializer.PricingManagerSerializer;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UpdatersTest {
+
+
     @Test
-    void givenOneDotZeroShouldUpdateToOneDotOne() {
-        String path = "src/test/resources/updating/v10-v11/v10.yml";
+    void givenOutOfBoundsMajorShouldThrow() {
 
-        Yaml yaml = new Yaml();
-        try (FileInputStream fileInput = new FileInputStream(path)) {
-            Map<String, Object> configFile = yaml.load(fileInput);
-            try {
-                Map<String, Object> res = YamlUpdater.update(configFile, Version.V1_1);
-                assertEquals("1.1", res.get("version"));
-                assertEquals("2024-08-31", res.get("createdAt"));
-                assertNull(res.get("starts"));
-                assertNull(res.get("ends"));
-                assertEquals("1==1", ((Map<String, Object>) ((Map<String, Object>) res.get("features")).get("foo"))
-                    .get("expression"));
-                assertNull(((Map<String, Object>) ((Map<String, Object>) res.get("features")).get("foo"))
-                    .get("serverExpression"));
-
-            } catch (Exception e) {
-                fail("Should not end here");
-            }
-
-        } catch (IOException e) {
-            fail("El archivo no ha sido encontrado");
+        try {
+            Version.version("9999999999.0");
+        } catch (VersionException e) {
+            assertEquals("major 9999999999 overflows an int", e.getMessage());
         }
     }
 
@@ -55,53 +42,17 @@ public class UpdatersTest {
         try {
             Version.version("1.9999999999");
         } catch (VersionException e) {
-            assertEquals("Unable to parse minor \"9999999999\"", e.getMessage());
+            assertEquals("minor 9999999999 overflows an int", e.getMessage());
         }
     }
 
-    @Test
-    void givenOneDotOneYamlShouldReturnSameYaml() {
-        Yaml yaml = new Yaml();
-        try (FileInputStream f = new FileInputStream("src/test/resources/parsing/version-1.1-as-float.yml")) {
-            Map<String, Object> expectConfigFile = yaml.load(f);
-            assertEquals(expectConfigFile, YamlUpdater.update(expectConfigFile, Version.V1_1));
-        } catch (Exception e) {
-            fail();
-        }
-    }
 
     @Test
     void givenInvalidVersionFormatShouldThrow() {
         try {
-            Version.version("This is an invalid version :(");
+            Version.version("alpha");
         } catch (VersionException e) {
-            assertEquals("Invalid character \"T\" at position 0 in version \"This is an invalid version :(\"", e.getMessage());
-        }
-    }
-
-    @Test
-    void givenOneDotOneShouldSerializeInOneDotOneVersion() {
-        String path = "src/test/resources/parsing/version-1.1-as-string.yml";
-
-        Yaml yaml = new Yaml();
-        try (FileInputStream fileInput = new FileInputStream(path)) {
-            Map<String, Object> configFile = yaml.load(fileInput);
-            PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
-            PricingManagerSerializer serializer = new PricingManagerSerializer();
-            Map<String, Object> res = serializer.serialize(pricingManager);
-
-            assertEquals("1.1", res.get("version"));
-            assertNull(res.get("day"));
-            assertNull(res.get("month"));
-            assertNull(res.get("year"));
-            assertEquals("2024-08-30", res.get("createdAt"));
-            assertEquals(new Date(1704110400000L), res.get("starts"));
-            assertEquals(new Date(1735732800000L), res.get("ends"));
-
-        } catch (IOException e) {
-            fail("El archivo no ha sido encontrado");
-        } catch (PricingParsingException e) {
-            fail("Error al parsear");
+            assertEquals("Invalid version \"alpha\", use <major>.<minor> version format", e.getMessage());
         }
     }
 

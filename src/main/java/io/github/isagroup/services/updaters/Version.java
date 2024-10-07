@@ -2,17 +2,20 @@ package io.github.isagroup.services.updaters;
 
 import io.github.isagroup.exceptions.VersionException;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public enum Version {
-    V1_0(1, 0), V1_1(1, 1), V1_2(1, 2);
+    V1_0(1, 0), V1_1(1, 1);
 
     private final int major;
     private final int minor;
 
     public static final Version LATEST = V1_1;
 
-     Version(int major, int minor) {
+    Version(int major, int minor) {
         if (!isValid(major, minor)) {
-            throw new IllegalStateException(String.format("Version of yaml {}.{} is unsupported", major, minor));
+            throw new IllegalStateException(String.format("Version of yaml %d.%d is unsupported", major, minor));
         }
 
         this.major = major;
@@ -23,13 +26,13 @@ public enum Version {
     public static Version version(Object version) throws VersionException {
 
         if (version == null) {
-            throw new VersionException("Version is null");
+            throw new IllegalArgumentException("Cannot parse a null version");
         } else if (version instanceof Double) {
             return Version.version((Double) version);
         } else if (version instanceof String) {
             return Version.version((String) version);
         } else {
-            throw new VersionException("Unexpected type of class " + version.getClass().getName());
+            throw new VersionException("Cannot parse " + version + " to a version");
         }
 
     }
@@ -45,70 +48,73 @@ public enum Version {
             throw new VersionException("Version is blank");
         }
 
-        StringBuilder majorBuilder = new StringBuilder();
-        StringBuilder minorBuilder = new StringBuilder();
-        int dots = 0;
-        char[] charVersion = version.trim().toCharArray();
+        String regex = "(\\d+)\\.(\\d+)";
 
-        for (int i = 0; i < charVersion.length; i++) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(version);
 
-            if (charVersion[i] == '.') {
-                dots++;
-                continue;
-            }
-
-            if (charVersion[i] < '0' || charVersion[i] > '9') {
-                throw new VersionException(
-                        String.format(
-                                "Invalid character \"%s\" at position %d in version \"%s\"",
-                                charVersion[i], i, version));
-            }
-
-            if (dots == 0) {
-                majorBuilder.append(charVersion[i]);
-            } else if (dots == 1) {
-                minorBuilder.append(charVersion[i]);
-            }
+        if (!matcher.matches()) {
+            throw new VersionException("Invalid version \"" + version + "\", use <major>.<minor> version format");
         }
 
-        int major = -1;
-        int minor = -1;
+        int major;
+        int minor;
+
         try {
-            major = Integer.parseInt(majorBuilder.toString());
+            major = Integer.parseInt(matcher.group(1));
+
         } catch (NumberFormatException e) {
-            throw new VersionException(String.format("Unable to parse major \"%s\"", majorBuilder.toString()));
+            throw new VersionException("major " + matcher.group(1) + " overflows an int");
         }
 
         try {
-            minor = Integer.parseInt(minorBuilder.toString());
+            minor = Integer.parseInt(matcher.group(2));
+
         } catch (NumberFormatException e) {
-            throw new VersionException(String.format("Unable to parse minor \"%s\"", minorBuilder.toString()));
+            throw new VersionException("minor " + matcher.group(2) + " overflows an int");
         }
 
-        if (!isValid(major, minor)) {
-            throw new VersionException(String.format("Version %d.%d is not valid", major, minor));
-        }
 
-        switch (major) {
-            case 1:
-                switch (minor) {
-                    case 0:
-                        return V1_0;
-                    case 1:
-                        return V1_1;
-                    case 2:
-                        return V1_2;
-                    default:
-                        return null;
-                }
-            default:
-                throw new VersionException("Unrecognized version");
+        if (major == 1) {
+            return switch (minor) {
+                case 0 -> Version.V1_0;
+                case 1 -> Version.V1_1;
+                default -> throw new VersionException("Unsupported minor version " + minor);
+            };
+        } else {
+            throw new VersionException("Unsupported major version " + major);
         }
+    }
 
+    public int getMajor() {
+        return major;
+    }
+
+    public int getMinor() {
+        return minor;
     }
 
     public static boolean isValid(int major, int minor) {
         return major == 1 && (minor == 0 || minor == 1 || minor == 2);
+    }
+
+    public int compare(Version version) {
+
+        if (this.major > version.getMajor()) {
+            return 1;
+        }
+
+        if (this.major < version.getMajor()) {
+            return -1;
+        }
+
+        if (this.minor > version.getMinor()) {
+            return 1;
+        } else if (this.minor < version.getMinor()) {
+            return -1;
+        }
+
+        return 0;
     }
 
     @Override

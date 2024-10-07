@@ -1,13 +1,16 @@
-version: ...
-saasName: Only dots in version
+saasName: Version 1.0 of Yaml syntax
+day: 31
+month: 8
+year: 2024
 currency: EUR
 hasAnnualPayment: false
-createdAt: "2024-08-30"
 features:
   foo:
     type: DOMAIN
     valueType: TEXT
     defaultValue: baz
+    expression: 1==1
+    serverExpression: 1==1
 plans:
   BASIC:
     description: Basic plan

@@ -1,9 +1,5 @@
 package io.github.isagroup.parsing;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Map;
@@ -17,6 +13,8 @@ import io.github.isagroup.exceptions.PricingParsingException;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.services.parsing.PricingManagerParser;
 import io.github.isagroup.services.yaml.YamlUtils;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AddOnParserTest {
 
@@ -44,30 +42,23 @@ public class AddOnParserTest {
     @Test
     void givenAddOnThatDependsOnAnotherAddonCreatesPricingManager() {
 
-        Yaml yaml = new Yaml();
-        String path = "src/test/resources/parsing/add-on-depending-on-another-add-on.yml";
+        String path = "parsing/rules/positive/add-on-depending-on-another-add-on.yml";
         try {
-            Map<String, Object> configFile = yaml
-                    .load(new FileInputStream(path));
-            PricingManager pricingManager = PricingManagerParser.parseMapToPricingManager(configFile);
+            PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(path);
             assertEquals(2, pricingManager.getAddOns().size());
-        } catch (FileNotFoundException e) {
-            fail(String.format("The file with location '%s' was not found", path));
+            assertTrue(pricingManager.getAddOns().get("baz").getAvailableFor().contains("bar"));
+        } catch (PricingParsingException e) {
+            fail(e.getMessage());
         }
     }
 
     @Test
     void givenUndefinedAddOnInASpecificAddOnShouldThrow() {
 
-        Yaml yaml = new Yaml();
-        String path = "src/test/resources/parsing/add-on-depending-on-unexistent-add-on.yml";
+        String path = "parsing/rules/negative/add-on-depending-on-unexistent-add-on.yml";
         try {
-            Map<String, Object> configFile = yaml
-                    .load(new FileInputStream(path));
-            PricingManagerParser.parseMapToPricingManager(configFile);
+            YamlUtils.retrieveManagerFromYaml(path);
             fail();
-        } catch (FileNotFoundException e) {
-            fail(String.format("The file with location '%s' was not found", path));
         } catch (InvalidPlanException e) {
             assertEquals("The plan or addOn bax is not defined in the pricing manager", e.getMessage());
         }

@@ -1,0 +1,5 @@
+FILENAME;EXPECTED_ERROR_MESSAGE
+version-is-boolean;Cannot parse true to a version
+version-is-invalid;Invalid version "alpha", use <major>.<minor> version format
+version-major-overflows;major 9999999999 overflows an int
+version-minor-overflows;minor 9999999999 overflows an int

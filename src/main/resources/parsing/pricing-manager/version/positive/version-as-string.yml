@@ -1,20 +1,15 @@
 version: "1.1"
-saasName: Yaml4SaaS 1.1 syntax
+saasName: Version as string
+currency: EUR
+hasAnnualPayment: false
 createdAt: "2024-08-30"
 starts: 2024-01-01 12:00:00
 ends: 2025-01-01 12:00:00
-currency: EUR
-hasAnnualPayment: false
 features:
-  coreFeature1:
+  foo:
     type: DOMAIN
-    valueType: BOOLEAN
-    defaultValue: true
-  coreFeature2:
-    type: DOMAIN
-    valueType: BOOLEAN
-    defaultValue: true
-    expression: true
+    valueType: TEXT
+    defaultValue: baz
 plans:
   BASIC:
     description: Basic plan

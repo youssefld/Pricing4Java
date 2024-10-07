@@ -1,8 +1,10 @@
-version: 1.1
-saasName: Version is a float and it be parsed to Version.V1_1
-createdAt: 2024-09-23
+version: 1.9999999999
+saasName: Version 1.1 syntax
 currency: EUR
 hasAnnualPayment: false
+createdAt: '2024-08-30'
+starts: 2024-01-01T12:00:00Z
+ends: 2025-01-01T12:00:00Z
 features:
   foo:
     type: DOMAIN

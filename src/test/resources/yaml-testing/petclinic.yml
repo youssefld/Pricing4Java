@@ -107,17 +107,4 @@ plans:
       haveOnlineConsultation:
         value: true
     usageLimits: null
-  NEW_PLAN:
-    description: New plan description
-    monthlyPrice: 2.0
-    annualPrice: 2.0
-    unit: null
-    features:
-      maxPets:
-        value: 6
-      supportPriority:
-        value: HIGH
-      haveCalendar:
-        value: true
-    usageLimits: null
 addOns: null

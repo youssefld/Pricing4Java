@@ -254,6 +254,12 @@ features:
     defaultValue: false
     type: AUTOMATION
     automationType: BOT
+  annomalyDetection:
+    description: ""
+    valueType: BOOLEAN
+    defaultValue: false
+    type: AUTOMATION
+    automationType: TRACKING
   anomalyDetection:
     description: ""
     valueType: BOOLEAN

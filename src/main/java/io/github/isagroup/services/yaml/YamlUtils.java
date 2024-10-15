@@ -22,6 +22,7 @@ import io.github.isagroup.services.serializer.PricingManagerSerializer;
 public class YamlUtils {
 
     private static final String DEFAULT_YAML_WRITE_PATH = "src/main/resources/";
+    private static final String DEFAULT_TEST_YAML_WRITE_PATH = "src/test/resources/";
 
     /**
      * This method maps the content of the YAML file located in {@code yamlPath}
@@ -33,7 +34,6 @@ public class YamlUtils {
 
     public static PricingManager retrieveManagerFromYaml(String yamlPath) {
         Yaml yaml = new Yaml();
-
         try {
             String result = new String(Files.readAllBytes(Paths.get(DEFAULT_YAML_WRITE_PATH + yamlPath)));
             Map<String, Object> test = yaml.load(result);
@@ -41,7 +41,14 @@ public class YamlUtils {
             return PricingManagerParser.parseMapToPricingManager(test);
 
         } catch (IOException e) {
-            throw new FilepathException("Either the file path is invalid or the file does not exist.");
+            try{
+                String result = new String(Files.readAllBytes(Paths.get(DEFAULT_TEST_YAML_WRITE_PATH + yamlPath)));
+                Map<String, Object> test = yaml.load(result);
+
+                return PricingManagerParser.parseMapToPricingManager(test);
+            }catch(IOException e2){
+                throw new FilepathException("Either the file path is invalid or the file does not exist.");
+            }
         }
     }
 
@@ -72,7 +79,14 @@ public class YamlUtils {
             yaml.dump(serializedPricingManager, writer);
 
         } catch (IOException e) {
-            throw new FilepathException("Either the file path is invalid or the file does not exist.");
+            try (FileWriter writer = new FileWriter(DEFAULT_TEST_YAML_WRITE_PATH + yamlPath);) {
+                Map<String, Object> serializedPricingManager = pricingManagerSerializer.serialize();
+                Yaml yaml = new Yaml(representer, dump);
+                yaml.dump(serializedPricingManager, writer);
+    
+            } catch (IOException e2) {
+                throw new FilepathException("Either the file path is invalid or the file does not exist.");
+            }
         } catch (SerializerException e) {
             throw new SerializerException("An error occurred while serializing the PricingManager object.");
         }

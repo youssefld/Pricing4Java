@@ -187,12 +187,11 @@ class PricingServiceTests {
 
     @AfterEach
     void after() {
-        String prefix = "src/test/resources/";
         try {
             for (TempFile tempFile : PATHS) {
 
                 if (this.removeTempFile) {
-                    File file = new File(prefix + tempFile.getDestinationPath());
+                    File file = new File(tempFile.getDestinationPath());
                     file.delete();
                 }
             }

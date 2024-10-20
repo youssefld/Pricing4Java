@@ -35,7 +35,6 @@ public class YamlUtils {
 
     public static PricingManager retrieveManagerFromYaml(String yamlPath) {
         Yaml yaml = new Yaml();
-
         try {
             String result = new String(Files.readAllBytes(Paths.get(DEFAULT_YAML_WRITE_PATH + yamlPath)));
             Map<String, Object> configFile = yaml.load(result);
@@ -84,7 +83,6 @@ public class YamlUtils {
     }
 
     private static void auxWriteYaml(Map<String, Object> configFile) {
-
 
         DumperOptions dump = new DumperOptions();
         dump.setIndent(2);

@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PricingServiceTests {
 
-
     @TempDir(factory = Factory.class)
     private Path tempDir;
 
@@ -48,7 +47,7 @@ public class PricingServiceTests {
 
         @Override
         public Path createTempDirectory(AnnotatedElementContext elementContext, ExtensionContext extensionContext)
-            throws IOException {
+                throws IOException {
 
             File file = new File("src/main/resources/yaml-testing");
 
@@ -131,7 +130,6 @@ public class PricingServiceTests {
 
     // --------------------------- PLAN RETRIEVAL ---------------------------
 
-
     @Test
     void givenAPlanNameServiceShouldReturnPlan() {
 
@@ -143,7 +141,6 @@ public class PricingServiceTests {
 
         assertEquals(petClinic.getPlans().get("BASIC"), plan);
         assertEquals(0.0, plan.getPrice());
-
 
     }
 
@@ -159,7 +156,7 @@ public class PricingServiceTests {
             pricingService.getPlanFromName(nonExistentPlan);
         } catch (IllegalArgumentException e) {
             assertEquals("The plan " + nonExistentPlan + " does not exist in the current pricing configuration",
-                e.getMessage());
+                    e.getMessage());
         }
     }
 
@@ -174,7 +171,7 @@ public class PricingServiceTests {
         pricingService.addPlanToConfiguration(newPlan);
 
         assertTrue(pricingService.getPricingPlans().containsKey(newPlan.getName()),
-            "Pricing config does not have " + newPlan.getName());
+                "Pricing config does not have " + newPlan.getName());
 
     }
 
@@ -195,7 +192,7 @@ public class PricingServiceTests {
             fail();
         } catch (IllegalArgumentException e) {
             assertEquals("The plan " + newPlan.getName() + " already exists in the current pricing configuration",
-                e.getMessage());
+                    e.getMessage());
         }
     }
 
@@ -229,7 +226,8 @@ public class PricingServiceTests {
         try {
             pricingService.updatePlanFromConfiguration("nonExistentFeature", newPlan);
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no plan with the name nonExistentFeature in the current pricing configuration", e.getMessage());
+            assertEquals("There is no plan with the name nonExistentFeature in the current pricing configuration",
+                    e.getMessage());
         }
     }
 
@@ -302,7 +300,7 @@ public class PricingServiceTests {
             fail();
         } catch (IllegalArgumentException e) {
             assertEquals("There is no plan with the name " + planName + " in the current pricing configuration",
-                e.getMessage());
+                    e.getMessage());
         }
     }
 
@@ -356,7 +354,10 @@ public class PricingServiceTests {
         try {
             pricingService.addFeatureToConfiguration(pricingConfig.getPricingManager().getFeatures().get(featureName));
         } catch (IllegalArgumentException e) {
-            assertEquals("The feature " + featureName + " does already exist in the current pricing configuration. Check the features", e.getMessage());
+            assertEquals(
+                    "The feature " + featureName
+                            + " does already exist in the current pricing configuration. Check the features",
+                    e.getMessage());
         }
     }
 
@@ -379,7 +380,9 @@ public class PricingServiceTests {
         try {
             pricingService.addFeatureToConfiguration(businessAnalysis);
         } catch (IllegalArgumentException e) {
-            assertEquals("The feature businessAnalysis does already exist in the current pricing configuration. Check the features", e.getMessage());
+            assertEquals(
+                    "The feature businessAnalysis does already exist in the current pricing configuration. Check the features",
+                    e.getMessage());
         }
     }
 
@@ -396,7 +399,8 @@ public class PricingServiceTests {
 
         assertFalse(pricingConfig.getPricingManager().getFeatures().containsKey(featureName));
         assertFalse(pricingConfig.getPricingManager().getPlans().get("BASIC").getFeatures().containsKey(featureName));
-        assertFalse(pricingConfig.getPricingManager().getPlans().get("ADVANCED").getFeatures().containsKey(featureName));
+        assertFalse(
+                pricingConfig.getPricingManager().getPlans().get("ADVANCED").getFeatures().containsKey(featureName));
         assertFalse(pricingConfig.getPricingManager().getPlans().get("PRO").getFeatures().containsKey(featureName));
     }
 
@@ -409,8 +413,8 @@ public class PricingServiceTests {
             pricingService.removeFeatureFromConfiguration(null);
         } catch (IllegalArgumentException e) {
             assertEquals(
-                "There is no feature with the name " + null + " in the current pricing configuration",
-                e.getMessage());
+                    "There is no feature with the name " + null + " in the current pricing configuration",
+                    e.getMessage());
         }
     }
 
@@ -444,8 +448,9 @@ public class PricingServiceTests {
             pricingService.removeFeatureFromConfiguration(nonExistentFeatureName);
         } catch (IllegalArgumentException e) {
             assertEquals(
-                "There is no feature with the name " + nonExistentFeatureName + " in the current pricing configuration",
-                e.getMessage());
+                    "There is no feature with the name " + nonExistentFeatureName
+                            + " in the current pricing configuration",
+                    e.getMessage());
         }
     }
 
@@ -475,9 +480,11 @@ public class PricingServiceTests {
 
         String usageLimitName = "maxPets";
         try {
-            pricingService.addUsageLimitToConfiguration(pricingConfig.getPricingManager().getUsageLimits().get(usageLimitName));
+            pricingService.addUsageLimitToConfiguration(
+                    pricingConfig.getPricingManager().getUsageLimits().get(usageLimitName));
         } catch (CloneUsageLimitException e) {
-            assertEquals("An usage limit with the name " + usageLimitName + " already exists within the pricing configuration", e.getMessage());
+            assertEquals("An usage limit with the name " + usageLimitName
+                    + " already exists within the pricing configuration", e.getMessage());
         }
 
     }
@@ -520,9 +527,9 @@ public class PricingServiceTests {
         });
 
         assertEquals(
-            "The usage limit " + newUsageLimit.getName()
-                + " defaultValue must be one of the supported numeric types if valueType is NUMERIC",
-            exception.getMessage());
+                "The usage limit " + newUsageLimit.getName()
+                        + " defaultValue must be one of the supported numeric types if valueType is NUMERIC",
+                exception.getMessage());
     }
 
     @Test
@@ -547,7 +554,8 @@ public class PricingServiceTests {
         try {
             pricingService.removeUsageLimitFromConfiguration(null);
         } catch (IllegalArgumentException e) {
-            assertEquals("There is no usage limit with the name null in the current pricing configuration", e.getMessage());
+            assertEquals("There is no usage limit with the name null in the current pricing configuration",
+                    e.getMessage());
         }
     }
 
@@ -563,7 +571,8 @@ public class PricingServiceTests {
         pricingService.addAddOnToConfiguration(newAddOn);
 
         assertEquals(1, pricingConfig.getPricingManager().getAddOns().size());
-        assertEquals(newAddOn.getName(), pricingConfig.getPricingManager().getAddOns().get(newAddOn.getName()).getName());
+        assertEquals(newAddOn.getName(),
+                pricingConfig.getPricingManager().getAddOns().get(newAddOn.getName()).getName());
     }
 
     @Test
@@ -576,12 +585,14 @@ public class PricingServiceTests {
         pricingService.addAddOnToConfiguration(newAddOn);
 
         assertEquals(1, pricingConfig.getPricingManager().getAddOns().size());
-        assertEquals(newAddOn.getName(), pricingConfig.getPricingManager().getAddOns().get(newAddOn.getName()).getName());
+        assertEquals(newAddOn.getName(),
+                pricingConfig.getPricingManager().getAddOns().get(newAddOn.getName()).getName());
 
         try {
             pricingService.addAddOnToConfiguration(newAddOn);
         } catch (IllegalArgumentException e) {
-            assertEquals("An add-on with the name " + newAddOn.getName() + " already exists within the pricing configuration", e.getMessage());
+            assertEquals("An add-on with the name " + newAddOn.getName()
+                    + " already exists within the pricing configuration", e.getMessage());
         }
     }
 

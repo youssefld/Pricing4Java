@@ -10,7 +10,6 @@ public class PricingContextTestImpl extends PricingContext {
     private String userPlan;
     private Map<String, Object> userContext;
 
-
     public PricingContextTestImpl() {
         this.path = null;
         this.secret = "defualtSecret";
@@ -35,8 +34,6 @@ public class PricingContextTestImpl extends PricingContext {
         return secret;
     }
 
-    ;
-
     public void setJwtSecret(String secret) {
         this.secret = secret;
     }
@@ -45,7 +42,6 @@ public class PricingContextTestImpl extends PricingContext {
     public int getJwtExpiration() {
         return jwtExpiration;
     }
-
 
     public void setJwtExpiration(Integer jwtExpiration) {
         this.jwtExpiration = jwtExpiration;

@@ -1,6 +1,5 @@
 package io.github.isagroup.services.parsing;
 
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
@@ -8,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import io.github.isagroup.exceptions.PricingParsingException;
 import io.github.isagroup.exceptions.VersionException;
@@ -48,14 +48,14 @@ public class PricingManagerParser {
             if (yamlConfigMap.get("version") == null) {
                 version = Version.V1_0;
             } else if (yamlConfigMap.get("version") instanceof Double
-                    || yamlConfigMap.get("version") instanceof String) {
+                || yamlConfigMap.get("version") instanceof String) {
 
                 version = Version.version(yamlConfigMap.get("version"));
 
             } else {
                 throw new PricingParsingException(
-                        String.format("'version' detected type is %s but 'version' type must be Double or String",
-                                yamlConfigMap.get("version").getClass().getSimpleName()));
+                    String.format("'version' detected type is %s but 'version' type must be Double or String",
+                        yamlConfigMap.get("version").getClass().getSimpleName()));
             }
         } catch (VersionException e) {
             throw new PricingParsingException(e.getMessage());
@@ -124,6 +124,30 @@ public class PricingManagerParser {
         pricingManager.setStarts((Date) yamlConfigMap.get("starts"));
         pricingManager.setEnds((Date) yamlConfigMap.get("ends"));
 
+        checkVariables(yamlConfigMap);
+        pricingManager.setVariables((Map<String, Object>) yamlConfigMap.get("variables"));
+
+
+    }
+
+    private static void checkVariables(Map<String, Object> yamlConfigMap) {
+        Pattern pattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9]*$");
+        if (yamlConfigMap.get("variables") != null && !(yamlConfigMap.get("variables") instanceof Map)) {
+            throw new PricingParsingException("variables must be a map but found " + yamlConfigMap.get("variables").getClass().getSimpleName() + " instead");
+        }
+
+        if (yamlConfigMap.get("variables") != null && yamlConfigMap.get("variables") instanceof Map) {
+            for (Object key : ((Map<?, ?>) yamlConfigMap.get("variables")).keySet()) {
+                if (key == null) {
+                    throw new PricingParsingException("null is not a valid key for a variable");
+                }
+                if (!pattern.matcher(key.toString()).matches()) {
+                    throw new PricingParsingException(key + " is not a valid name for a variable. ");
+                }
+            }
+        }
+
+
     }
 
     private static void setFeatures(Map<String, Object> map, PricingManager pricingManager) {
@@ -131,17 +155,17 @@ public class PricingManagerParser {
 
         if (map.get("features") == null) {
             throw new PricingParsingException(
-                    "'features' is mandatory. It should be a map of features with their correspoding attributes.");
+                "'features' is mandatory. It should be a map of features with their correspoding attributes.");
         }
 
         if (!(map.get("features") instanceof Map)) {
             throw new PricingParsingException(
-                    "'features' must be a Map but found " + map.get("features").getClass().getSimpleName()
-                            + " instead");
+                "'features' must be a Map but found " + map.get("features").getClass().getSimpleName()
+                    + " instead");
         }
 
         Map<String, Feature> pricingFeatures = new LinkedHashMap<>();
-        Map<String,Object> featuresMap = (Map<String, Object>) map.get("features");
+        Map<String, Object> featuresMap = (Map<String, Object>) map.get("features");
 
 
         for (String featureName : featuresMap.keySet()) {
@@ -152,7 +176,7 @@ public class PricingManagerParser {
                 pricingFeatures.put(featureName, feature);
             } catch (ClassCastException e) {
                 throw new PricingParsingException("The feature " + featureName
-                        + " is not defined correctly. All its options must be specified, and it cannot be defined as a key-value pair");
+                    + " is not defined correctly. All its options must be specified, and it cannot be defined as a key-value pair");
             }
         }
 
@@ -185,7 +209,7 @@ public class PricingManagerParser {
             plansMap = (Map<String, Object>) map.get("plans");
         } catch (ClassCastException e) {
             throw new PricingParsingException(
-                    "The plans are not defined correctly. It should be a map of plans and their options");
+                "The plans are not defined correctly. It should be a map of plans and their options");
         }
 
         Map<String, Plan> plans = new LinkedHashMap<>();

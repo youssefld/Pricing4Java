@@ -9,3 +9,4 @@ ends-is-invalid-timestamp;"ends" type is String and must be a Date
 saasName-is-boolean;'saasName' has to be a string
 saasName-is-null;SaasName was not defined
 starts-is-invalid-timestamp;"starts" type is String and must be a Date
+variables-is-boolean;variables must be a map but found Boolean instead

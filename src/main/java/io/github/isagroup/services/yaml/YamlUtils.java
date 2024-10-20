@@ -45,7 +45,7 @@ public class YamlUtils {
         } catch (IOException e) {
             throw new FilepathException("Either the file path is invalid or the file does not exist.");
         } catch (UpdateException e) {
-            auxWriteYaml(e.getConfigFile(), yamlPath);
+            auxWriteYaml(e.getConfigFile());
         }
         return null;
     }
@@ -83,11 +83,8 @@ public class YamlUtils {
         }
     }
 
-    private static void auxWriteYaml(Map<String, Object> configFile, String yamlPath) {
+    private static void auxWriteYaml(Map<String, Object> configFile) {
 
-        if (yamlPath == null) {
-            throw new FilepathException("Either the file path is invalid or the file does not exist.");
-        }
 
         DumperOptions dump = new DumperOptions();
         dump.setIndent(2);
@@ -95,7 +92,7 @@ public class YamlUtils {
 
         Representer representer = new SkipNullRepresenter();
 
-        try (FileWriter writer = new FileWriter(DEFAULT_YAML_WRITE_PATH + yamlPath)) {
+        try (FileWriter writer = new FileWriter(DEFAULT_YAML_WRITE_PATH + "yaml-testing/errored.yml")) {
             Yaml yaml = new Yaml(representer, dump);
             yaml.dump(configFile, writer);
 

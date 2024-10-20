@@ -30,5 +30,7 @@ public class PricingManager {
     private Map<String, UsageLimit> usageLimits;
     private Map<String, Plan> plans;
     private Map<String, AddOn> addOns;
+    private Map<String, Object> variables;
+
 
 }

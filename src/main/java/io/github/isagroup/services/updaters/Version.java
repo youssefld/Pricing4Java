@@ -6,12 +6,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public enum Version {
-    V1_0(1, 0), V1_1(1, 1);
+    V1_0(1, 0), V1_1(1, 1), V2_0(2, 0);
 
     private final int major;
     private final int minor;
 
-    public static final Version LATEST = V1_1;
+    public static final Version LATEST = V2_0;
 
     Version(int major, int minor) {
         if (!isValid(major, minor)) {
@@ -23,7 +23,7 @@ public enum Version {
 
     }
 
-    public static Version version(Object version) throws VersionException {
+    public static Version version(Object version) {
 
         if (version == null) {
             throw new IllegalArgumentException("Cannot parse a null version");
@@ -37,12 +37,12 @@ public enum Version {
 
     }
 
-    private static Version version(Double version) throws VersionException {
+    private static Version version(Double version) {
         String tempVer = String.valueOf(version);
         return Version.version(tempVer);
     }
 
-    private static Version version(String version) throws VersionException {
+    private static Version version(String version) {
 
         if (version.isEmpty() || version.isBlank()) {
             throw new VersionException("Version is blank");
@@ -74,16 +74,32 @@ public enum Version {
             throw new VersionException("minor " + matcher.group(2) + " overflows an int");
         }
 
+        Version versionObj = Version.version(major, minor);
+
+        if (versionObj == null) {
+            throw new VersionException("Unsupported version " + major + "." + minor);
+        }
+
+        return versionObj;
+
+
+    }
+
+    public static Version version(int major, int minor) {
 
         if (major == 1) {
-            return switch (minor) {
-                case 0 -> Version.V1_0;
-                case 1 -> Version.V1_1;
-                default -> throw new VersionException("Unsupported minor version " + minor);
-            };
-        } else {
-            throw new VersionException("Unsupported major version " + major);
+            if (minor == 0) {
+                return V1_0;
+            } else if (minor == 1) {
+                return V1_1;
+            }
+        } else if (major == 2) {
+            if (minor == 0) {
+                return V2_0;
+            }
         }
+
+        return null;
     }
 
     public int getMajor() {
@@ -95,7 +111,9 @@ public enum Version {
     }
 
     public static boolean isValid(int major, int minor) {
-        return major == 1 && (minor == 0 || minor == 1 || minor == 2);
+        boolean oneDotVersions = major == 1 && (minor == 0 || minor == 1);
+        boolean twoDotVersions = major == 2 && minor == 0;
+        return oneDotVersions || twoDotVersions;
     }
 
     public int compare(Version version) {

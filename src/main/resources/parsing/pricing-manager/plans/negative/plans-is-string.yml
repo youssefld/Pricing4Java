@@ -1,12 +1,11 @@
 saasName: string in plans
 currency: EUR
 hasAnnualPayment: false
-day: 31
-month: 8
-year: 2024
 features:
   foo:
     type: DOMAIN
     valueType: TEXT
     defaultValue: baz
 plans: Invalid string
+version: '1.1'
+createdAt: '2024-08-31'

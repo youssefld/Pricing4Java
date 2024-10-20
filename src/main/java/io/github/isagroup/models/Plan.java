@@ -17,8 +17,7 @@ import lombok.Setter;
 public class Plan {
     private String name;
     private String description;
-    private Object monthlyPrice;
-    private Object annualPrice;
+    private Object price;
     private String unit;
     private Map<String, Feature> features;
     private Map<String, UsageLimit> usageLimits;
@@ -27,8 +26,7 @@ public class Plan {
         Map<String, Object> planMap = new LinkedHashMap<>();
         planMap.put("name", name);
         planMap.put("description", description);
-        planMap.put("monthlyPrice", monthlyPrice);
-        planMap.put("annualPrice", annualPrice);
+        planMap.put("price", price);
         planMap.put("unit", unit);
         planMap.put("features", features);
         planMap.put("usageLimits", usageLimits);
@@ -38,8 +36,7 @@ public class Plan {
     public Map<String, Object> serializePlan() {
         Map<String, Object> attributes = new LinkedHashMap<>();
         attributes.put("description", description);
-        attributes.put("monthlyPrice", monthlyPrice);
-        attributes.put("annualPrice", annualPrice);
+        attributes.put("price", price);
         attributes.put("unit", unit);
 
         Map<String, Object> features = serializeFeatures().orElse(null);
@@ -111,7 +108,7 @@ public class Plan {
 
     @Override
     public String toString() {
-        return "Plan[name=" + name + ", monthlyPrice=" + monthlyPrice + ", annualPrice=" + annualPrice + ", unit="
+        return "Plan[name=" + name + ", price=" + price + ", unit="
                 + unit + ", features: " + features.get("superAdminRole") + "]";
     }
 }

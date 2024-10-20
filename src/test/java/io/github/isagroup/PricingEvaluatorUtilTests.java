@@ -1,16 +1,16 @@
 package io.github.isagroup;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import io.github.isagroup.models.PlanContextManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.github.isagroup.services.jwt.PricingJwtUtils;
+import org.springframework.expression.EvaluationException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PricingEvaluatorUtilTests {
 
@@ -20,7 +20,7 @@ public class PricingEvaluatorUtilTests {
     private static final String JWT_EXPRESSION_TEST = "userContext['pets']*4 < planContext['maxPets']";
 
     private static final String USER_PLAN = "ADVANCED";
-    private static final String YAML_CONFIG_PATH = "yaml-testing/petclinic.yml";
+    private static final String YAML_CONFIG_PATH = "pricing/petclinic.yml";
 
     private PricingContext pricingContext;
 
@@ -59,9 +59,9 @@ public class PricingEvaluatorUtilTests {
         assertTrue((Boolean) features.get("maxPets").get("eval"), "Features is not a string");
         assertFalse((Boolean) features.get("maxVisitsPerMonthAndPet").get("eval"), "Features is not a string");
         assertTrue((Boolean) features.get("haveCalendar").get("eval"),
-                "haveCalendar evaluation should be true");
+            "haveCalendar evaluation should be true");
         assertFalse((Boolean) features.get("haveOnlineConsultation").get("eval"),
-                "haveVetSelection evaluation should be false");
+            "haveVetSelection evaluation should be false");
 
     }
 
@@ -83,13 +83,13 @@ public class PricingEvaluatorUtilTests {
         String firstToken = pricingEvaluatorUtil.generateUserToken();
 
         String newToken = pricingEvaluatorUtil.addExpressionToToken(firstToken, "maxVisitsPerMonthAndPet",
-                JWT_EXPRESSION_TEST);
+            JWT_EXPRESSION_TEST);
 
         Map<String, Map<String, Object>> features = jwtUtils.getFeaturesFromJwtToken(newToken);
 
         assertTrue(jwtUtils.validateJwtToken(newToken), "Token is not valid");
         assertEquals(JWT_EXPRESSION_TEST, (String) features.get("maxVisitsPerMonthAndPet").get("eval"),
-                "The expression for the feature maxVisitsPerMonthAndPet has not being correctly set");
+            "The expression for the feature maxVisitsPerMonthAndPet has not being correctly set");
 
     }
 
@@ -102,14 +102,14 @@ public class PricingEvaluatorUtilTests {
 
         assertTrue(jwtUtils.validateJwtToken(token), "Token is not valid");
         assertEquals((Integer) pricingContext.getPlanContext().get("maxPets"),
-                (Integer) tokenicedPlanContext.get("maxPets"),
-                "PlanContext maxPets value is not the same after token codification");
+            (Integer) tokenicedPlanContext.get("maxPets"),
+            "PlanContext maxPets value is not the same after token codification");
         assertEquals((Boolean) pricingContext.getPlanContext().get("havePetsDashboard"),
-                (Boolean) tokenicedPlanContext.get("havePetsDashboard"),
-                "PlanContext havePetsDashboard value is not the same after token codification");
+            (Boolean) tokenicedPlanContext.get("havePetsDashboard"),
+            "PlanContext havePetsDashboard value is not the same after token codification");
         assertEquals((String) pricingContext.getPlanContext().get("supportPriority"),
-                (String) tokenicedPlanContext.get("supportPriority"),
-                "PlanContext havePetsDashboard value is not the same after token codification");
+            (String) tokenicedPlanContext.get("supportPriority"),
+            "PlanContext havePetsDashboard value is not the same after token codification");
 
     }
 
@@ -122,11 +122,11 @@ public class PricingEvaluatorUtilTests {
 
         assertTrue(jwtUtils.validateJwtToken(token), "Token is not valid");
         assertEquals((Integer) pricingContext.getUserContext().get("pets"),
-                (Integer) tokenicedUserContext.get("pets"),
-                "UserContext pets value is not the same after token codification");
+            (Integer) tokenicedUserContext.get("pets"),
+            "UserContext pets value is not the same after token codification");
         assertEquals((Boolean) pricingContext.getUserContext().get("havePetsDashboard"),
-                (Boolean) tokenicedUserContext.get("havePetsDashboard"),
-                "UserContext havePetsDashboard value is not the same after token codification");
+            (Boolean) tokenicedUserContext.get("havePetsDashboard"),
+            "UserContext havePetsDashboard value is not the same after token codification");
 
     }
 }

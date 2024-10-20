@@ -12,7 +12,7 @@ public class YamlUpdater {
 
     static {
         updaters.put(Version.V1_0, new V10ToV11Updater(null));
-        updaters.put(Version.V1_1, null);
+        updaters.put(Version.V1_1, new V11ToV20Updater(updaters.get(Version.V1_0)));
     }
 
     public static void update(Map<String, Object> configFile) throws UpdateException {
@@ -20,14 +20,11 @@ public class YamlUpdater {
 
         configFile.putIfAbsent("version", "1.0");
 
-        try {
-            Version version = Version.version(configFile.get("version"));
-            if (updaters.get(Version.version(configFile.get("version"))) == null) {
-                return;
-            }
-            updaters.get(version).update(configFile);
-        } catch (VersionException e) {
-            throw new UpdateException(e.getMessage(), configFile);
+        Version version = Version.version(configFile.get("version"));
+        if (updaters.get(version) == null) {
+            return;
         }
+
+        updaters.get(Version.V1_1).update(configFile);
     }
 }

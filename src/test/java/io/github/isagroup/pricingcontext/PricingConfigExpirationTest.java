@@ -27,11 +27,11 @@ public class PricingConfigExpirationTest {
         this.pricingJwtUtils = new PricingJwtUtils(pricingContext);
     }
 
-    private class ShortExpirationConfig extends PricingContext {
+    private static class ShortExpirationConfig extends PricingContext {
 
         @Override
         public String getConfigFilePath() {
-            return "yaml-testing/petclinic.yml";
+            return "pricing/petclinic.yml";
         }
 
         @Override

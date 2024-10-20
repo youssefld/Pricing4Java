@@ -1,12 +1,15 @@
 package io.github.isagroup.models;
 
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Date;
+
 import java.util.Map;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+import io.github.isagroup.services.updaters.Version;
 
 /**
  * Object to model pricing configuration
@@ -15,40 +18,19 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 public class PricingManager {
+
+    private Version version;
     private String saasName;
-    private int day;
-    private int month;
-    private int year;
+    private LocalDate createdAt;
+    private Date starts;
+    private Date ends;
     private String currency;
     private Boolean hasAnnualPayment;
     private Map<String, Feature> features;
     private Map<String, UsageLimit> usageLimits;
     private Map<String, Plan> plans;
     private Map<String, AddOn> addOns;
+    private Map<String, Object> variables;
 
-    public List<String> getPlanNames() {
-        return List.copyOf(this.plans.keySet());
-    }
-
-    public Map<String, Object> getPlanUsageLimits(String planName) {
-        Map<String, Object> usageLimitsContext = new LinkedHashMap<>();
-        Map<String, UsageLimit> planUsageLimits = this.plans.get(planName).getUsageLimits();
-
-        Map<String, UsageLimit> defaultUsageLimits = this.usageLimits;
-
-        for (String usageLimitName : defaultUsageLimits.keySet()) {
-            Object defaultUsageLimitValue = this.usageLimits.get(usageLimitName);
-            Object planUsageLimitValue = planUsageLimits.get(usageLimitName);
-            boolean planUsageLimitOverwritesDefaultUsageLimit = planUsageLimitValue != null;
-
-            Object currentValue = defaultUsageLimitValue;
-            if (planUsageLimitOverwritesDefaultUsageLimit) {
-                currentValue = planUsageLimitValue;
-            }
-            usageLimitsContext.put(usageLimitName, currentValue);
-        }
-
-        return usageLimitsContext;
-    }
 
 }

@@ -15,6 +15,9 @@ import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
 import io.github.isagroup.models.featuretypes.Payment;
 import io.github.isagroup.models.featuretypes.PaymentType;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 public class PlanParser {
 
@@ -28,35 +31,53 @@ public class PlanParser {
         if (planName == null) {
             throw new PricingParsingException("A plan name cannot be null");
         }
-        
+
         plan.setName(planName);
         plan.setDescription((String) map.get("description"));
-        
-        if (isValidPrice(map.get("monthlyPrice")) && isValidPrice("annualPrice")){
-            
-            if (map.get("monthlyPrice") == null && map.get("annualPrice") == null){
-                throw new PricingParsingException("You have to specify, at least, either a monthlyPrice or an annualPrice for the plan " + planName);
-            }
-            
-            plan.setMonthlyPrice(map.get("monthlyPrice"));
-            plan.setAnnualPrice(map.get("annualPrice"));
+
+        checkPriceType(map.get("price"), planName);
 
 
-        }else{
-            throw new PricingParsingException("Either the monthlyPrice or annualPrice of the plan " + planName
-                            + " is neither a valid number nor String");
+        if (map.get("price") instanceof String && map.get("price").toString().contains("#")) {
+            plan.setPrice(calculateFormula(map.get("price").toString(), pricingManager));
+        } else {
+            plan.setPrice(map.get("price"));
         }
-        
+
+
         plan.setUnit((String) map.get("unit"));
 
         setFeaturesToPlan(planName, map, pricingManager, plan);
         setUsageLimitsToPlan(planName, map, pricingManager, plan);
 
+
         return plan;
     }
 
-    private static void setFeaturesToPlan(String planName, Map<String, Object> map, PricingManager pricingManager,
-            Plan plan) {
+    private static void checkPriceType(Object price, String planName) {
+        if (price == null) {
+            throw new PricingParsingException("plan " + planName + ": \"price\" is mandatory");
+        }
+
+        if (!(price instanceof Long || price instanceof Integer ||
+            price instanceof Double || price instanceof String)) {
+            throw new PricingParsingException("\"price\" is expected to be a real number, a expression or a string");
+        }
+    }
+
+    private static Double calculateFormula(String price, PricingManager pricingManager) {
+        SpelExpressionParser parser = new SpelExpressionParser();
+        StandardEvaluationContext context = new StandardEvaluationContext();
+
+        if (pricingManager.getVariables() != null) {
+            context.setVariables(pricingManager.getVariables());
+        }
+
+        Expression priceExpression = parser.parseExpression(price);
+        return priceExpression.getValue(context, Double.class);
+    }
+
+    private static void setFeaturesToPlan(String planName, Map<String, Object> map, PricingManager pricingManager, Plan plan) {
         Map<String, Object> planFeaturesMap = (Map<String, Object>) map.get("features");
         Map<String, Feature> globalFeaturesMap = pricingManager.getFeatures();
         Map<String, Feature> planFeatures = new LinkedHashMap<>();
@@ -86,7 +107,7 @@ public class PlanParser {
 
             if (!plan.getFeatures().containsKey(planFeatureName)) {
                 throw new FeatureNotFoundException(
-                        "The feature " + planFeatureName + " is not defined in the global features");
+                    "The feature " + planFeatureName + " is not defined in the global features");
             } else {
                 Feature feature = plan.getFeatures().get(planFeatureName);
 
@@ -94,19 +115,19 @@ public class PlanParser {
                     case NUMERIC:
                         feature.setValue(planFeatureMap.get("value"));
                         if (!(feature.getValue() instanceof Integer || feature.getValue() instanceof Double
-                                || feature.getValue() instanceof Long)) {
+                            || feature.getValue() instanceof Long)) {
                             throw new InvalidDefaultValueException("The feature " + feature.getName()
-                                    + " does not have a valid value. Current valueType: "
-                                    + feature.getValueType().toString() + "; Current value in " + plan.getName() + ": "
-                                    + planFeatureMap.get("value").toString());
+                                + " does not have a valid value. Current valueType: "
+                                + feature.getValueType().toString() + "; Current value in " + plan.getName() + ": "
+                                + planFeatureMap.get("value").toString());
                         }
                         break;
                     case BOOLEAN:
                         if (!(planFeatureMap.get("value") instanceof Boolean)) {
                             throw new InvalidDefaultValueException("The feature " + feature.getName()
-                                    + " does not have a valid value. Current valueType: "
-                                    + feature.getValueType().toString() + "; Current value in " + plan.getName() + ": "
-                                    + planFeatureMap.get("value").toString());
+                                + " does not have a valid value. Current valueType: "
+                                + feature.getValueType().toString() + "; Current value in " + plan.getName() + ": "
+                                + planFeatureMap.get("value").toString());
                         }
                         feature.setValue((boolean) planFeatureMap.get("value"));
                         break;
@@ -117,9 +138,9 @@ public class PlanParser {
                         } else {
                             if (!(planFeatureMap.get("value") instanceof String)) {
                                 throw new InvalidDefaultValueException("The feature " + feature.getName()
-                                        + " does not have a valid value. Current valueType: "
-                                        + feature.getValueType().toString() + "; Current value in " + plan.getName()
-                                        + ": " + planFeatureMap.get("value").toString());
+                                    + " does not have a valid value. Current valueType: "
+                                    + feature.getValueType().toString() + "; Current value in " + plan.getName()
+                                    + ": " + planFeatureMap.get("value").toString());
                             }
                             feature.setValue((String) planFeatureMap.get("value"));
                         }
@@ -132,7 +153,7 @@ public class PlanParser {
     }
 
     private static void setUsageLimitsToPlan(String planName, Map<String, Object> map, PricingManager pricingManager,
-            Plan plan) {
+                                             Plan plan) {
         Map<String, Object> planUsageLimitsMap = (Map<String, Object>) map.get("usageLimits");
         Map<String, UsageLimit> globalUsageLimitsMap = pricingManager.getUsageLimits();
         Map<String, UsageLimit> planUsageLimits = new LinkedHashMap<>();
@@ -162,7 +183,7 @@ public class PlanParser {
 
             if (!plan.getUsageLimits().containsKey(planUsageLimitName)) {
                 throw new FeatureNotFoundException(
-                        "The usageLimit " + planUsageLimitName + " is not defined in the global usageLimits");
+                    "The usageLimit " + planUsageLimitName + " is not defined in the global usageLimits");
             } else {
                 UsageLimit usageLimit = plan.getUsageLimits().get(planUsageLimitName);
 
@@ -170,12 +191,12 @@ public class PlanParser {
                     case NUMERIC:
                         usageLimit.setValue(planUsageLimitMap.get("value"));
                         if (!(usageLimit.getValue() instanceof Integer || usageLimit.getValue() instanceof Double
-                                || usageLimit.getValue() instanceof Long || usageLimit.getValue() == null)) {
+                            || usageLimit.getValue() instanceof Long || usageLimit.getValue() == null)) {
                             throw new InvalidDefaultValueException(
-                                    "The usageLimit " + planUsageLimitName
-                                            + " does not have a valid value. Current valueType:"
-                                            + usageLimit.getValueType().toString() + "; Current defaultValue: "
-                                            + planUsageLimitMap.get("value").toString());
+                                "The usageLimit " + planUsageLimitName
+                                    + " does not have a valid value. Current valueType:"
+                                    + usageLimit.getValueType().toString() + "; Current defaultValue: "
+                                    + planUsageLimitMap.get("value").toString());
                         }
                         break;
                     case BOOLEAN:
@@ -188,8 +209,8 @@ public class PlanParser {
 
                 if (usageLimit.getValue() == null) {
                     throw new InvalidDefaultValueException(
-                            "The usageLimit " + planUsageLimitName + " does not have a valid value in the plan "
-                                    + planName + ". The actual value is null");
+                        "The usageLimit " + planUsageLimitName + " does not have a valid value in the plan "
+                            + planName + ". The actual value is null");
                 }
 
                 plan.getUsageLimits().put(planUsageLimitName, usageLimit);
@@ -202,7 +223,7 @@ public class PlanParser {
         Object paymentValue = map.get("value");
         if (paymentValue instanceof String) {
             throw new PricingParsingException(
-                    "\"" + featureName + "\"" + "should be a list of supported payment types");
+                "\"" + featureName + "\"" + "should be a list of supported payment types");
         }
 
         List<String> allowedPaymentTypes = (List<String>) paymentValue;
@@ -211,7 +232,7 @@ public class PlanParser {
                 PaymentType.valueOf(type);
             } catch (IllegalArgumentException e) {
                 throw new InvalidDefaultValueException("The feature " + featureName
-                        + " does not have a supported paymentType. PaymentType that generates the issue: " + type);
+                    + " does not have a supported paymentType. PaymentType that generates the issue: " + type);
             }
         }
 
@@ -219,7 +240,7 @@ public class PlanParser {
 
     }
 
-    private static boolean isValidPrice(Object price){
+    private static boolean isValidPrice(Object price) {
         return price instanceof Double || price instanceof Long || price instanceof Integer || price instanceof String || price == null;
     }
 

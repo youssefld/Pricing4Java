@@ -1,15 +1,22 @@
 package io.github.isagroup.services.parsing;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import io.github.isagroup.exceptions.PricingParsingException;
+import io.github.isagroup.exceptions.VersionException;
 import io.github.isagroup.models.AddOn;
 import io.github.isagroup.models.Feature;
 import io.github.isagroup.models.Plan;
 import io.github.isagroup.models.PricingManager;
 import io.github.isagroup.models.UsageLimit;
+import io.github.isagroup.services.updaters.Version;
 
 public class PricingManagerParser {
 
@@ -33,63 +40,143 @@ public class PricingManagerParser {
         return pricingManager;
     }
 
-    private static void setBasicAttributes(Map<String, Object> yamlConfigMap, PricingManager pricingManager)
-            throws PricingParsingException {
+    private static void setBasicAttributes(Map<String, Object> yamlConfigMap, PricingManager pricingManager) {
+
+        Version version = null;
+
+        try {
+            if (yamlConfigMap.get("version") == null) {
+                version = Version.V1_0;
+            } else if (yamlConfigMap.get("version") instanceof Double
+                || yamlConfigMap.get("version") instanceof String) {
+
+                version = Version.version(yamlConfigMap.get("version"));
+
+            } else {
+                throw new PricingParsingException(
+                    String.format("'version' detected type is %s but 'version' type must be Double or String",
+                        yamlConfigMap.get("version").getClass().getSimpleName()));
+            }
+        } catch (VersionException e) {
+            throw new PricingParsingException(e.getMessage());
+        }
+
+        pricingManager.setVersion(version);
 
         if (yamlConfigMap.get("saasName") == null) {
             throw new PricingParsingException("SaasName was not defined");
         }
 
-        if (yamlConfigMap.get("day") == null) {
-            throw new PricingParsingException("Day of plan was not defined");
+        if (!(yamlConfigMap.get("saasName") instanceof String)) {
+            throw new PricingParsingException("'saasName' has to be a string");
         }
 
-        if (yamlConfigMap.get("month") == null) {
-            throw new PricingParsingException("Monnth of plan was not defined");
-        }
-
-        if (yamlConfigMap.get("year") == null) {
-            throw new PricingParsingException("Year of plan was not defined");
-        }
+        pricingManager.setSaasName((String) yamlConfigMap.get("saasName"));
 
         if (yamlConfigMap.get("currency") == null) {
             throw new PricingParsingException("Currency was not defined");
         }
 
+        if (!(yamlConfigMap.get("currency") instanceof String)) {
+            throw new PricingParsingException("'currency' has to be a string");
+        }
+
+        pricingManager.setCurrency((String) yamlConfigMap.get("currency"));
+
         if (yamlConfigMap.get("hasAnnualPayment") != null) {
             pricingManager.setHasAnnualPayment((Boolean) yamlConfigMap.get("hasAnnualPayment"));
         }
 
-        pricingManager.setSaasName((String) yamlConfigMap.get("saasName"));
-        pricingManager.setDay((int) yamlConfigMap.get("day"));
-        pricingManager.setMonth((int) yamlConfigMap.get("month"));
-        pricingManager.setYear((int) yamlConfigMap.get("year"));
-        pricingManager.setCurrency((String) yamlConfigMap.get("currency"));
+        if (yamlConfigMap.get("createdAt") == null) {
+            throw new PricingParsingException("'createdAt' is mandatory. Check your config file.");
+        } else if (yamlConfigMap.get("createdAt") instanceof Date) {
+            Date createdAt = (Date) yamlConfigMap.get("createdAt");
+            pricingManager.setCreatedAt(createdAt.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+
+        } else if (yamlConfigMap.get("createdAt") instanceof String) {
+            try {
+                pricingManager.setCreatedAt(LocalDate.parse((String) yamlConfigMap.get("createdAt")));
+
+            } catch (DateTimeParseException err) {
+                throw new PricingParsingException(
+                    String.format(
+                        "\"createdAt\" \"%s\" is invalid, use the following yyyy-MM-dd",
+                        yamlConfigMap.get("createdAt")));
+            }
+
+        } else {
+            throw new PricingParsingException(
+                String.format(
+                    "\"createdAt\" detected type is %s and must be a String or Date formatted like yyyy-MM-dd",
+                    yamlConfigMap.get("createdAt").getClass().getSimpleName()));
+        }
+
+        if (yamlConfigMap.get("starts") != null && !(yamlConfigMap.get("starts") instanceof Date)) {
+            throw new PricingParsingException(String.format("\"starts\" type is %s and must be a Date",
+                yamlConfigMap.get("starts").getClass().getSimpleName()));
+        }
+
+        if (yamlConfigMap.get("ends") != null && !(yamlConfigMap.get("ends") instanceof Date)) {
+            throw new PricingParsingException(String.format("\"ends\" type is %s and must be a Date",
+                yamlConfigMap.get("ends").getClass().getSimpleName()));
+        }
+
+        pricingManager.setStarts((Date) yamlConfigMap.get("starts"));
+        pricingManager.setEnds((Date) yamlConfigMap.get("ends"));
+
+        checkVariables(yamlConfigMap);
+        pricingManager.setVariables((Map<String, Object>) yamlConfigMap.get("variables"));
+
+
+    }
+
+    private static void checkVariables(Map<String, Object> yamlConfigMap) {
+        Pattern pattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9]*$");
+        if (yamlConfigMap.get("variables") != null && !(yamlConfigMap.get("variables") instanceof Map)) {
+            throw new PricingParsingException("variables must be a map but found " + yamlConfigMap.get("variables").getClass().getSimpleName() + " instead");
+        }
+
+        if (yamlConfigMap.get("variables") != null && yamlConfigMap.get("variables") instanceof Map) {
+            for (Object key : ((Map<?, ?>) yamlConfigMap.get("variables")).keySet()) {
+                if (key == null) {
+                    throw new PricingParsingException("null is not a valid key for a variable");
+                }
+                if (!pattern.matcher(key.toString()).matches()) {
+                    throw new PricingParsingException(key + " is not a valid name for a variable. ");
+                }
+            }
+        }
+
+
     }
 
     private static void setFeatures(Map<String, Object> map, PricingManager pricingManager) {
+
+
+        if (map.get("features") == null) {
+            throw new PricingParsingException(
+                "'features' is mandatory. It should be a map of features with their correspoding attributes.");
+        }
+
+        if (!(map.get("features") instanceof Map)) {
+            throw new PricingParsingException(
+                "'features' must be a Map but found " + map.get("features").getClass().getSimpleName()
+                    + " instead");
+        }
+
         Map<String, Feature> pricingFeatures = new LinkedHashMap<>();
+        Map<String, Object> featuresMap = (Map<String, Object>) map.get("features");
 
-        Map<String, Object> featuresMap = new HashMap<>();
-        
-        try{
-            featuresMap = (Map<String, Object>) map.get("features");
-        }catch(ClassCastException e){
-            throw new PricingParsingException("The features are not defined correctly. It should be a map of features and their options");
-        }
-
-        if (featuresMap == null) {
-            throw new IllegalArgumentException("The pricing manager does not have any features");
-        }
 
         for (String featureName : featuresMap.keySet()) {
 
-            try{
+            try {
                 Map<String, Object> featureMap = (Map<String, Object>) featuresMap.get(featureName);
                 Feature feature = FeatureParser.parseMapToFeature(featureName, featureMap);
                 pricingFeatures.put(featureName, feature);
-            }catch (ClassCastException e){
-                throw new PricingParsingException("The feature " + featureName + " is not defined correctly. All its options must be specified, and it cannot be defined as a key-value pair");
+            } catch (ClassCastException e) {
+                throw new PricingParsingException("The feature " + featureName
+                    + " is not defined correctly. All its options must be specified, and it cannot be defined as a key-value pair");
             }
         }
 
@@ -115,14 +202,14 @@ public class PricingManagerParser {
     }
 
     private static void setPlans(Map<String, Object> map, PricingManager pricingManager) {
-        
 
         Map<String, Object> plansMap = new HashMap<>();
 
-        try{
+        try {
             plansMap = (Map<String, Object>) map.get("plans");
-        }catch(ClassCastException e){
-            throw new PricingParsingException("The plans are not defined correctly. It should be a map of plans and their options");
+        } catch (ClassCastException e) {
+            throw new PricingParsingException(
+                "The plans are not defined correctly. It should be a map of plans and their options");
         }
 
         Map<String, Plan> plans = new LinkedHashMap<>();
@@ -144,19 +231,18 @@ public class PricingManagerParser {
 
     private static void setAddOns(Map<String, Object> map, PricingManager pricingManager) {
         Map<String, Object> addOnsMap = (Map<String, Object>) map.get("addOns");
-        Map<String, AddOn> addOns = new LinkedHashMap<>();
 
         if (addOnsMap == null) {
             return;
         }
 
+        pricingManager.setAddOns(new LinkedHashMap<>());
+
         for (String addOnName : addOnsMap.keySet()) {
             Map<String, Object> addOnMap = (Map<String, Object>) addOnsMap.get(addOnName);
             AddOn addOn = AddOnParser.parseMapToAddOn(addOnName, addOnMap, pricingManager);
 
-            addOns.put(addOnName, addOn);
+            pricingManager.getAddOns().put(addOnName, addOn);
         }
-
-        pricingManager.setAddOns(addOns);
     }
 }

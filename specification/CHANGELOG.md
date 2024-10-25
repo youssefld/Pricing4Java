@@ -9,9 +9,6 @@
 ### :white_check_mark: New
 
 - new field `createdAt` to replace `day` `month` and `year`, see this [section](#deleted)
-- new field `starts` to indicate the beginning of operation of the pricing
-- new field `ends` to indicate the ending of operation of the pricing
-- new field createdAt that replaces old syntax of version 1.0 day,month,year
 - now addOns can depend on addOns putting the name of the addOn in the `avaliableFor` field
 
 ### :x: Deleted
@@ -36,7 +33,14 @@
 - new root field called `variables` to use in conjunction when computing expressions
   plans prices. Assume that your plan price is calculated according to the number of
   conections `c` you want and uses the following formula `2*c + 3 / (c+1)` to compute
-  the price. You can define in `variables` map parameter `c`
+  the price. You can define in `variables` map parameter `c`.
+- dependencies between addons using the attribute `dependsOn`
+
+### :x: Deleted
+
+- plan fields `monthlyPrice` and `annualPrice` removed, use `price` instead
+
+## Future Work (not yet implemented)
 
 - new field in plan called `private` to indicate denote that you should contact sales
   to hire their services
@@ -45,6 +49,4 @@
   present in the pricing. Assumming that discount ratios are applied to the monthly price
   of plans and addOns
 
-### :x: Deleted
-
-- plan fields `monthlyPrice` and `annualPrice` removed, use `price` instead
+- feature groups using tags

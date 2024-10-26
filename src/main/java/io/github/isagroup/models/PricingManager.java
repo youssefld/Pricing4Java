@@ -21,6 +21,7 @@ public class PricingManager {
     private int year;
     private String currency;
     private Boolean hasAnnualPayment;
+    private List<String> tags;
     private Map<String, Feature> features;
     private Map<String, UsageLimit> usageLimits;
     private Map<String, Plan> plans;
@@ -49,6 +50,21 @@ public class PricingManager {
         }
 
         return usageLimitsContext;
+    }
+
+    /**
+     * TODO: Check if this method should be here or where
+     * Validate that all the features have tags that are defined in the pricing
+     * configuration.
+     */ 
+    public void validateFeatureTags() {
+        for (Feature feature : this.features.values()) {
+            if (feature.getTag() != null) {
+                if (!this.tags.contains(feature.getTag())) {
+                    throw new IllegalArgumentException("Tag " + feature.getTag() + " not found in pricing configuration");
+                }
+            }
+        }
     }
 
 }

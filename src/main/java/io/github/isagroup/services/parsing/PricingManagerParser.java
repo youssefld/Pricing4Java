@@ -2,6 +2,7 @@ package io.github.isagroup.services.parsing;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.github.isagroup.exceptions.PricingParsingException;
@@ -25,6 +26,7 @@ public class PricingManagerParser {
         setUsageLimits(yamlConfigMap, pricingManager);
         setPlans(yamlConfigMap, pricingManager);
         setAddOns(yamlConfigMap, pricingManager);
+        setTags(yamlConfigMap, pricingManager);
 
         if (pricingManager.getPlans() == null && pricingManager.getAddOns() == null) {
             throw new PricingParsingException("The pricing manager does not have any plans or add ons");
@@ -158,5 +160,18 @@ public class PricingManagerParser {
         }
 
         pricingManager.setAddOns(addOns);
+    }
+
+    private static void setTags(Map<String, Object> map, PricingManager pricingManager) {
+        Object tagsObject = map.get("tags");
+        if (tagsObject != null) {
+            if (!(tagsObject instanceof List)) {
+                throw new PricingParsingException("The tags are not defined correctly. It should be a list of strings");
+            }
+            
+            @SuppressWarnings("unchecked")
+            List<String> tags = (List<String>) tagsObject;
+            pricingManager.setTags(tags);
+        }
     }
 }

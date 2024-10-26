@@ -208,6 +208,10 @@ public class FeatureParser {
             throw new PricingParsingException("The feature " + featureName
                     + " does not have either an evaluation expression or serverExpression.");
         }
+
+        if (map.containsKey("tag")) {
+            feature.setTag((String) map.get("tag"));
+        }
     }
 
     private static void parsePaymentValue(Feature feature, String featureName, Map<String, Object> map) {

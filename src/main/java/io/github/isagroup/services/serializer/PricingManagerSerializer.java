@@ -29,6 +29,10 @@ public class PricingManagerSerializer {
         serializedPricingManager.put("currency", pricingManager.getCurrency());
         serializedPricingManager.put("hasAnnualPayment", pricingManager.getHasAnnualPayment());
 
+        if (pricingManager.getTags() != null) {
+            serializedPricingManager.put("tags", pricingManager.getTags());
+        }
+
     }
 
     public Map<String, Object> serialize() throws SerializerException {

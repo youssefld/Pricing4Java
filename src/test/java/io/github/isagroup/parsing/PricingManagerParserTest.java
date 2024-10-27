@@ -217,7 +217,7 @@ public class PricingManagerParserTest {
             YamlUtils.retrieveManagerFromYaml(path);
             fail();
         } catch (PricingParsingException e) {
-            assertEquals("Tag foo not found in pricing configuration", e.getMessage());
+            assertEquals("\"tags\" type is String and must be a List", e.getMessage());
         }
     }
 

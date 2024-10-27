@@ -221,4 +221,16 @@ public class PricingManagerParserTest {
         }
     }
 
+    @Test
+    void givenFeatureWithTagShouldParse() {
+
+        String path = "parsing/pricing-manager/positive/feature-tag.yml";
+        try {
+            PricingManager pricingManager = YamlUtils.retrieveManagerFromYaml(path);
+            assertEquals(2, pricingManager.getFeatures().size());
+        } catch (PricingParsingException e) {
+            fail(e.getMessage());
+        }
+    }
+
 }

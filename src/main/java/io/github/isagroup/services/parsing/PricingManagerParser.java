@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.hibernate.mapping.List;
+
 import io.github.isagroup.exceptions.PricingParsingException;
 import io.github.isagroup.exceptions.VersionException;
 import io.github.isagroup.models.AddOn;
@@ -118,7 +120,16 @@ public class PricingManagerParser {
 
         if (yamlConfigMap.get("ends") != null && !(yamlConfigMap.get("ends") instanceof Date)) {
             throw new PricingParsingException(String.format("\"ends\" type is %s and must be a Date",
-                yamlConfigMap.get("ends").getClass().getSimpleName()));
+                    yamlConfigMap.get("ends").getClass().getSimpleName()));
+        }
+        
+        if (yamlConfigMap.get("tags") != null && !(yamlConfigMap.get("tags") instanceof List)) {
+            throw new PricingParsingException(String.format("\"tags\" type is %s and must be a List",
+                    yamlConfigMap.get("tags").getClass().getSimpleName()));
+        }
+
+        if (yamlConfigMap.get("tags") != null) {
+            pricingManager.setTags((List<String>) yamlConfigMap.get("tags"));
         }
 
         pricingManager.setStarts((Date) yamlConfigMap.get("starts"));

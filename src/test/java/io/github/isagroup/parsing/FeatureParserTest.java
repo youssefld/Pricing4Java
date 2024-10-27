@@ -94,10 +94,10 @@ public class FeatureParserTest {
         try {
             YamlUtils.retrieveManagerFromYaml(path);
             fail();
-        } catch (FilepathException e ) {
+        } catch (FilepathException e) {
             System.out.println(path);
             fail(e.getMessage());
-        }  catch (PricingParsingException e) {
+        } catch (PricingParsingException e) {
             assertEquals(expectedErrorMessage, e.getMessage());
         }
     }

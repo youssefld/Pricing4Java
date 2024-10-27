@@ -6,10 +6,9 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import org.hibernate.mapping.List;
 
 import io.github.isagroup.exceptions.PricingParsingException;
 import io.github.isagroup.exceptions.VersionException;
